@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Thomas Hansen</Authors>
+    <Description>IO plugin for magic.lambda</Description>
+    <Copyright>Thomas Hansen, thomas@gaiasoul.com</Copyright>
+    <PackageProjectUrl>https://github.com/polterguy/magic.lambda.io</PackageProjectUrl>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>C:\projects\personal\magic.lambda.io\magic.lambda.io\magic.lambda.io.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="utilities\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="magic.node" Version="1.0.0" />
+    <PackageReference Include="magic.node.extensions" Version="1.0.0" />
+    <PackageReference Include="magic.signals.contracts" Version="1.0.1" />
+  </ItemGroup>
+</Project>
