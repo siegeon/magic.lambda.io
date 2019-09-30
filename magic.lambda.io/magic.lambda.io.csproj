@@ -9,9 +9,10 @@
     <PackageProjectUrl>https://github.com/polterguy/magic.lambda.io</PackageProjectUrl>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>C:\projects\personal\magic.lambda.io\magic.lambda.io\magic.lambda.io.xml</DocumentationFile>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin/Release/netstandard2.0/magic.lambda.io.xml</DocumentationFile>
   </PropertyGroup>
+
   <ItemGroup>
     <Folder Include="utilities\" />
   </ItemGroup>
