@@ -44,9 +44,16 @@ namespace magic.lambda.io.files
 
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
             signaler.Signal("eval", input);
+            string sourcePath = PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>());
+            var destinationPath = PathResolver.CombinePaths(_rootResolver.RootFolder, input.Children.First().GetEx<string>());
+
+            // For simplicity, we're deleting any existing files with the path of the destination file.
+            if (File.Exists(destinationPath))
+                File.Delete(destinationPath);
+
             File.Move(
-                PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()),
-                PathResolver.CombinePaths(_rootResolver.RootFolder, input.Children.First().GetEx<string>()));
+                sourcePath,
+                destinationPath);
         }
     }
 }

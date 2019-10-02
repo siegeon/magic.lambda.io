@@ -40,13 +40,20 @@ namespace magic.lambda.io.files
         {
             // Sanity checking invocation.
             if (!input.Children.Any())
-                throw new ArgumentNullException("No destination provided to [io.files.move]");
+                throw new ArgumentNullException("No destination provided to [io.files.copy]");
 
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
             signaler.Signal("eval", input);
+            string sourcePath = PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>());
+            var destinationPath = PathResolver.CombinePaths(_rootResolver.RootFolder, input.Children.First().GetEx<string>());
+
+            // For simplicity, we're deleting any existing files with the path of the destination file.
+            if (File.Exists(destinationPath))
+                File.Delete(destinationPath);
+
             File.Copy(
-                PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()),
-                PathResolver.CombinePaths(_rootResolver.RootFolder, input.Children.First().GetEx<string>()));
+                sourcePath,
+                destinationPath);
         }
     }
 }
