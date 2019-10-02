@@ -9,9 +9,9 @@ using System.Linq;
 using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
-using magic.lambda.io.utilities;
+using magic.lambda.io.contracts;
 
-namespace magic.lambda.io
+namespace magic.lambda.io.files
 {
     /// <summary>
     /// [io.file.save] slot for saving a file on your server.
@@ -19,6 +19,17 @@ namespace magic.lambda.io
     [Slot(Name = "io.file.save")]
     public class SaveFile : ISlot
     {
+        readonly IRootResolver _rootResolver;
+
+        /// <summary>
+        /// Constructs a new instance of your type.
+        /// </summary>
+        /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
+        public SaveFile(IRootResolver rootResolver)
+        {
+            _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));
+        }
+
         /// <summary>
         /// Implementation of slot.
         /// </summary>
@@ -26,13 +37,9 @@ namespace magic.lambda.io
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            if (input.Children.Count() != 1)
-                throw new ApplicationException("[save-file] requires exactly one child node");
-
+            // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
             signaler.Signal("eval", input);
-
-            var filename = RootResolver.Root + input.GetEx<string>();
-            File.WriteAllText(filename, input.Children.First().GetEx<string>());
+            File.WriteAllText(_rootResolver.RootFolder + input.GetEx<string>(), input.Children.First().GetEx<string>());
         }
     }
 }

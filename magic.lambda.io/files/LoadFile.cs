@@ -3,14 +3,15 @@
  * Licensed as Affero GPL unless an explicitly proprietary license has been obtained.
  */
 
+using System;
 using System.IO;
 using System.Text;
 using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
-using magic.lambda.io.utilities;
+using magic.lambda.io.contracts;
 
-namespace magic.lambda.io
+namespace magic.lambda.io.files
 {
     /// <summary>
     /// [io.file.load] slot for loading a file on your server.
@@ -18,6 +19,17 @@ namespace magic.lambda.io
     [Slot(Name = "io.file.load")]
     public class LoadFile : ISlot
     {
+        readonly IRootResolver _rootResolver;
+
+        /// <summary>
+        /// Constructs a new instance of your type.
+        /// </summary>
+        /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
+        public LoadFile(IRootResolver rootResolver)
+        {
+            _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));
+        }
+
         /// <summary>
         /// Implementation of slot.
         /// </summary>
@@ -25,8 +37,7 @@ namespace magic.lambda.io
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            var filename = RootResolver.Root + input.GetEx<string>();
-            input.Value = File.ReadAllText(filename, Encoding.UTF8);
+            input.Value = File.ReadAllText(_rootResolver.RootFolder + input.GetEx<string>(), Encoding.UTF8);
         }
     }
 }

@@ -3,13 +3,14 @@
  * Licensed as Affero GPL unless an explicitly proprietary license has been obtained.
  */
 
+using System;
 using System.IO;
 using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
-using magic.lambda.io.utilities;
+using magic.lambda.io.contracts;
 
-namespace magic.lambda.io
+namespace magic.lambda.io.folders
 {
     /// <summary>
     /// [io.folder.create] slot for creating a new folder on server.
@@ -17,6 +18,17 @@ namespace magic.lambda.io
     [Slot(Name = "io.folder.create")]
     public class CreateFolder : ISlot
     {
+        readonly IRootResolver _rootResolver;
+
+        /// <summary>
+        /// Constructs a new instance of your type.
+        /// </summary>
+        /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
+        public CreateFolder(IRootResolver rootResolver)
+        {
+            _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));
+        }
+
         /// <summary>
         /// Implementation of slot.
         /// </summary>
@@ -24,12 +36,7 @@ namespace magic.lambda.io
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            var path = RootResolver.Root + input.GetEx<string>();
-            if (Directory.Exists(path))
-                input.Value = false;
-
-            Directory.CreateDirectory(path);
-            input.Value = true;
+            Directory.CreateDirectory(_rootResolver.RootFolder + input.GetEx<string>());
         }
     }
 }
