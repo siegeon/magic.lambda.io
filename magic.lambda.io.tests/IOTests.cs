@@ -35,6 +35,44 @@ io.files.load:/existing.txt
             Assert.Equal("foo", lambda.Children.Skip(1).First().Get<string>());
         }
 
+        [Fact]
+        public void SaveFileAndMove()
+        {
+            var lambda = Common.Evaluate(@"
+if
+   io.files.exists:/moved.txt
+   .lambda
+      io.files.delete:/moved.txt
+io.files.save:/existing.txt
+   .:foo
+io.files.move:/existing.txt
+   .:moved.txt
+io.files.exists:/moved.txt
+io.files.exists:/existing.txt
+");
+            Assert.True(lambda.Children.Skip(3).First().Get<bool>());
+            Assert.False(lambda.Children.Skip(4).First().Get<bool>());
+        }
+
+        [Fact]
+        public void SaveFileAndCopy()
+        {
+            var lambda = Common.Evaluate(@"
+if
+   io.files.exists:/moved-x.txt
+   .lambda
+      io.files.delete:/moved-x.txt
+io.files.save:/existing-x.txt
+   .:foo
+io.files.copy:/existing-x.txt
+   .:moved-x.txt
+io.files.exists:/moved-x.txt
+io.files.exists:/existing-x.txt
+");
+            Assert.True(lambda.Children.Skip(3).First().Get<bool>());
+            Assert.True(lambda.Children.Skip(4).First().Get<bool>());
+        }
+
         [Slot(Name = "foo")]
         public class EventSource : ISlot
         {
