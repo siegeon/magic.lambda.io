@@ -7,9 +7,11 @@ This project provides file/folder slots for [Magic](https://github.com/polterguy
 
 * __[io.folder.create]__ - Creates a folder on disc for you on your server.
 * __[io.folder.exists]__ - Returns true if folder exists, otherwise false.
+* __[io.folder.delete]__ - Deletes a folder on disc on your server.
 * __[io.file.load]__ - Loads a file from disc on your server.
 * __[io.file.save]__ - Saves a file on disc on your server.
 * __[io.file.exists]__ - Returns true if file exists, otherwise false.
+* __[io.file.delete]__ - Deletes a file on your server.
 
 ## License
 
