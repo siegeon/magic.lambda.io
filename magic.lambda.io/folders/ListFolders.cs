@@ -11,13 +11,13 @@ using magic.signals.contracts;
 using magic.lambda.io.contracts;
 using magic.lambda.io.utilities;
 
-namespace magic.lambda.io.folders
+namespace magic.lambda.io.files
 {
     /// <summary>
-    /// [io.folders.create] slot for creating a new folder on server.
+    /// [io.folders.list] slot for listing folders on server.
     /// </summary>
-    [Slot(Name = "io.folders.create")]
-    public class CreateFolder : ISlot
+    [Slot(Name = "io.folders.list")]
+    public class ListFolders : ISlot
     {
         readonly IRootResolver _rootResolver;
 
@@ -25,7 +25,7 @@ namespace magic.lambda.io.folders
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        public CreateFolder(IRootResolver rootResolver)
+        public ListFolders(IRootResolver rootResolver)
         {
             _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));
         }
@@ -37,7 +37,13 @@ namespace magic.lambda.io.folders
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            Directory.CreateDirectory(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()));
+            var root = PathResolver.Normalize(_rootResolver.RootFolder);
+            var folder = input.GetEx<string>();
+            input.Clear();
+            foreach (var idx in Directory.GetDirectories(PathResolver.CombinePaths(_rootResolver.RootFolder, folder)))
+            {
+                input.Add(new Node("", idx.Substring(root.Length).TrimEnd('/') + "/"));
+            }
         }
     }
 }

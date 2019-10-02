@@ -10,13 +10,14 @@ using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.io.contracts;
+using magic.lambda.io.utilities;
 
 namespace magic.lambda.io.files
 {
     /// <summary>
-    /// [io.file.save] slot for saving a file on your server.
+    /// [io.files.save] slot for saving a file on your server.
     /// </summary>
-    [Slot(Name = "io.file.save")]
+    [Slot(Name = "io.files.save")]
     public class SaveFile : ISlot
     {
         readonly IRootResolver _rootResolver;
@@ -39,7 +40,7 @@ namespace magic.lambda.io.files
         {
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
             signaler.Signal("eval", input);
-            File.WriteAllText(_rootResolver.RootFolder + input.GetEx<string>(), input.Children.First().GetEx<string>());
+            File.WriteAllText(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()), input.Children.First().GetEx<string>());
         }
     }
 }

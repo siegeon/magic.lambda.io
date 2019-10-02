@@ -9,13 +9,14 @@ using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.io.contracts;
+using magic.lambda.io.utilities;
 
 namespace magic.lambda.io.files
 {
     /// <summary>
-    /// [io.folder.delete] slot for deleting a folder on server.
+    /// [io.files.delete] slot for deleting a folder on server.
     /// </summary>
-    [Slot(Name = "io.file.delete")]
+    [Slot(Name = "io.files.delete")]
     public class DeleteFile : ISlot
     {
         readonly IRootResolver _rootResolver;
@@ -36,7 +37,7 @@ namespace magic.lambda.io.files
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            File.Delete(_rootResolver.RootFolder + input.GetEx<string>());
+            File.Delete(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()));
         }
     }
 }

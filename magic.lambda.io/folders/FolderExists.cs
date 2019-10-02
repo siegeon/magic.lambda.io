@@ -9,6 +9,7 @@ using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.io.contracts;
+using magic.lambda.io.utilities;
 
 namespace magic.lambda.io.folders
 {
@@ -36,7 +37,7 @@ namespace magic.lambda.io.folders
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            input.Value = Directory.Exists(_rootResolver.RootFolder + input.GetEx<string>());
+            input.Value = Directory.Exists(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()));
         }
     }
 }

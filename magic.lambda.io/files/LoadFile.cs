@@ -10,13 +10,14 @@ using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.io.contracts;
+using magic.lambda.io.utilities;
 
 namespace magic.lambda.io.files
 {
     /// <summary>
-    /// [io.file.load] slot for loading a file on your server.
+    /// [io.files.load] slot for loading a file on your server.
     /// </summary>
-    [Slot(Name = "io.file.load")]
+    [Slot(Name = "io.files.load")]
     public class LoadFile : ISlot
     {
         readonly IRootResolver _rootResolver;
@@ -37,7 +38,7 @@ namespace magic.lambda.io.files
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            input.Value = File.ReadAllText(_rootResolver.RootFolder + input.GetEx<string>(), Encoding.UTF8);
+            input.Value = File.ReadAllText(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()), Encoding.UTF8);
         }
     }
 }

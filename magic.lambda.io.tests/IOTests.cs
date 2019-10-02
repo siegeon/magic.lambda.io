@@ -17,9 +17,9 @@ namespace magic.lambda.io.tests
         public void SaveFile()
         {
             var lambda = Common.Evaluate(@"
-io.file.save:existing.txt
+io.files.save:existing.txt
    .:foo
-io.file.exists:/existing.txt
+io.files.exists:/existing.txt
 ");
             Assert.True(lambda.Children.Skip(1).First().Get<bool>());
         }
@@ -28,9 +28,9 @@ io.file.exists:/existing.txt
         public void SaveAndLoadFile()
         {
             var lambda = Common.Evaluate(@"
-io.file.save:existing.txt
+io.files.save:existing.txt
    .:foo
-io.file.load:/existing.txt
+io.files.load:/existing.txt
 ");
             Assert.Equal("foo", lambda.Children.Skip(1).First().Get<string>());
         }
@@ -48,9 +48,9 @@ io.file.load:/existing.txt
         public void SaveWithEventSourceAndLoadFile()
         {
             var lambda = Common.Evaluate(@"
-io.file.save:existing.txt
+io.files.save:existing.txt
    foo:error
-io.file.load:/existing.txt
+io.files.load:/existing.txt
 ");
             Assert.Equal("success", lambda.Children.Skip(1).First().Get<string>());
         }
@@ -59,11 +59,11 @@ io.file.load:/existing.txt
         public void SaveOverwriteAndLoadFile()
         {
             var lambda = Common.Evaluate(@"
-io.file.save:existing.txt
+io.files.save:existing.txt
    .:foo
-io.file.save:existing.txt
+io.files.save:existing.txt
    .:foo1
-io.file.load:/existing.txt
+io.files.load:/existing.txt
 ");
             Assert.Equal("foo1", lambda.Children.Skip(2).First().Get<string>());
         }
@@ -72,9 +72,39 @@ io.file.load:/existing.txt
         public void EnsureFileDoesntExist()
         {
             var lambda = Common.Evaluate(@"
-io.file.exists:/non-existing.txt
+io.files.exists:/non-existing.txt
 ");
             Assert.False(lambda.Children.First().Get<bool>());
+        }
+
+        [Fact]
+        public void ListFiles()
+        {
+            var lambda = Common.Evaluate(@"
+io.files.list:/
+");
+            Assert.True(lambda.Children.First().Children.Count() > 5);
+            Assert.True(lambda.Children.First().Children
+                .Where(x => x.Get<string>().StartsWith("/")).Count() == lambda.Children.First().Children.Count());
+        }
+
+        [Fact]
+        public void ListFolders()
+        {
+            var lambda = Common.Evaluate(@"
+io.folders.list:/
+");
+        }
+
+        [Fact]
+        public void CreateFolderListFolders()
+        {
+            var lambda = Common.Evaluate(@"
+io.folders.create:/foo
+io.folders.list:/
+");
+            Assert.Single(lambda.Children.Skip(1).First().Children);
+            Assert.Equal("/foo/", lambda.Children.Skip(1).First().Children.First().Get<string>());
         }
     }
 }

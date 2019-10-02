@@ -9,13 +9,14 @@ using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.io.contracts;
+using magic.lambda.io.utilities;
 
 namespace magic.lambda.io.files
 {
     /// <summary>
-    /// [io.file.exists] slot for checking if a file already exists from before or not.
+    /// [io.files.exists] slot for checking if a file already exists from before or not.
     /// </summary>
-    [Slot(Name = "io.file.exists")]
+    [Slot(Name = "io.files.exists")]
     public class FileExists : ISlot
     {
         readonly IRootResolver _rootResolver;
@@ -36,7 +37,7 @@ namespace magic.lambda.io.files
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            input.Value = File.Exists(_rootResolver.RootFolder + input.GetEx<string>());
+            input.Value = File.Exists(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()));
         }
     }
 }
