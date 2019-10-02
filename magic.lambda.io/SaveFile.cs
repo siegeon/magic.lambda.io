@@ -13,9 +13,17 @@ using magic.lambda.io.utilities;
 
 namespace magic.lambda.io
 {
-    [Slot(Name = "save-file")]
+    /// <summary>
+    /// [io.file.save] slot for saving a file on your server.
+    /// </summary>
+    [Slot(Name = "io.file.save")]
     public class SaveFile : ISlot
     {
+        /// <summary>
+        /// Implementation of slot.
+        /// </summary>
+        /// <param name="signaler">Signaler used to raise the signal.</param>
+        /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
             if (input.Children.Count() != 1)

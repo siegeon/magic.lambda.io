@@ -12,9 +12,17 @@ using magic.lambda.io.utilities;
 
 namespace magic.lambda.io
 {
-    [Slot(Name = "load-file")]
+    /// <summary>
+    /// [io.file.load] slot for loading a file on your server.
+    /// </summary>
+    [Slot(Name = "io.file.load")]
     public class LoadFile : ISlot
     {
+        /// <summary>
+        /// Implementation of slot.
+        /// </summary>
+        /// <param name="signaler">Signaler used to raise the signal.</param>
+        /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
             var filename = RootResolver.Root + input.GetEx<string>();

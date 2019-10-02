@@ -11,9 +11,17 @@ using magic.lambda.io.utilities;
 
 namespace magic.lambda.io
 {
-    [Slot(Name = "create-folder")]
+    /// <summary>
+    /// [io.folder.create] slot for creating a new folder on server.
+    /// </summary>
+    [Slot(Name = "io.folder.create")]
     public class CreateFolder : ISlot
     {
+        /// <summary>
+        /// Implementation of slot.
+        /// </summary>
+        /// <param name="signaler">Signaler used to raise the signal.</param>
+        /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
             var path = RootResolver.Root + input.GetEx<string>();
