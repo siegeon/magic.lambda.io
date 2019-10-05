@@ -5,13 +5,10 @@
 
 using System;
 using System.Linq;
-using System.Reflection;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using magic.node;
-using magic.http.services;
-using magic.http.contracts;
 using magic.signals.services;
 using magic.signals.contracts;
 using magic.lambda.io.contracts;
@@ -43,7 +40,6 @@ namespace magic.lambda.io.tests
             var services = new ServiceCollection();
             services.AddTransient<IConfiguration>((svc) => configuration);
             services.AddTransient<ISignaler, Signaler>();
-            services.AddTransient<IHttpClient, HttpClient>();
             services.AddTransient<IRootResolver, RootResolver>();
             var types = new SignalsProvider(InstantiateAllTypes<ISlot>(services));
             services.AddTransient<ISignalsProvider>((svc) => types);
