@@ -6,6 +6,7 @@
 using System;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
@@ -18,7 +19,7 @@ namespace magic.lambda.io.files
     /// [io.files.load] slot for loading a file on your server.
     /// </summary>
     [Slot(Name = "io.files.load")]
-    public class LoadFile : ISlot
+    public class LoadFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
 
@@ -39,6 +40,20 @@ namespace magic.lambda.io.files
         public void Signal(ISignaler signaler, Node input)
         {
             input.Value = File.ReadAllText(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()), Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Implementation of slot.
+        /// </summary>
+        /// <param name="signaler">Signaler used to raise the signal.</param>
+        /// <param name="input">Arguments to slot.</param>
+        /// <returns>An awaitable task.</returns>
+        public async Task SignalAsync(ISignaler signaler, Node input)
+        {
+            using (var file = File.OpenText(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>())))
+            {
+                input.Value = await file.ReadToEndAsync();
+            }
         }
     }
 }

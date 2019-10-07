@@ -4,6 +4,7 @@
  */
 
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using magic.node.extensions;
 using magic.signals.contracts;
@@ -31,6 +32,17 @@ io.files.exists:/existing.txt
 io.files.save:existing.txt
    .:foo
 io.files.load:/existing.txt
+");
+            Assert.Equal("foo", lambda.Children.Skip(1).First().Get<string>());
+        }
+
+        [Fact]
+        public async Task SaveAndLoadFileAsync()
+        {
+            var lambda = await Common.EvaluateAsync(@"
+wait.io.files.save:existing.txt
+   .:foo
+wait.io.files.load:/existing.txt
 ");
             Assert.Equal("foo", lambda.Children.Skip(1).First().Get<string>());
         }
@@ -65,6 +77,25 @@ if
 io.files.save:/existing-x.txt
    .:foo
 io.files.copy:/existing-x.txt
+   .:moved-x.txt
+io.files.exists:/moved-x.txt
+io.files.exists:/existing-x.txt
+");
+            Assert.True(lambda.Children.Skip(3).First().Get<bool>());
+            Assert.True(lambda.Children.Skip(4).First().Get<bool>());
+        }
+
+        [Fact]
+        public async Task SaveFileAndCopyAsync()
+        {
+            var lambda = await Common.EvaluateAsync(@"
+if
+   io.files.exists:/moved-x.txt
+   .lambda
+      io.files.delete:/moved-x.txt
+io.files.save:/existing-x.txt
+   .:foo
+wait.io.files.copy:/existing-x.txt
    .:moved-x.txt
 io.files.exists:/moved-x.txt
 io.files.exists:/existing-x.txt

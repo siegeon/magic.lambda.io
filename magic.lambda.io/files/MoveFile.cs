@@ -40,7 +40,7 @@ namespace magic.lambda.io.files
         {
             // Sanity checking invocation.
             if (!input.Children.Any())
-                throw new ArgumentNullException("No destination provided to [io.files.move]");
+                throw new ArgumentException("No destination provided to [io.files.move]");
 
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
             signaler.Signal("eval", input);

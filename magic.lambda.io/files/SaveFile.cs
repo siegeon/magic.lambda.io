@@ -6,6 +6,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
@@ -18,7 +19,7 @@ namespace magic.lambda.io.files
     /// [io.files.save] slot for saving a file on your server.
     /// </summary>
     [Slot(Name = "io.files.save")]
-    public class SaveFile : ISlot
+    public class SaveFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
 
@@ -41,6 +42,25 @@ namespace magic.lambda.io.files
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
             signaler.Signal("eval", input);
             File.WriteAllText(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()), input.Children.First().GetEx<string>());
+        }
+
+        /// <summary>
+        /// Implementation of slot.
+        /// </summary>
+        /// <param name="signaler">Signaler used to raise the signal.</param>
+        /// <param name="input">Arguments to slot.</param>
+        /// <returns>An awaitable task.</returns>
+        public async Task SignalAsync(ISignaler signaler, Node input)
+        {
+            // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
+            await signaler.SignalAsync("eval", input);
+            using (var file = File.OpenWrite(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>())))
+            {
+                using (var writer = new StreamWriter(file))
+                {
+                    await writer.WriteAsync(input.Children.First().GetEx<string>());
+                }
+            }
         }
     }
 }
