@@ -175,5 +175,35 @@ io.folders.list:/
             Assert.Single(lambda.Children.Skip(1).First().Children);
             Assert.Equal("/foo/", lambda.Children.Skip(1).First().Children.First().Get<string>());
         }
+
+        [Fact]
+        public void EvaluateFile()
+        {
+            var lambda = Common.Evaluate(@"
+io.files.eval:foo-1.hl
+");
+            Assert.Single(lambda.Children.First().Children);
+            Assert.Equal("hello world", lambda.Children.First().Children.First().Get<string>());
+        }
+
+        [Fact]
+        public void EvaluateFileWithArguments()
+        {
+            var lambda = Common.Evaluate(@"
+io.files.eval:foo-2.hl
+   input:jo world
+");
+            Assert.Single(lambda.Children.First().Children);
+            Assert.Equal("result", lambda.Children.First().Children.First().Name);
+            Assert.Equal("jo world", lambda.Children.First().Children.First().Get<string>());
+        }
+
+        [Fact]
+        public void EvaluateFileReturningValue()
+        {
+            var lambda = Common.Evaluate(@"io.files.eval:foo-3.hl");
+            Assert.Empty(lambda.Children.First().Children);
+            Assert.Equal("howdy world", lambda.Children.First().Get<string>());
+        }
     }
 }

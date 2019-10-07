@@ -7,6 +7,26 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="foo-1.hl" />
+    <None Remove="foo-2.hl" />
+    <None Remove="foo-3.hl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="foo-3.hl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="foo-2.hl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="foo-1.hl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="magic.lambda.hyperlambda" Version="1.1.5" />
+    <PackageReference Include="magic.lambda.slots" Version="1.1.6" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
