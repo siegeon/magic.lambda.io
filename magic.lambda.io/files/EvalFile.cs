@@ -42,7 +42,7 @@ namespace magic.lambda.io.files
             // Loading file and converting to lambda.
             var content = File.ReadAllText(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()), Encoding.UTF8);
             var lambda = new Node("", content);
-            signaler.Signal("lambda", lambda);
+            signaler.Signal("hyper2lambda", lambda);
 
             // Removing any [.arguments] declaration nodes in file, if there are any.
             foreach (var idx in lambda.Children.Where(x => x.Name == ".arguments").ToList())

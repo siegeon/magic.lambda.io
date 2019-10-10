@@ -19,6 +19,7 @@ namespace magic.lambda.io.files
     /// [io.files.save] slot for saving a file on your server.
     /// </summary>
     [Slot(Name = "io.files.save")]
+    [Slot(Name = "wait.io.files.save")]
     public class SaveFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;

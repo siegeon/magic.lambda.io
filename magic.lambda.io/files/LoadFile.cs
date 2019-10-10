@@ -19,6 +19,7 @@ namespace magic.lambda.io.files
     /// [io.files.load] slot for loading a file on your server.
     /// </summary>
     [Slot(Name = "io.files.load")]
+    [Slot(Name = "wait.io.files.load")]
     public class LoadFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;

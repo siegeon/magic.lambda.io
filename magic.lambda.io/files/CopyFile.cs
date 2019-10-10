@@ -19,6 +19,7 @@ namespace magic.lambda.io.files
     /// [io.files.copy] slot for moving a file on your server.
     /// </summary>
     [Slot(Name = "io.files.copy")]
+    [Slot(Name = "wait.io.files.copy")]
     public class CopyFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;

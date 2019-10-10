@@ -25,8 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="magic.lambda.hyperlambda" Version="1.1.5" />
-    <PackageReference Include="magic.lambda.slots" Version="1.1.6" />
+    <PackageReference Include="magic.lambda.hyperlambda" Version="1.1.8" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
@@ -35,7 +34,9 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="magic.lambda" Version="1.1.7" />
+    <PackageReference Include="magic.lambda" Version="1.2.1" />
+    <PackageReference Include="magic.signals" Version="1.1.8" />
+    <PackageReference Include="magic.lambda.slots" Version="1.1.7" />
   </ItemGroup>
 
   <ItemGroup>
