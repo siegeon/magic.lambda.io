@@ -55,12 +55,9 @@ namespace magic.lambda.io.files
         {
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
             await signaler.SignalAsync("eval", input);
-            using (var file = File.OpenWrite(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>())))
+            using (var writer = File.CreateText(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>())))
             {
-                using (var writer = new StreamWriter(file))
-                {
-                    await writer.WriteAsync(input.Children.First().GetEx<string>());
-                }
+                await writer.WriteAsync(input.Children.First().GetEx<string>());
             }
         }
     }
