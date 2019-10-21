@@ -37,7 +37,7 @@ namespace magic.lambda.io.folders
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            Directory.Delete(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()));
+            Directory.Delete(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()), true);
         }
     }
 }
