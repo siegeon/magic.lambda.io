@@ -25,16 +25,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="magic.lambda.hyperlambda" Version="2.0.1" />
+    <PackageReference Include="magic.lambda.hyperlambda" Version="3.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="magic.lambda" Version="2.0.1" />
-    <PackageReference Include="magic.signals" Version="2.0.1" />
-    <PackageReference Include="magic.lambda.slots" Version="2.0.1" />
+    <PackageReference Include="magic.lambda" Version="3.0.0" />
+    <PackageReference Include="magic.signals" Version="3.0.0" />
+    <PackageReference Include="magic.lambda.slots" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
   </ItemGroup>
