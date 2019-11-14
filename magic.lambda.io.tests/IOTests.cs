@@ -172,8 +172,8 @@ io.folders.list:/
 io.folders.create:/foo
 io.folders.list:/
 ");
-            Assert.Single(lambda.Children.Skip(1).First().Children);
-            Assert.Equal("/foo/", lambda.Children.Skip(1).First().Children.First().Get<string>());
+            Assert.Single(lambda.Children.Skip(1).First().Children.Where(x => x.Get<string>().Contains("foo")));
+            Assert.Equal("/foo/", lambda.Children.Skip(1).First().Children.Where(x => x.Get<string>().Contains("foo")).First().Get<string>());
         }
 
         [Fact]
