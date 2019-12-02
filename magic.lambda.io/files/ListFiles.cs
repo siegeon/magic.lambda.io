@@ -42,7 +42,9 @@ namespace magic.lambda.io.files
             input.Clear();
             foreach (var idx in Directory.GetFiles(PathResolver.CombinePaths(_rootResolver.RootFolder, folder)))
             {
-                input.Add(new Node("", idx.Substring(root.Length)));
+                // Making sure we don't show hidden operating files by default.
+                if (!idx.StartsWith("."))
+                    input.Add(new Node("", idx.Substring(root.Length)));
             }
         }
     }
