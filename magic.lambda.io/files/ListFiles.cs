@@ -38,13 +38,13 @@ namespace magic.lambda.io.files
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
+            var displayHiddenFiles = input.Children.FirstOrDefault(x => x.Name == "display-hidden")?.GetEx<bool>() ?? false;
             var root = PathResolver.Normalize(_rootResolver.RootFolder);
             var folder = input.GetEx<string>();
-            var displayHiddenFiles = input.Children.FirstOrDefault(x => x.Name == "display-hidden")?.GetEx<bool>() ?? false;
             input.Clear();
             foreach (var idx in Directory.GetFiles(PathResolver.CombinePaths(_rootResolver.RootFolder, folder)))
             {
-                // Making sure we don't show hidden operating files by default.
+                // Making sure we don't show hidden operating system files by default.
                 if (!displayHiddenFiles && !idx.StartsWith("."))
                     input.Add(new Node("", idx.Substring(root.Length)));
             }

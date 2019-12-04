@@ -5,6 +5,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
@@ -37,12 +38,15 @@ namespace magic.lambda.io.files
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
+            var displayHiddenFolders = input.Children.FirstOrDefault(x => x.Name == "display-hidden")?.GetEx<bool>() ?? false;
             var root = PathResolver.Normalize(_rootResolver.RootFolder);
             var folder = input.GetEx<string>();
             input.Clear();
             foreach (var idx in Directory.GetDirectories(PathResolver.CombinePaths(_rootResolver.RootFolder, folder)))
             {
-                input.Add(new Node("", idx.Substring(root.Length).TrimEnd('/') + "/"));
+                // Making sure we don't show hidden operating system folders by default.
+                if (!displayHiddenFolders && !idx.StartsWith("."))
+                    input.Add(new Node("", idx.Substring(root.Length).TrimEnd('/') + "/"));
             }
         }
     }
