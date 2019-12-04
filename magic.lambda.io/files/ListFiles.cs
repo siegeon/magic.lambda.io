@@ -5,6 +5,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
@@ -39,11 +40,12 @@ namespace magic.lambda.io.files
         {
             var root = PathResolver.Normalize(_rootResolver.RootFolder);
             var folder = input.GetEx<string>();
+            var displayHiddenFiles = input.Children.FirstOrDefault(x => x.Name == "display-hidden")?.GetEx<bool>() ?? false;
             input.Clear();
             foreach (var idx in Directory.GetFiles(PathResolver.CombinePaths(_rootResolver.RootFolder, folder)))
             {
                 // Making sure we don't show hidden operating files by default.
-                if (!idx.StartsWith("."))
+                if (!displayHiddenFiles && !idx.StartsWith("."))
                     input.Add(new Node("", idx.Substring(root.Length)));
             }
         }
