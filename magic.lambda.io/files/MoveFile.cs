@@ -46,6 +46,8 @@ namespace magic.lambda.io.files
             signaler.Signal("eval", input);
             string sourcePath = PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>());
             var destinationPath = PathResolver.CombinePaths(_rootResolver.RootFolder, input.Children.First().GetEx<string>());
+            if (destinationPath.EndsWith("/", StringComparison.InvariantCultureIgnoreCase))
+                destinationPath += Path.GetFileName(sourcePath);
 
             // For simplicity, we're deleting any existing files with the path of the destination file.
             if (File.Exists(destinationPath))
