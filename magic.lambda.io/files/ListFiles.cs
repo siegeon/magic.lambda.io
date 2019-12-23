@@ -45,7 +45,7 @@ namespace magic.lambda.io.files
             foreach (var idx in Directory.GetFiles(PathResolver.CombinePaths(_rootResolver.RootFolder, folder)))
             {
                 // Making sure we don't show hidden operating system files by default.
-                if (!displayHiddenFiles && !idx.StartsWith("."))
+                if (displayHiddenFiles || !Path.GetFileName(idx).StartsWith("."))
                     input.Add(new Node("", idx.Substring(root.Length)));
             }
         }
