@@ -3,21 +3,19 @@
  * See the enclosed LICENSE file for details.
  */
 
-using System;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
-using ICSharpCode.SharpZipLib.Zip;
 using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
-using magic.lambda.io.contracts;
 
 namespace magic.lambda.io.files
 {
     /// <summary>
-    /// [io.files.zip] slot for zipping a bunch of files into a specified stream.
+    /// [io.content.zip-stream] slot for zipping a bunch of files into a specified stream.
     /// </summary>
-    [Slot(Name = "io.content.zip")]
+    [Slot(Name = "io.content.zip-stream")]
     public class ZipContent : ISlot
     {
         /// <summary>
@@ -27,24 +25,37 @@ namespace magic.lambda.io.files
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            /*
-             * TODO: Figure out some intelligent way to handle exceptions, since this might in theory leak a stream,
-             * although it's just a MemoryStream, and NOT an actual OS resource, it's still not nice.
-             */
-            var result = new MemoryStream();
-            var outStream = new ZipOutputStream(result);
-            var sw = new StreamWriter(outStream);
-            foreach (var idx in input.Children)
-            {
-                outStream.PutNextEntry(new ZipEntry(idx.GetEx<string>()));
-                sw.Write(idx.Children.FirstOrDefault()?.GetEx<string>() ?? "");
-            }
-            sw.Flush();
+            // Resulting stream, returned to caller as Value.
+            var mem = new MemoryStream();
 
-            // Removing children nodes, just to be on the sure side!
+            /*
+             * Creating our ZIP archive, making sure memory stream is not disposed
+             * when we finish with it.
+             */
+            using (var archive = new ZipArchive(mem, ZipArchiveMode.Create, true))
+            {
+                // Creating one ZIP entry for each argument supplied as child of input.
+                foreach (var idx in input.Children)
+                {
+                    var idxEntry = archive.CreateEntry(idx.GetEx<string>());
+                    using (var entryStream = idxEntry.Open())
+                    {
+                        using (var writer = new StreamWriter(entryStream))
+                        {
+                            /*
+                             * Writing the first child's value of currently iterated
+                             * input child as content to archive.
+                             */
+                            writer.Write(idx.Children.FirstOrDefault()?.GetEx<string>() ?? "");
+                        }
+                    }
+                }
+            }
+
+            // Cleaning up, and returning MemoryStream to caller.
             input.Clear();
-            result.Position = 0;
-            input.Value = result;
+            mem.Seek(0, SeekOrigin.Begin);
+            input.Value = mem;
         }
     }
 }
