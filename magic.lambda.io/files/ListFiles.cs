@@ -42,10 +42,12 @@ namespace magic.lambda.io.files
             var root = PathResolver.Normalize(_rootResolver.RootFolder);
             var folder = input.GetEx<string>();
             input.Clear();
-            foreach (var idx in Directory.GetFiles(PathResolver.CombinePaths(_rootResolver.RootFolder, folder)))
+            var files = Directory.GetFiles(PathResolver.CombinePaths(_rootResolver.RootFolder, folder)).ToList();
+            files.Sort();
+            foreach (var idx in files)
             {
                 // Making sure we don't show hidden operating system files by default.
-                if (displayHiddenFiles || !Path.GetFileName(idx).StartsWith("."))
+                if (displayHiddenFiles || !Path.GetFileName(idx).StartsWith(".", StringComparison.InvariantCulture))
                     input.Add(new Node("", idx.Substring(root.Length)));
             }
         }

@@ -42,7 +42,9 @@ namespace magic.lambda.io.files
             var root = PathResolver.Normalize(_rootResolver.RootFolder);
             var folder = input.GetEx<string>();
             input.Clear();
-            foreach (var idx in Directory.GetDirectories(PathResolver.CombinePaths(_rootResolver.RootFolder, folder)))
+            var folders = Directory.GetDirectories(PathResolver.CombinePaths(_rootResolver.RootFolder, folder)).ToList();
+            folders.Sort();
+            foreach (var idx in folders)
             {
                 // Making sure we don't show hidden operating system folders by default.
                 if (!displayHiddenFolders && !idx.StartsWith("."))
