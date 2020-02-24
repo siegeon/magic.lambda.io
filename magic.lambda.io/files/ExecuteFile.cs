@@ -22,6 +22,8 @@ namespace magic.lambda.io.files
     /// </summary>
     [Slot(Name = "io.files.execute")]
     [Slot(Name = "wait.io.files.execute")]
+    [Slot(Name = "io.files.eval")]
+    [Slot(Name = "wait.io.files.eval")]
     public class ExecuteFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;

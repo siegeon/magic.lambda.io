@@ -53,9 +53,7 @@ namespace magic.lambda.io.files
             if (File.Exists(destinationPath))
                 File.Delete(destinationPath);
 
-            File.Move(
-                sourcePath,
-                destinationPath);
+            File.Move(sourcePath, destinationPath);
         }
     }
 }
