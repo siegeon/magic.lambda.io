@@ -54,7 +54,7 @@ namespace magic.lambda.io.files
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
-            await signaler.SignalAsync("eval", input);
+            await signaler.SignalAsync("wait.eval", input);
             using (var writer = File.CreateText(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>())))
             {
                 await writer.WriteAsync(input.Children.First().GetEx<string>());

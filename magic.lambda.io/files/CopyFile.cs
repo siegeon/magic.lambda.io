@@ -73,7 +73,7 @@ namespace magic.lambda.io.files
                 throw new ArgumentException("No destination provided to [io.files.copy]");
 
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
-            await signaler.SignalAsync("eval", input);
+            await signaler.SignalAsync("wait.eval", input);
             string sourcePath = PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>());
             var destinationPath = PathResolver.CombinePaths(_rootResolver.RootFolder, input.Children.First().GetEx<string>());
 
