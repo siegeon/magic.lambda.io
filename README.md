@@ -12,6 +12,13 @@ This project provides file/folder slots for [Magic](https://github.com/polterguy
 * __[io.file.save]__ - Saves a file on disc on your server.
 * __[io.file.exists]__ - Returns true if file exists, otherwise false.
 * __[io.file.delete]__ - Deletes a file on your server.
+* __[io.files.copy]__ - Copies a file on your server.
+* __[io.files.execute]__ - Executes a Hyperlambda file on your server.
+* __[io.files.list]__ - List files in the specified folder on your server.
+* __[io.files.move]__ - Moves a file on your server.
+* __[io.content.zip-stream]__ - Creates a ZipStream for you, without touching the file system.
+* __[io.folder.list]__ - List all folder in the specified folder on your server.
+* __[.io.folder.root]__ - Returns the root folder of your system. (private C# slot)
 
 ## License
 

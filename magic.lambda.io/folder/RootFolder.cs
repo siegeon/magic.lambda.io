@@ -11,9 +11,9 @@ using magic.lambda.io.contracts;
 namespace magic.lambda.io.folder
 {
     /// <summary>
-    /// [io.folder.root] slot for returning root path of system.
+    /// [.io.folder.root] slot for returning root path of system.
     /// </summary>
-    [Slot(Name = "io.folder.root")]
+    [Slot(Name = ".io.folder.root")]
     public class RootFolder : ISlot
     {
         readonly IRootResolver _rootResolver;
