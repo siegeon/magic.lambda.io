@@ -4,20 +4,17 @@
  */
 
 using System;
-using System.IO;
 using magic.node;
-using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.io.contracts;
-using magic.lambda.io.utilities;
 
-namespace magic.lambda.io.folders
+namespace magic.lambda.io.folder
 {
     /// <summary>
-    /// [io.folder.exists] slot for figuring out if a folder exists from before or not.
+    /// [io.folder.root] slot for returning root path of system.
     /// </summary>
-    [Slot(Name = "io.folder.exists")]
-    public class FolderExists : ISlot
+    [Slot(Name = "io.folder.root")]
+    public class RootFolder : ISlot
     {
         readonly IRootResolver _rootResolver;
 
@@ -25,7 +22,7 @@ namespace magic.lambda.io.folders
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        public FolderExists(IRootResolver rootResolver)
+        public RootFolder(IRootResolver rootResolver)
         {
             _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));
         }
@@ -37,7 +34,7 @@ namespace magic.lambda.io.folders
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            input.Value = Directory.Exists(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()));
+            input.Value = _rootResolver.RootFolder;
         }
     }
 }

@@ -161,7 +161,7 @@ io.files.list:/
         public void ListFolders()
         {
             var lambda = Common.Evaluate(@"
-io.folders.list:/
+io.folder.list:/
 ");
         }
 
@@ -169,8 +169,8 @@ io.folders.list:/
         public void CreateFolderListFolders()
         {
             var lambda = Common.Evaluate(@"
-io.folders.create:/foo
-io.folders.list:/
+io.folder.create:/foo
+io.folder.list:/
 ");
             Assert.Single(lambda.Children.Skip(1).First().Children.Where(x => x.Get<string>().Contains("foo")));
             Assert.Equal("/foo/", lambda.Children.Skip(1).First().Children.Where(x => x.Get<string>().Contains("foo")).First().Get<string>());

@@ -5,19 +5,20 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.io.contracts;
 using magic.lambda.io.utilities;
 
-namespace magic.lambda.io.folders
+namespace magic.lambda.io.folder
 {
     /// <summary>
-    /// [io.folders.root] slot for returning root path of system.
+    /// [io.folder.list] slot for listing folders on server.
     /// </summary>
-    [Slot(Name = "io.folders.root")]
-    public class RootFolder : ISlot
+    [Slot(Name = "io.folder.list")]
+    public class ListFolders : ISlot
     {
         readonly IRootResolver _rootResolver;
 
@@ -25,7 +26,7 @@ namespace magic.lambda.io.folders
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        public RootFolder(IRootResolver rootResolver)
+        public ListFolders(IRootResolver rootResolver)
         {
             _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));
         }
@@ -37,7 +38,18 @@ namespace magic.lambda.io.folders
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            input.Value = _rootResolver.RootFolder;
+            var displayHiddenFolders = input.Children.FirstOrDefault(x => x.Name == "display-hidden")?.GetEx<bool>() ?? false;
+            var root = PathResolver.Normalize(_rootResolver.RootFolder);
+            var folder = input.GetEx<string>();
+            input.Clear();
+            var folders = Directory.GetDirectories(PathResolver.CombinePaths(_rootResolver.RootFolder, folder)).ToList();
+            folders.Sort();
+            foreach (var idx in folders)
+            {
+                // Making sure we don't show hidden operating system folders by default.
+                if (!displayHiddenFolders && !idx.StartsWith("."))
+                    input.Add(new Node("", idx.Substring(root.Length).TrimEnd('/') + "/"));
+            }
         }
     }
 }

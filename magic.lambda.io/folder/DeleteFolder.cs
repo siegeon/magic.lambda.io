@@ -11,12 +11,12 @@ using magic.signals.contracts;
 using magic.lambda.io.contracts;
 using magic.lambda.io.utilities;
 
-namespace magic.lambda.io.folders
+namespace magic.lambda.io.folder
 {
     /// <summary>
-    /// [io.folders.delete] slot for deleting a folder on server.
+    /// [io.folder.delete] slot for deleting a folder on server.
     /// </summary>
-    [Slot(Name = "io.folders.delete")]
+    [Slot(Name = "io.folder.delete")]
     public class DeleteFolder : ISlot
     {
         readonly IRootResolver _rootResolver;

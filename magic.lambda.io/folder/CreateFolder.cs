@@ -11,12 +11,12 @@ using magic.signals.contracts;
 using magic.lambda.io.contracts;
 using magic.lambda.io.utilities;
 
-namespace magic.lambda.io.folders
+namespace magic.lambda.io.folder
 {
     /// <summary>
-    /// [io.folders.create] slot for creating a new folder on server.
+    /// [io.folder.create] slot for creating a new folder on server.
     /// </summary>
-    [Slot(Name = "io.folders.create")]
+    [Slot(Name = "io.folder.create")]
     public class CreateFolder : ISlot
     {
         readonly IRootResolver _rootResolver;

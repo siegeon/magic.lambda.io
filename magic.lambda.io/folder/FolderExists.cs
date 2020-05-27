@@ -5,20 +5,19 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.io.contracts;
 using magic.lambda.io.utilities;
 
-namespace magic.lambda.io.files
+namespace magic.lambda.io.folder
 {
     /// <summary>
-    /// [io.folders.list] slot for listing folders on server.
+    /// [io.folder.exists] slot for figuring out if a folder exists from before or not.
     /// </summary>
-    [Slot(Name = "io.folders.list")]
-    public class ListFolders : ISlot
+    [Slot(Name = "io.folder.exists")]
+    public class FolderExists : ISlot
     {
         readonly IRootResolver _rootResolver;
 
@@ -26,7 +25,7 @@ namespace magic.lambda.io.files
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        public ListFolders(IRootResolver rootResolver)
+        public FolderExists(IRootResolver rootResolver)
         {
             _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));
         }
@@ -38,18 +37,7 @@ namespace magic.lambda.io.files
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            var displayHiddenFolders = input.Children.FirstOrDefault(x => x.Name == "display-hidden")?.GetEx<bool>() ?? false;
-            var root = PathResolver.Normalize(_rootResolver.RootFolder);
-            var folder = input.GetEx<string>();
-            input.Clear();
-            var folders = Directory.GetDirectories(PathResolver.CombinePaths(_rootResolver.RootFolder, folder)).ToList();
-            folders.Sort();
-            foreach (var idx in folders)
-            {
-                // Making sure we don't show hidden operating system folders by default.
-                if (!displayHiddenFolders && !idx.StartsWith("."))
-                    input.Add(new Node("", idx.Substring(root.Length).TrimEnd('/') + "/"));
-            }
+            input.Value = Directory.Exists(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()));
         }
     }
 }
