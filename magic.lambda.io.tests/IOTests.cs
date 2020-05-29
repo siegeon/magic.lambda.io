@@ -7,9 +7,9 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
-using magic.node;
 
 namespace magic.lambda.io.tests
 {
@@ -128,58 +128,233 @@ wait.io.file.load:/existing.txt
         [Fact]
         public void SaveFileAndMove()
         {
+            var existsInvoked = 0;
+            var saveInvoked = false;
+            var moveInvoked = false;
+            var fileService = new FileService
+            {
+                SaveAction = (path, content) =>
+                {
+                    Assert.Equal("foo", content);
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", path);
+                    saveInvoked = true;
+                },
+                ExistsAction = (path) =>
+                {
+                    existsInvoked += 1;
+                    if (existsInvoked == 1)
+                    {
+                        Assert.Equal(
+                            AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                            + "/" +
+                            "moved.txt", path);
+                        return false;
+                    }
+                    else if (existsInvoked == 2)
+                    {
+                        Assert.Equal(
+                            AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                            + "/" +
+                            "moved.txt", path);
+                        return true;
+                    }
+                    else if (existsInvoked == 3)
+                    {
+                        Assert.Equal(
+                            AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                            + "/" +
+                            "existing.txt", path);
+                        return false;
+                    }
+                    else
+                    {
+                        throw new Exception("Failure in unit test");
+                    }
+                },
+                MoveAction = (src, dest) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", src);
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "moved.txt", dest);
+                    moveInvoked = true;
+                }
+            };
             var lambda = Common.Evaluate(@"
-if
-   io.files.exists:/moved.txt
-   .lambda
-      io.files.delete:/moved.txt
 io.files.save:/existing.txt
    .:foo
 io.files.move:/existing.txt
    .:moved.txt
 io.files.exists:/moved.txt
 io.files.exists:/existing.txt
-");
-            Assert.True(lambda.Children.Skip(3).First().Get<bool>());
-            Assert.False(lambda.Children.Skip(4).First().Get<bool>());
+", fileService);
+            Assert.True(saveInvoked);
+            Assert.True(moveInvoked);
+            Assert.Equal(3, existsInvoked);
+            Assert.True(lambda.Children.Skip(2).First().Get<bool>());
+            Assert.False(lambda.Children.Skip(3).First().Get<bool>());
         }
 
         [Fact]
         public void SaveFileAndCopy()
         {
+            var existsInvoked = 0;
+            var saveInvoked = false;
+            var copyInvoked = false;
+            var fileService = new FileService
+            {
+                SaveAction = (path, content) =>
+                {
+                    Assert.Equal("foo", content);
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", path);
+                    saveInvoked = true;
+                },
+                ExistsAction = (path) =>
+                {
+                    existsInvoked += 1;
+                    if (existsInvoked == 1)
+                    {
+                        Assert.Equal(
+                            AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                            + "/" +
+                            "moved.txt", path);
+                        return false;
+                    }
+                    else if (existsInvoked == 2)
+                    {
+                        Assert.Equal(
+                            AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                            + "/" +
+                            "moved.txt", path);
+                        return true;
+                    }
+                    else if (existsInvoked == 3)
+                    {
+                        Assert.Equal(
+                            AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                            + "/" +
+                            "existing.txt", path);
+                        return false;
+                    }
+                    else
+                    {
+                        throw new Exception("Failure in unit test");
+                    }
+                },
+                CopyAction = (src, dest) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", src);
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "moved.txt", dest);
+                    copyInvoked = true;
+                }
+            };
             var lambda = Common.Evaluate(@"
-if
-   io.files.exists:/moved-x.txt
-   .lambda
-      io.files.delete:/moved-x.txt
-io.files.save:/existing-x.txt
+io.files.save:/existing.txt
    .:foo
-io.files.copy:/existing-x.txt
-   .:moved-x.txt
-io.files.exists:/moved-x.txt
-io.files.exists:/existing-x.txt
-");
-            Assert.True(lambda.Children.Skip(3).First().Get<bool>());
-            Assert.True(lambda.Children.Skip(4).First().Get<bool>());
+io.files.copy:/existing.txt
+   .:moved.txt
+io.files.exists:/moved.txt
+io.files.exists:/existing.txt
+", fileService);
+            Assert.True(saveInvoked);
+            Assert.True(copyInvoked);
+            Assert.Equal(3, existsInvoked);
+            Assert.True(lambda.Children.Skip(2).First().Get<bool>());
+            Assert.False(lambda.Children.Skip(3).First().Get<bool>());
         }
 
         [Fact]
         public async Task SaveFileAndCopyAsync()
         {
+            var existsInvoked = 0;
+            var saveInvoked = false;
+            var copyInvoked = false;
+            var fileService = new FileService
+            {
+                SaveAction = (path, content) =>
+                {
+                    Assert.Equal("foo", content);
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", path);
+                    saveInvoked = true;
+                },
+                ExistsAction = (path) =>
+                {
+                    existsInvoked += 1;
+                    if (existsInvoked == 1)
+                    {
+                        Assert.Equal(
+                            AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                            + "/" +
+                            "moved.txt", path);
+                        return false;
+                    }
+                    else if (existsInvoked == 2)
+                    {
+                        Assert.Equal(
+                            AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                            + "/" +
+                            "moved.txt", path);
+                        return true;
+                    }
+                    else if (existsInvoked == 3)
+                    {
+                        Assert.Equal(
+                            AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                            + "/" +
+                            "existing.txt", path);
+                        return false;
+                    }
+                    else
+                    {
+                        throw new Exception("Failure in unit test");
+                    }
+                },
+                CopyAsyncAction = async (src, dest) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", src);
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "moved.txt", dest);
+                    copyInvoked = true;
+                    await Task.Yield();
+                }
+            };
             var lambda = await Common.EvaluateAsync(@"
-if
-   io.files.exists:/moved-x.txt
-   .lambda
-      io.files.delete:/moved-x.txt
-io.files.save:/existing-x.txt
+io.files.save:/existing.txt
    .:foo
-wait.io.files.copy:/existing-x.txt
-   .:moved-x.txt
-io.files.exists:/moved-x.txt
-io.files.exists:/existing-x.txt
-");
-            Assert.True(lambda.Children.Skip(3).First().Get<bool>());
-            Assert.True(lambda.Children.Skip(4).First().Get<bool>());
+wait.io.files.copy:/existing.txt
+   .:moved.txt
+io.files.exists:/moved.txt
+io.files.exists:/existing.txt
+", fileService);
+            Assert.True(saveInvoked);
+            Assert.True(copyInvoked);
+            Assert.Equal(3, existsInvoked);
+            Assert.True(lambda.Children.Skip(2).First().Get<bool>());
+            Assert.False(lambda.Children.Skip(3).First().Get<bool>());
         }
 
         [Slot(Name = "foo")]
@@ -194,45 +369,107 @@ io.files.exists:/existing-x.txt
         [Fact]
         public void SaveWithEventSourceAndLoadFile()
         {
+            var saveInvoked = false;
+            var loadInvoked = false;
+            var fileService = new FileService
+            {
+                SaveAction = (path, content) =>
+                {
+                    Assert.Equal("success", content);
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", path);
+                    saveInvoked = true;
+                },
+                LoadAction = (path) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", path);
+                    loadInvoked = true;
+                    return "success";
+                }
+            };
             var lambda = Common.Evaluate(@"
 io.files.save:existing.txt
    foo:error
 io.file.load:/existing.txt
-");
+", fileService);
+            Assert.True(saveInvoked);
+            Assert.True(loadInvoked);
             Assert.Equal("success", lambda.Children.Skip(1).First().Get<string>());
         }
 
         [Fact]
         public void SaveOverwriteAndLoadFile()
         {
+            var saveInvoked = 0;
+            var loadInvoked = false;
+            var fileService = new FileService
+            {
+                SaveAction = (path, content) =>
+                {
+                    saveInvoked += 1;
+                    if (saveInvoked == 1)
+                        Assert.Equal("foo", content);
+                    else if (saveInvoked == 2)
+                        Assert.Equal("foo1", content);
+                    else
+                        throw new Exception("Unit test failure");
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", path);
+                },
+                LoadAction = (path) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", path);
+                    loadInvoked = true;
+                    return "foo1";
+                }
+            };
             var lambda = Common.Evaluate(@"
 io.files.save:existing.txt
    .:foo
 io.files.save:existing.txt
    .:foo1
 io.file.load:/existing.txt
-");
+", fileService);
+            Assert.Equal(2, saveInvoked);
+            Assert.True(loadInvoked);
             Assert.Equal("foo1", lambda.Children.Skip(2).First().Get<string>());
-        }
-
-        [Fact]
-        public void EnsureFileDoesntExist()
-        {
-            var lambda = Common.Evaluate(@"
-io.files.exists:/non-existing.txt
-");
-            Assert.False(lambda.Children.First().Get<bool>());
         }
 
         [Fact]
         public void ListFiles()
         {
+            var fileService = new FileService
+            {
+                ListFilesAction = (path) =>
+                {
+                    return new string[] {
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "foo.txt",
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "bar.txt"
+                    };
+                }
+            };
             var lambda = Common.Evaluate(@"
 io.files.list:/
-");
-            Assert.True(lambda.Children.First().Children.Count() > 5);
-            Assert.True(lambda.Children.First().Children
-                .Where(x => x.Get<string>().StartsWith("/")).Count() == lambda.Children.First().Children.Count());
+", fileService);
+            Assert.True(lambda.Children.First().Children.Count() == 2);
+
+            // Notice, files are SORTED!
+            Assert.Equal("/bar.txt", lambda.Children.First().Children.First().Get<string>());
+            Assert.Equal("/foo.txt", lambda.Children.First().Children.Skip(1).First().Get<string>());
         }
 
         [Fact]

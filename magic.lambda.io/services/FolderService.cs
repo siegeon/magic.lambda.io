@@ -3,13 +3,11 @@
  * See the enclosed LICENSE file for details.
  */
 
-using System.Text;
 using System.IO;
-using System.Threading.Tasks;
 using magic.lambda.io.contracts;
 using System.Collections.Generic;
 
-namespace magic.lambda.io.files.services
+namespace magic.lambda.io.folder.services
 {
     public class FolderService : IFolderService
     {

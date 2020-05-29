@@ -13,8 +13,8 @@ using magic.node;
 using magic.signals.services;
 using magic.signals.contracts;
 using magic.lambda.io.contracts;
+using magic.lambda.io.folder.services;
 using magic.node.extensions.hyperlambda;
-using magic.lambda.io.files.services;
 
 namespace magic.lambda.io.tests
 {
@@ -60,11 +60,11 @@ namespace magic.lambda.io.tests
             services.AddTransient<IConfiguration>((svc) => configuration);
             services.AddTransient<ISignaler, Signaler>();
             if (fileService == null)
-                services.AddTransient<IFileService, FileService>();
+                services.AddTransient<IFileService, files.services.FileService>();
             else
                 services.AddTransient<IFileService>(svc => fileService);
             if (folderService == null)
-                services.AddTransient<IFolderService, FolderService>();
+                services.AddTransient<IFolderService, folder.services.FolderService>();
             else
                 services.AddTransient<IFolderService>(svc => folderService);
             services.AddTransient<IRootResolver, RootResolver>();
