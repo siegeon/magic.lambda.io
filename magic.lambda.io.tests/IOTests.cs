@@ -10,6 +10,7 @@ using Xunit;
 using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
+using magic.lambda.io.tests.helpers;
 
 namespace magic.lambda.io.tests
 {
@@ -546,9 +547,24 @@ io.folder.list:/
         [Fact]
         public void EvaluateFile()
         {
+            var loadInvoked = false;
+            var fileService = new FileService
+            {
+                LoadAction = (path) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "foo.hl", path);
+                    loadInvoked = true;
+                    return @"slots.return-nodes
+   result:hello world";
+                }
+            };
             var lambda = Common.Evaluate(@"
-io.files.eval:foo-1.hl
-");
+io.files.eval:foo.hl
+", fileService);
+            Assert.True(loadInvoked);
             Assert.Single(lambda.Children.First().Children);
             Assert.Equal("hello world", lambda.Children.First().Children.First().Get<string>());
         }
@@ -556,10 +572,26 @@ io.files.eval:foo-1.hl
         [Fact]
         public void EvaluateFileWithArguments()
         {
+            var loadInvoked = false;
+            var fileService = new FileService
+            {
+                LoadAction = (path) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "foo.hl", path);
+                    loadInvoked = true;
+                    return @"unwrap:x:+/*
+slots.return-nodes
+   result:x:@.arguments/*";
+                }
+            };
             var lambda = Common.Evaluate(@"
-io.files.eval:foo-2.hl
+io.files.eval:foo.hl
    input:jo world
-");
+", fileService);
+            Assert.True(loadInvoked);
             Assert.Single(lambda.Children.First().Children);
             Assert.Equal("result", lambda.Children.First().Children.First().Name);
             Assert.Equal("jo world", lambda.Children.First().Children.First().Get<string>());
@@ -568,7 +600,21 @@ io.files.eval:foo-2.hl
         [Fact]
         public void EvaluateFileReturningValue()
         {
-            var lambda = Common.Evaluate(@"io.files.eval:foo-3.hl");
+            var loadInvoked = false;
+            var fileService = new FileService
+            {
+                LoadAction = (path) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "foo.hl", path);
+                    loadInvoked = true;
+                    return "slots.return-value:howdy world";
+                }
+            };
+            var lambda = Common.Evaluate("io.files.eval:foo.hl", fileService);
+            Assert.True(loadInvoked);
             Assert.Empty(lambda.Children.First().Children);
             Assert.Equal("howdy world", lambda.Children.First().Get<string>());
         }

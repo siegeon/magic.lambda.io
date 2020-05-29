@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using magic.lambda.io.contracts;
 
-namespace magic.lambda.io.tests
+namespace magic.lambda.io.tests.helpers
 {
     public class FolderService : IFolderService
     {

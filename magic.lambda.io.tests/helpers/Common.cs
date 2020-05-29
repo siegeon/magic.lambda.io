@@ -16,7 +16,7 @@ using magic.lambda.io.contracts;
 using magic.lambda.io.folder.services;
 using magic.node.extensions.hyperlambda;
 
-namespace magic.lambda.io.tests
+namespace magic.lambda.io.tests.helpers
 {
     public static class Common
     {
