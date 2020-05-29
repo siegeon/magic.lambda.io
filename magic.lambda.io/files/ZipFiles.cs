@@ -12,7 +12,7 @@ using magic.signals.contracts;
 
 namespace magic.lambda.io.files
 {
-    // TODO: Remove into specialised project
+    // TODO: Create [io.file.zip] slot
     /// <summary>
     /// [io.content.zip-stream] slot for zipping a bunch of files into a specified stream.
     /// </summary>

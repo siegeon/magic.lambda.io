@@ -156,6 +156,9 @@ Creates a memory based ZIP stream you can return over the response socket connec
 this doesn't create a zip file, but rather a zip stream, which you can manipulate using other
 slots. This slot is useful if you need to return zipped content as your HTTP response for instance.
 
+Notice, both the root arguments (lambda children) of this slot will be evaluated, in addition to
+its content nodes, evaluated once for each file.
+
 ```
 io.content.zip-stream
    .:/foo/x.txt
