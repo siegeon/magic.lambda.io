@@ -27,14 +27,16 @@ namespace magic.lambda.io.files
     public class ExecuteFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
+        readonly IFileService _service;
 
         /// <summary>
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        public ExecuteFile(IRootResolver rootResolver)
+        public ExecuteFile(IRootResolver rootResolver, IFileService service)
         {
             _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));
+            _service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
         /// <summary>
@@ -49,12 +51,11 @@ namespace magic.lambda.io.files
             signaler.Scope("slots.result", result, () =>
             {
                 // Loading file and converting its content to lambda.
-                var hyperlambda = File
-                    .ReadAllText(
+                var hyperlambda = _service
+                    .Load(
                         PathResolver.CombinePaths(
                             _rootResolver.RootFolder,
-                            input.GetEx<string>()),
-                        Encoding.UTF8);
+                            input.GetEx<string>()));
                 var lambda = new Parser(hyperlambda).Lambda();
 
                 // Preparing arguments, if there are any, making sure we remove any declarative [.arguments] first.
@@ -90,28 +91,25 @@ namespace magic.lambda.io.files
             await signaler.ScopeAsync("slots.result", result, async () =>
             {
                 // Loading file and converting its content to lambda.
-                using (var file = File.OpenText(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>())))
-                {
-                    var hyperlambda = await file.ReadToEndAsync();
-                    var lambda = new Parser(hyperlambda).Lambda();
+                var hyperlambda = await _service.LoadAsync(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()));
+                var lambda = new Parser(hyperlambda).Lambda();
 
-                    // Preparing arguments, if there are any.
-                    if (input.Children.Any())
-                        lambda.Insert(0, new Node(".arguments", null, input.Children.ToList()));
+                // Preparing arguments, if there are any.
+                if (input.Children.Any())
+                    lambda.Insert(0, new Node(".arguments", null, input.Children.ToList()));
 
-                    // Evaluating lambda of slot.
-                    await signaler.SignalAsync("wait.eval", lambda);
+                // Evaluating lambda of slot.
+                await signaler.SignalAsync("wait.eval", lambda);
 
-                    // Clearing Children collection, since it might contain input parameters.
-                    input.Clear();
+                // Clearing Children collection, since it might contain input parameters.
+                input.Clear();
 
-                    /*
-                    * Simply setting value and children to "slots.result" stack object, since its value
-                    * was initially set to its old value during startup of method.
-                    */
-                    input.Value = result.Value;
-                    input.AddRange(result.Children.ToList());
-                }
+                /*
+                * Simply setting value and children to "slots.result" stack object, since its value
+                * was initially set to its old value during startup of method.
+                */
+                input.Value = result.Value;
+                input.AddRange(result.Children.ToList());
             });
         }
     }

@@ -21,14 +21,16 @@ namespace magic.lambda.io.files
     public class MoveFile : ISlot
     {
         readonly IRootResolver _rootResolver;
+        readonly IFileService _service;
 
         /// <summary>
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        public MoveFile(IRootResolver rootResolver)
+        public MoveFile(IRootResolver rootResolver, IFileService service)
         {
             _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));
+            _service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
         /// <summary>
@@ -53,10 +55,10 @@ namespace magic.lambda.io.files
                 destinationPath += Path.GetFileName(sourcePath);
 
             // For simplicity, we're deleting any existing files with the path of the destination file.
-            if (File.Exists(destinationPath))
-                File.Delete(destinationPath);
+            if (_service.Exists(destinationPath))
+                _service.Delete(destinationPath);
 
-            File.Move(sourcePath, destinationPath);
+            _service.Move(sourcePath, destinationPath);
         }
     }
 }

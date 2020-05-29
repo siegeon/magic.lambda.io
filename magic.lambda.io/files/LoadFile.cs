@@ -23,14 +23,16 @@ namespace magic.lambda.io.files
     public class LoadFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
+        readonly IFileService _service;
 
         /// <summary>
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        public LoadFile(IRootResolver rootResolver)
+        public LoadFile(IRootResolver rootResolver, IFileService service)
         {
             _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));
+            _service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
         /// <summary>
@@ -40,7 +42,7 @@ namespace magic.lambda.io.files
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            input.Value = File.ReadAllText(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()), Encoding.UTF8);
+            input.Value = _service.Load(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()));
         }
 
         /// <summary>
@@ -51,10 +53,7 @@ namespace magic.lambda.io.files
         /// <returns>An awaitable task.</returns>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            using (var file = File.OpenText(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>())))
-            {
-                input.Value = await file.ReadToEndAsync();
-            }
+            input.Value = await _service.LoadAsync(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()));
         }
     }
 }

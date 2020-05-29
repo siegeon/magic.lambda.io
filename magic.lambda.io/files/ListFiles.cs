@@ -21,14 +21,16 @@ namespace magic.lambda.io.files
     public class ListFiles : ISlot
     {
         readonly IRootResolver _rootResolver;
+        readonly IFileService _service;
 
         /// <summary>
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        public ListFiles(IRootResolver rootResolver)
+        public ListFiles(IRootResolver rootResolver, IFileService service)
         {
             _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));
+            _service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
         /// <summary>
@@ -44,7 +46,7 @@ namespace magic.lambda.io.files
             var root = PathResolver.Normalize(_rootResolver.RootFolder);
             var folder = input.GetEx<string>();
             input.Clear();
-            var files = Directory.GetFiles(PathResolver.CombinePaths(_rootResolver.RootFolder, folder)).ToList();
+            var files = _service.ListFiles(PathResolver.CombinePaths(_rootResolver.RootFolder, folder)).ToList();
             files.Sort();
             foreach (var idx in files)
             {

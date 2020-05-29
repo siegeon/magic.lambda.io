@@ -23,14 +23,16 @@ namespace magic.lambda.io.files
     public class CopyFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
+        readonly IFileService _service;
 
         /// <summary>
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        public CopyFile(IRootResolver rootResolver)
+        public CopyFile(IRootResolver rootResolver, IFileService service)
         {
             _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));
+            _service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
         /// <summary>
@@ -52,10 +54,10 @@ namespace magic.lambda.io.files
                 destinationPath += Path.GetFileName(sourcePath);
 
             // For simplicity, we're deleting any existing files with the path of the destination file.
-            if (File.Exists(destinationPath))
-                File.Delete(destinationPath);
+            if (_service.Exists(destinationPath))
+                _service.Delete(destinationPath);
 
-            File.Copy(
+            _service.Copy(
                 sourcePath,
                 destinationPath);
         }
@@ -78,16 +80,10 @@ namespace magic.lambda.io.files
             var destinationPath = PathResolver.CombinePaths(_rootResolver.RootFolder, input.Children.First().GetEx<string>());
 
             // For simplicity, we're deleting any existing files with the path of the destination file.
-            if (File.Exists(destinationPath))
-                File.Delete(destinationPath);
+            if (_service.Exists(destinationPath))
+                _service.Delete(destinationPath);
 
-            using (Stream source = File.OpenRead(sourcePath))
-            {
-                using (Stream destination = File.Create(destinationPath))
-                {
-                    await source.CopyToAsync(destination);
-                }
-            }
+            await _service.CopyAsync(sourcePath, destinationPath);
         }
     }
 }

@@ -20,14 +20,16 @@ namespace magic.lambda.io.files
     public class FileExists : ISlot
     {
         readonly IRootResolver _rootResolver;
+        readonly IFileService _service;
 
         /// <summary>
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        public FileExists(IRootResolver rootResolver)
+        public FileExists(IRootResolver rootResolver, IFileService service)
         {
             _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));
+            _service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
         /// <summary>
@@ -37,7 +39,7 @@ namespace magic.lambda.io.files
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            input.Value = File.Exists(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()));
+            input.Value = _service.Exists(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()));
         }
     }
 }

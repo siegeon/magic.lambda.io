@@ -14,6 +14,7 @@ using magic.signals.services;
 using magic.signals.contracts;
 using magic.lambda.io.contracts;
 using magic.node.extensions.hyperlambda;
+using magic.lambda.io.files.services;
 
 namespace magic.lambda.io.tests
 {
@@ -50,6 +51,7 @@ namespace magic.lambda.io.tests
             var services = new ServiceCollection();
             services.AddTransient<IConfiguration>((svc) => configuration);
             services.AddTransient<ISignaler, Signaler>();
+            services.AddTransient<IFileService, FileService>();
             services.AddTransient<IRootResolver, RootResolver>();
             var types = new SignalsProvider(InstantiateAllTypes<ISlot>(services));
             services.AddTransient<ISignalsProvider>((svc) => types);

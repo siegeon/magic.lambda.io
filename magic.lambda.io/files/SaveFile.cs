@@ -23,14 +23,16 @@ namespace magic.lambda.io.files
     public class SaveFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
+        readonly IFileService _service;
 
         /// <summary>
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        public SaveFile(IRootResolver rootResolver)
+        public SaveFile(IRootResolver rootResolver, IFileService service)
         {
             _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));
+            _service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
         /// <summary>
@@ -42,7 +44,7 @@ namespace magic.lambda.io.files
         {
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
             signaler.Signal("eval", input);
-            File.WriteAllText(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()), input.Children.First().GetEx<string>());
+            _service.Save(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()), input.Children.First().GetEx<string>());
         }
 
         /// <summary>
@@ -55,10 +57,9 @@ namespace magic.lambda.io.files
         {
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
             await signaler.SignalAsync("wait.eval", input);
-            using (var writer = File.CreateText(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>())))
-            {
-                await writer.WriteAsync(input.Children.First().GetEx<string>());
-            }
+            await _service.SaveAsync(
+                PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()),
+                input.Children.First().GetEx<string>());
         }
     }
 }
