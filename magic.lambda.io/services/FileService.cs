@@ -11,6 +11,7 @@ using System.Collections.Generic;
 
 namespace magic.lambda.io.file.services
 {
+    /// <inheritdoc/>
     public class FileService : IFileService
     {
         public void Copy(string source, string destination)

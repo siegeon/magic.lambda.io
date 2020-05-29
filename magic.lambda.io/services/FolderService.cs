@@ -9,6 +9,7 @@ using System.Collections.Generic;
 
 namespace magic.lambda.io.folder.services
 {
+    /// <inheritdoc/>
     public class FolderService : IFolderService
     {
         public void Create(string path)
