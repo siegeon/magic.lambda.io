@@ -475,20 +475,72 @@ io.files.list:/
         [Fact]
         public void ListFolders()
         {
+            var listInvoked = false;
+            var folderService = new FolderService
+            {
+                ListAction = (path) =>
+                {
+                    listInvoked = true;
+                    return new string[] {
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "foo/",
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "bar/"
+                    };
+                }
+            };
             var lambda = Common.Evaluate(@"
 io.folder.list:/
-");
+", null, folderService);
+            Assert.True(listInvoked);
+            Assert.True(lambda.Children.First().Children.Count() == 2);
+
+            // Notice, files are SORTED!
+            Assert.Equal("/bar/", lambda.Children.First().Children.First().Get<string>());
+            Assert.Equal("/foo/", lambda.Children.First().Children.Skip(1).First().Get<string>());
         }
 
         [Fact]
         public void CreateFolderListFolders()
         {
+            var listInvoked = false;
+            var createInvoked = true;
+            var folderService = new FolderService
+            {
+                CreateAction = (path) =>
+                {
+                    createInvoked = true;
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "foo", path);
+                },
+                ListAction = (path) =>
+                {
+                    listInvoked = true;
+                    return new string[] {
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "foo/",
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "bar/"
+                    };
+                }
+            };
             var lambda = Common.Evaluate(@"
 io.folder.create:/foo
 io.folder.list:/
-");
-            Assert.Single(lambda.Children.Skip(1).First().Children.Where(x => x.Get<string>().Contains("foo")));
-            Assert.Equal("/foo/", lambda.Children.Skip(1).First().Children.Where(x => x.Get<string>().Contains("foo")).First().Get<string>());
+", null, folderService);
+            Assert.True(listInvoked);
+            Assert.True(createInvoked);
+            Assert.True(lambda.Children.Skip(1).First().Children.Count() == 2);
+
+            // Notice, files are SORTED!
+            Assert.Equal("/bar/", lambda.Children.Skip(1).First().Children.First().Get<string>());
+            Assert.Equal("/foo/", lambda.Children.Skip(1).First().Children.Skip(1).First().Get<string>());
         }
 
         [Fact]
