@@ -20,14 +20,16 @@ namespace magic.lambda.io.folder
     public class FolderExists : ISlot
     {
         readonly IRootResolver _rootResolver;
+        readonly IFolderService _service;
 
         /// <summary>
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        public FolderExists(IRootResolver rootResolver)
+        public FolderExists(IRootResolver rootResolver, IFolderService service)
         {
             _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));
+            _service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
         /// <summary>
@@ -37,7 +39,7 @@ namespace magic.lambda.io.folder
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            input.Value = Directory.Exists(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()));
+            input.Value = _service.Exists(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()));
         }
     }
 }

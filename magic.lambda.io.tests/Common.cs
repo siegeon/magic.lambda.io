@@ -52,6 +52,7 @@ namespace magic.lambda.io.tests
             services.AddTransient<IConfiguration>((svc) => configuration);
             services.AddTransient<ISignaler, Signaler>();
             services.AddTransient<IFileService, FileService>();
+            services.AddTransient<IFolderService, FolderService>();
             services.AddTransient<IRootResolver, RootResolver>();
             var types = new SignalsProvider(InstantiateAllTypes<ISlot>(services));
             services.AddTransient<ISignalsProvider>((svc) => types);

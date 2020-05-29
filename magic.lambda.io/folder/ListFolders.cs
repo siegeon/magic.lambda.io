@@ -21,14 +21,16 @@ namespace magic.lambda.io.folder
     public class ListFolders : ISlot
     {
         readonly IRootResolver _rootResolver;
+        readonly IFolderService _service;
 
         /// <summary>
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        public ListFolders(IRootResolver rootResolver)
+        public ListFolders(IRootResolver rootResolver, IFolderService service)
         {
             _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));
+            _service = service ?? throw new ArgumentNullException(nameof(service));
         }
 
         /// <summary>
@@ -44,8 +46,8 @@ namespace magic.lambda.io.folder
             var root = PathResolver.Normalize(_rootResolver.RootFolder);
             var folder = input.GetEx<string>();
             input.Clear();
-            var folders = Directory
-                .GetDirectories(
+            var folders = _service
+                .ListFolders(
                     PathResolver.CombinePaths(
                         _rootResolver.RootFolder,
                         folder))
