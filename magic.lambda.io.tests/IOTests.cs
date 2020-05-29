@@ -90,11 +90,38 @@ io.file.load:/existing.txt
         [Fact]
         public async Task SaveAndLoadFileAsync()
         {
+            var saveInvoked = false;
+            var loadInvoked = false;
+            var fileService = new FileService
+            {
+                SaveAsyncAction = async (path, content) =>
+                {
+                    Assert.Equal("foo", content);
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", path);
+                    saveInvoked = true;
+                    await Task.Yield();
+                },
+                LoadAsyncAction = async (path) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", path);
+                    loadInvoked = true;
+                    await Task.Yield();
+                    return "foo";
+                }
+            };
             var lambda = await Common.EvaluateAsync(@"
 wait.io.files.save:existing.txt
    .:foo
 wait.io.file.load:/existing.txt
-");
+", fileService);
+            Assert.True(saveInvoked);
+            Assert.True(loadInvoked);
             Assert.Equal("foo", lambda.Children.Skip(1).First().Get<string>());
         }
 
