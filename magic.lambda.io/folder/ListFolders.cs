@@ -38,11 +38,18 @@ namespace magic.lambda.io.folder
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            var displayHiddenFolders = input.Children.FirstOrDefault(x => x.Name == "display-hidden")?.GetEx<bool>() ?? false;
+            var displayHiddenFolders = input.Children
+                .FirstOrDefault(x => x.Name == "display-hidden")?
+                .GetEx<bool>() ?? false;
             var root = PathResolver.Normalize(_rootResolver.RootFolder);
             var folder = input.GetEx<string>();
             input.Clear();
-            var folders = Directory.GetDirectories(PathResolver.CombinePaths(_rootResolver.RootFolder, folder)).ToList();
+            var folders = Directory
+                .GetDirectories(
+                    PathResolver.CombinePaths(
+                        _rootResolver.RootFolder,
+                        folder))
+                .ToList();
             folders.Sort();
             foreach (var idx in folders)
             {

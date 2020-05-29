@@ -4,8 +4,8 @@
  */
 
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
+using System.IO.Compression;
 using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
@@ -26,6 +26,9 @@ namespace magic.lambda.io.files
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
+            // Evaluating file paths node(s).
+            signaler.Signal("eval", input);
+
             // Resulting stream, returned to caller as Value.
             var mem = new MemoryStream();
 
@@ -38,6 +41,10 @@ namespace magic.lambda.io.files
                 // Creating one ZIP entry for each argument supplied as child of input.
                 foreach (var idx in input.Children)
                 {
+                    // Evaluating content node.
+                    signaler.Signal("eval", idx);
+
+                    // Creating zip entry.
                     var idxEntry = archive.CreateEntry(idx.GetEx<string>());
                     using (var entryStream = idxEntry.Open())
                     {

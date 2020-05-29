@@ -49,10 +49,16 @@ namespace magic.lambda.io.files
             signaler.Scope("slots.result", result, () =>
             {
                 // Loading file and converting its content to lambda.
-                var hyperlambda = File.ReadAllText(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()), Encoding.UTF8);
+                var hyperlambda = File
+                    .ReadAllText(
+                        PathResolver.CombinePaths(
+                            _rootResolver.RootFolder,
+                            input.GetEx<string>()),
+                        Encoding.UTF8);
                 var lambda = new Parser(hyperlambda).Lambda();
 
-                // Preparing arguments, if there are any.
+                // Preparing arguments, if there are any, making sure we remove any declarative [.arguments] first.
+                lambda.Children.FirstOrDefault(x => x.Name == ".arguments")?.UnTie();
                 if (input.Children.Any())
                     lambda.Insert(0, new Node(".arguments", null, input.Children.ToList()));
 

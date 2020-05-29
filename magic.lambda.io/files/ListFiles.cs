@@ -38,7 +38,9 @@ namespace magic.lambda.io.files
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            var displayHiddenFiles = input.Children.FirstOrDefault(x => x.Name == "display-hidden")?.GetEx<bool>() ?? false;
+            var displayHiddenFiles = input.Children
+                .FirstOrDefault(x => x.Name == "display-hidden")?
+                .GetEx<bool>() ?? false;
             var root = PathResolver.Normalize(_rootResolver.RootFolder);
             var folder = input.GetEx<string>();
             input.Clear();
