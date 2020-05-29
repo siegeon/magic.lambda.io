@@ -13,10 +13,10 @@ This project provides file/folder slots for [Magic](https://github.com/polterguy
 * __[io.file.save]__ - Saves a file on disc on your server.
 * __[io.file.exists]__ - Returns true if file exists, otherwise false.
 * __[io.file.delete]__ - Deletes a file on your server.
-* __[io.files.copy]__ - Copies a file on your server.
-* __[io.files.execute]__ - Executes a Hyperlambda file on your server.
-* __[io.files.list]__ - List files in the specified folder on your server.
-* __[io.files.move]__ - Moves a file on your server.
+* __[io.file.copy]__ - Copies a file on your server.
+* __[io.file.execute]__ - Executes a Hyperlambda file on your server.
+* __[io.file.list]__ - List files in the specified folder on your server.
+* __[io.file.move]__ - Moves a file on your server.
 * __[io.content.zip-stream]__ - Creates a ZipStream for you, without touching the file system.
 * __[.io.folder.root]__ - Returns the root folder of your system. (private C# slot)
 
@@ -106,7 +106,7 @@ Deletes the specified file. Will throw an exception if the file doesn't exist.
 io.file.load:/misc/DOES-NOT-EXIST.md
 ```
 
-### io.files.copy
+### io.file.copy
 
 Copies the specified file to the specified destination folder and file.
 Notice, requires the destination folder to exist from before, and the source
@@ -123,7 +123,7 @@ io.file.copy:/misc/README.md
 Notice, the folder parts of thye destination folder is _optional_, and if you don't supply a folder
 as a part of the path, the source folder will be used by default.
 
-### io.files.execute
+### io.file.execute
 
 Executes the specified Hyperlambda file. Just like when evaluating a dynamic slot, you can
 pass in an **[.arguments]** node to the file, which will be considered arguments to your file.
@@ -132,24 +132,24 @@ is no semantic difference really between this slot and **[slots.signal]** from t
 project.
 
 ```
-io.files.execute:/misc/some-hyperlambda-file.hl
+io.file.execute:/misc/some-hyperlambda-file.hl
 ```
 
-### io.files.list
+### io.file.list
 
 Lists all files inside of the specified folder. By default hidden files will not be shown, unless
 you pass in **[display-hidden]** and set its value to boolean _"true"_.
 
 ```
-io.files.list:/misc/
+io.file.list:/misc/
 ```
 
-### io.files.move
+### io.file.move
 
-Similar to **[io.files.copy]** but deletes the source file after evaluating.
+Similar to **[io.file.copy]** but deletes the source file after evaluating.
 
 ```
-io.files.move:/misc/README.md
+io.file.move:/misc/README.md
    .:/misc/backup/README-backup.md
 ```
 

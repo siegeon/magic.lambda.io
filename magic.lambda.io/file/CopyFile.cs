@@ -13,13 +13,14 @@ using magic.signals.contracts;
 using magic.lambda.io.contracts;
 using magic.lambda.io.utilities;
 
-namespace magic.lambda.io.files
+namespace magic.lambda.io.file
 {
     /// <summary>
-    /// [io.files.move] slot for moving a file on your server.
+    /// [io.file.copy] slot for moving a file on your server.
     /// </summary>
-    [Slot(Name = "io.files.move")]
-    public class MoveFile : ISlot, ISlotAsync
+    [Slot(Name = "io.file.copy")]
+    [Slot(Name = "wait.io.file.copy")]
+    public class CopyFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
         readonly IFileService _service;
@@ -28,7 +29,7 @@ namespace magic.lambda.io.files
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        public MoveFile(IRootResolver rootResolver, IFileService service)
+        public CopyFile(IRootResolver rootResolver, IFileService service)
         {
             _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));
             _service = service ?? throw new ArgumentNullException(nameof(service));
@@ -43,23 +44,23 @@ namespace magic.lambda.io.files
         {
             // Sanity checking invocation.
             if (!input.Children.Any())
-                throw new ArgumentException("No destination provided to [io.files.move]");
+                throw new ArgumentNullException("No destination provided to [io.file.copy]");
 
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our destination is evaluated.
             signaler.Signal("eval", input);
 
-            // Retrieving source path.
-            string sourcePath = PathResolver.CombinePaths(
-                _rootResolver.RootFolder,
-                input.GetEx<string>());
+            // Finding absolute paths.
+            string sourcePath = PathResolver
+                .CombinePaths(
+                    _rootResolver.RootFolder,
+                    input.GetEx<string>());
 
-            // Retrieving destination path.
             var destinationPath = PathResolver
                 .CombinePaths(
                     _rootResolver.RootFolder,
                     input.Children.First().GetEx<string>());
 
-            // Defaulting detination folder to be the same as source folder, unless a different folder is explicitly given.
+            // Defaulting filename to the filename of the source file, unless another filename is explicitly given.
             if (destinationPath.EndsWith("/", StringComparison.InvariantCultureIgnoreCase))
                 destinationPath += Path.GetFileName(sourcePath);
 
@@ -71,7 +72,9 @@ namespace magic.lambda.io.files
             if (_service.Exists(destinationPath))
                 _service.Delete(destinationPath);
 
-            _service.Move(sourcePath, destinationPath);
+            _service.Copy(
+                sourcePath,
+                destinationPath);
         }
 
         /// <summary>
@@ -79,29 +82,24 @@ namespace magic.lambda.io.files
         /// </summary>
         /// <param name="signaler">Signaler used to raise the signal.</param>
         /// <param name="input">Arguments to slot.</param>
+        /// <returns>An awaitable task.</returns>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
             // Sanity checking invocation.
             if (!input.Children.Any())
-                throw new ArgumentException("No destination provided to [io.files.move]");
+                throw new ArgumentException("No destination provided to [io.file.copy]");
 
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our destination is evaluated.
             await signaler.SignalAsync("wait.eval", input);
 
-            // Retrieving source path.
+            // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
             string sourcePath = PathResolver.CombinePaths(
                 _rootResolver.RootFolder,
                 input.GetEx<string>());
 
-            // Retrieving destination path.
-            var destinationPath = PathResolver
-                .CombinePaths(
-                    _rootResolver.RootFolder,
-                    input.Children.First().GetEx<string>());
-
-            // Defaulting detination folder to be the same as source folder, unless a different folder is explicitly given.
-            if (destinationPath.EndsWith("/", StringComparison.InvariantCultureIgnoreCase))
-                destinationPath += Path.GetFileName(sourcePath);
+            var destinationPath = PathResolver.CombinePaths(
+                _rootResolver.RootFolder,
+                input.Children.First().GetEx<string>());
 
             // Sanity checking arguments.
             if (sourcePath == destinationPath)
@@ -111,7 +109,7 @@ namespace magic.lambda.io.files
             if (_service.Exists(destinationPath))
                 _service.Delete(destinationPath);
 
-            _service.Move(sourcePath, destinationPath);
+            await _service.CopyAsync(sourcePath, destinationPath);
         }
     }
 }

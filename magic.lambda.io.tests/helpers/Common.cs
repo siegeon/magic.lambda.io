@@ -13,7 +13,6 @@ using magic.node;
 using magic.signals.services;
 using magic.signals.contracts;
 using magic.lambda.io.contracts;
-using magic.lambda.io.folder.services;
 using magic.node.extensions.hyperlambda;
 
 namespace magic.lambda.io.tests.helpers
@@ -60,7 +59,7 @@ namespace magic.lambda.io.tests.helpers
             services.AddTransient<IConfiguration>((svc) => configuration);
             services.AddTransient<ISignaler, Signaler>();
             if (fileService == null)
-                services.AddTransient<IFileService, files.services.FileService>();
+                services.AddTransient<IFileService, file.services.FileService>();
             else
                 services.AddTransient<IFileService>(svc => fileService);
             if (folderService == null)

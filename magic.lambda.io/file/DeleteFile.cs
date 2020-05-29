@@ -4,20 +4,19 @@
  */
 
 using System;
-using System.IO;
 using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.io.contracts;
 using magic.lambda.io.utilities;
 
-namespace magic.lambda.io.files
+namespace magic.lambda.io.file
 {
     /// <summary>
-    /// [io.files.exists] slot for checking if a file already exists from before or not.
+    /// [io.file.delete] slot for deleting a folder on server.
     /// </summary>
-    [Slot(Name = "io.files.exists")]
-    public class FileExists : ISlot
+    [Slot(Name = "io.file.delete")]
+    public class DeleteFile : ISlot
     {
         readonly IRootResolver _rootResolver;
         readonly IFileService _service;
@@ -26,7 +25,7 @@ namespace magic.lambda.io.files
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        public FileExists(IRootResolver rootResolver, IFileService service)
+        public DeleteFile(IRootResolver rootResolver, IFileService service)
         {
             _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));
             _service = service ?? throw new ArgumentNullException(nameof(service));
@@ -39,7 +38,7 @@ namespace magic.lambda.io.files
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            input.Value = _service.Exists(
+            _service.Delete(
                 PathResolver.CombinePaths(
                     _rootResolver.RootFolder,
                     input.GetEx<string>()));

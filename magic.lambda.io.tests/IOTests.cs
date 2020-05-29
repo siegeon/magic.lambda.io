@@ -48,9 +48,9 @@ namespace magic.lambda.io.tests
             #endregion
 
             var lambda = Common.Evaluate(@"
-io.files.save:existing.txt
+io.file.save:existing.txt
    .:foo
-io.files.exists:/existing.txt
+io.file.exists:/existing.txt
 ", fileService);
             Assert.True(saveInvoked);
             Assert.True(existsInvoked);
@@ -89,13 +89,52 @@ io.files.exists:/existing.txt
             #endregion
 
             var lambda = Common.Evaluate(@"
-io.files.save:existing.txt
+io.file.save:existing.txt
    .:foo
 io.file.load:/existing.txt
 ", fileService);
             Assert.True(saveInvoked);
             Assert.True(loadInvoked);
             Assert.Equal("foo", lambda.Children.Skip(1).First().Get<string>());
+        }
+
+        [Fact]
+        public void SaveAndDeleteFile()
+        {
+            #region [ -- Setting up mock service(s) -- ]
+
+            var saveInvoked = false;
+            var deleteInvoked = false;
+            var fileService = new FileService
+            {
+                SaveAction = (path, content) =>
+                {
+                    Assert.Equal("foo", content);
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", path);
+                    saveInvoked = true;
+                },
+                DeleteAction = (path) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", path);
+                    deleteInvoked = true;
+                }
+            };
+
+            #endregion
+
+            var lambda = Common.Evaluate(@"
+io.file.save:existing.txt
+   .:foo
+io.file.delete:/existing.txt
+", fileService);
+            Assert.True(saveInvoked);
+            Assert.True(deleteInvoked);
         }
 
         [Fact]
@@ -132,7 +171,7 @@ io.file.load:/existing.txt
             #endregion
 
             var lambda = await Common.EvaluateAsync(@"
-wait.io.files.save:existing.txt
+wait.io.file.save:existing.txt
    .:foo
 wait.io.file.load:/existing.txt
 ", fileService);
@@ -209,12 +248,12 @@ wait.io.file.load:/existing.txt
             #endregion
 
             var lambda = Common.Evaluate(@"
-io.files.save:/existing.txt
+io.file.save:/existing.txt
    .:foo
-io.files.move:/existing.txt
+io.file.move:/existing.txt
    .:moved.txt
-io.files.exists:/moved.txt
-io.files.exists:/existing.txt
+io.file.exists:/moved.txt
+io.file.exists:/existing.txt
 ", fileService);
             Assert.True(saveInvoked);
             Assert.True(moveInvoked);
@@ -291,12 +330,12 @@ io.files.exists:/existing.txt
             #endregion
 
             var lambda = Common.Evaluate(@"
-io.files.save:/existing.txt
+io.file.save:/existing.txt
    .:foo
-io.files.copy:/existing.txt
+io.file.copy:/existing.txt
    .:moved.txt
-io.files.exists:/moved.txt
-io.files.exists:/existing.txt
+io.file.exists:/moved.txt
+io.file.exists:/existing.txt
 ", fileService);
             Assert.True(saveInvoked);
             Assert.True(copyInvoked);
@@ -374,12 +413,12 @@ io.files.exists:/existing.txt
             #endregion
 
             var lambda = await Common.EvaluateAsync(@"
-io.files.save:/existing.txt
+io.file.save:/existing.txt
    .:foo
-wait.io.files.copy:/existing.txt
+wait.io.file.copy:/existing.txt
    .:moved.txt
-io.files.exists:/moved.txt
-io.files.exists:/existing.txt
+io.file.exists:/moved.txt
+io.file.exists:/existing.txt
 ", fileService);
             Assert.True(saveInvoked);
             Assert.True(copyInvoked);
@@ -429,7 +468,7 @@ io.files.exists:/existing.txt
             #endregion
 
             var lambda = Common.Evaluate(@"
-io.files.save:existing.txt
+io.file.save:existing.txt
    foo:error
 io.file.load:/existing.txt
 ", fileService);
@@ -475,9 +514,9 @@ io.file.load:/existing.txt
             #endregion
 
             var lambda = Common.Evaluate(@"
-io.files.save:existing.txt
+io.file.save:existing.txt
    .:foo
-io.files.save:existing.txt
+io.file.save:existing.txt
    .:foo1
 io.file.load:/existing.txt
 ", fileService);
@@ -509,7 +548,7 @@ io.file.load:/existing.txt
             #endregion
 
             var lambda = Common.Evaluate(@"
-io.files.list:/
+io.file.list:/
 ", fileService);
             Assert.True(lambda.Children.First().Children.Count() == 2);
 
@@ -622,7 +661,7 @@ io.folder.list:/
             #endregion
 
             var lambda = Common.Evaluate(@"
-io.files.eval:foo.hl
+io.file.eval:foo.hl
 ", fileService);
             Assert.True(loadInvoked);
             Assert.Single(lambda.Children.First().Children);
@@ -653,7 +692,7 @@ slots.return-nodes
             #endregion
 
             var lambda = Common.Evaluate(@"
-io.files.eval:foo.hl
+io.file.eval:foo.hl
    input:jo world
 ", fileService);
             Assert.True(loadInvoked);
@@ -683,7 +722,7 @@ io.files.eval:foo.hl
 
             #endregion
 
-            var lambda = Common.Evaluate("io.files.eval:foo.hl", fileService);
+            var lambda = Common.Evaluate("io.file.eval:foo.hl", fileService);
             Assert.True(loadInvoked);
             Assert.Empty(lambda.Children.First().Children);
             Assert.Equal("howdy world", lambda.Children.First().Get<string>());

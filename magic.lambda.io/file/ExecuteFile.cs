@@ -13,15 +13,15 @@ using magic.lambda.io.utilities;
 using magic.node.extensions.hyperlambda;
 using System.Linq;
 
-namespace magic.lambda.io.files
+namespace magic.lambda.io.file
 {
     /// <summary>
-    /// [io.files.execute] slot for executing a Hyperlambda file on your server.
+    /// [io.file.execute] slot for executing a Hyperlambda file on your server.
     /// </summary>
-    [Slot(Name = "io.files.execute")]
-    [Slot(Name = "wait.io.files.execute")]
-    [Slot(Name = "io.files.eval")]
-    [Slot(Name = "wait.io.files.eval")]
+    [Slot(Name = "io.file.execute")]
+    [Slot(Name = "wait.io.file.execute")]
+    [Slot(Name = "io.file.eval")]
+    [Slot(Name = "wait.io.file.eval")]
     public class ExecuteFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;

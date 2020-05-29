@@ -13,13 +13,13 @@ using magic.signals.contracts;
 using magic.lambda.io.contracts;
 using magic.lambda.io.utilities;
 
-namespace magic.lambda.io.files
+namespace magic.lambda.io.file
 {
     /// <summary>
-    /// [io.files.save] slot for saving a file on your server.
+    /// [io.file.save] slot for saving a file on your server.
     /// </summary>
-    [Slot(Name = "io.files.save")]
-    [Slot(Name = "wait.io.files.save")]
+    [Slot(Name = "io.file.save")]
+    [Slot(Name = "wait.io.file.save")]
     public class SaveFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;

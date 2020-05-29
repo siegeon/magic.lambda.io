@@ -10,7 +10,7 @@ using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
 
-namespace magic.lambda.io.files
+namespace magic.lambda.io.file
 {
     // TODO: Create [io.file.zip] slot
     /// <summary>

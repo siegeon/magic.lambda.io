@@ -12,12 +12,12 @@ using magic.signals.contracts;
 using magic.lambda.io.contracts;
 using magic.lambda.io.utilities;
 
-namespace magic.lambda.io.files
+namespace magic.lambda.io.file
 {
     /// <summary>
-    /// [io.files.list] slot for listing files on server.
+    /// [io.file.list] slot for listing files on server.
     /// </summary>
-    [Slot(Name = "io.files.list")]
+    [Slot(Name = "io.file.list")]
     public class ListFiles : ISlot
     {
         readonly IRootResolver _rootResolver;

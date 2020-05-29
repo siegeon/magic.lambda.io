@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using magic.lambda.io.contracts;
 using System.Collections.Generic;
 
-namespace magic.lambda.io.files.services
+namespace magic.lambda.io.file.services
 {
     public class FileService : IFileService
     {
