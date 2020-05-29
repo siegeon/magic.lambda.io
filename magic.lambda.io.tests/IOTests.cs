@@ -54,11 +54,36 @@ io.files.exists:/existing.txt
         [Fact]
         public void SaveAndLoadFile()
         {
+            var saveInvoked = false;
+            var loadInvoked = false;
+            var fileService = new FileService
+            {
+                SaveAction = (path, content) =>
+                {
+                    Assert.Equal("foo", content);
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", path);
+                    saveInvoked = true;
+                },
+                LoadAction = (path) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", path);
+                    loadInvoked = true;
+                    return "foo";
+                }
+            };
             var lambda = Common.Evaluate(@"
 io.files.save:existing.txt
    .:foo
 io.file.load:/existing.txt
-");
+", fileService);
+            Assert.True(saveInvoked);
+            Assert.True(loadInvoked);
             Assert.Equal("foo", lambda.Children.Skip(1).First().Get<string>());
         }
 
