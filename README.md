@@ -181,6 +181,21 @@ signaler.Signal(".io.folder.root", node);
 var rootFolder = node.Get<string>();
 ```
 
+## C# extensions
+
+If you want to, you can easily completely exchange the underlaying file system, with your own _"virtual file system"_,
+since all interaction with the physical file system is done through the `IFileService` and `IFolderService` interfaces.
+This allows you to circumvent the default dependency injected service, and binding towards some other implementation,
+at least in theory allowing you to (for instance) use a database based file system, etc. If you want to do this, you'll
+need to supply your own bindings to the following two interfaces, using your IoC container.
+
+* `magic.lambda.io.contracts.IFileService`
+* `magic.lambda.io.contracts.IFolderService`
+
+If you want to do this, you would probably want to manually declare your own implementation for these classes, by tapping
+into _"magic.library"_ somehow, or not invoking its default method that binds towards the default implementation classes
+somehow.
+
 ## License
 
 Although most of Magic's source code is publicly available, Magic is _not_ Open Source or Free Software.

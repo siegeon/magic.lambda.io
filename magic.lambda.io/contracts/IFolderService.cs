@@ -3,7 +3,6 @@
  * See the enclosed LICENSE file for details.
  */
 
-using System.Threading.Tasks;
 using System.Collections.Generic;
 
 namespace magic.lambda.io.contracts
