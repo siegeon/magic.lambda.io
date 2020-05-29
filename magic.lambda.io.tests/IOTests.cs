@@ -138,6 +138,44 @@ io.file.delete:/existing.txt
         }
 
         [Fact]
+        public void CreateAndDeleteFolder()
+        {
+            #region [ -- Setting up mock service(s) -- ]
+
+            var createInvoked = false;
+            var deleteInvoked = false;
+            var folderService = new FolderService
+            {
+                CreateAction = (path) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "foo", path);
+                    createInvoked = true;
+                },
+                DeleteAction = (path) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "foo", path);
+                    deleteInvoked = true;
+                }
+            };
+
+            #endregion
+
+            var lambda = Common.Evaluate(@"
+io.folder.create:foo
+   .:foo
+io.folder.delete:foo
+", null, folderService);
+            Assert.True(createInvoked);
+            Assert.True(deleteInvoked);
+        }
+
+        [Fact]
         public async Task SaveAndLoadFileAsync()
         {
             #region [ -- Setting up mock service(s) -- ]
