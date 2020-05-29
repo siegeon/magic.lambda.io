@@ -44,7 +44,13 @@ namespace magic.lambda.io.files
         {
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
             signaler.Signal("eval", input);
-            _service.Save(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()), input.Children.First().GetEx<string>());
+
+            // Saving file.
+            _service.Save(
+                PathResolver.CombinePaths(
+                    _rootResolver.RootFolder,
+                    input.GetEx<string>()),
+                input.Children.First().GetEx<string>());
         }
 
         /// <summary>
@@ -57,8 +63,12 @@ namespace magic.lambda.io.files
         {
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
             await signaler.SignalAsync("wait.eval", input);
+
+            // Saving file
             await _service.SaveAsync(
-                PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()),
+                PathResolver.CombinePaths(
+                    _rootResolver.RootFolder,
+                    input.GetEx<string>()),
                 input.Children.First().GetEx<string>());
         }
     }

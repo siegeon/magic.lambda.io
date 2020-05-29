@@ -25,18 +25,24 @@ namespace magic.lambda.io.tests
             public string RootFolder => AppDomain.CurrentDomain.BaseDirectory;
         }
 
-        static public Node Evaluate(string hl)
+        static public Node Evaluate(
+            string hl,
+            FileService fileService = null,
+            FolderService folderService = null)
         {
-            var services = Initialize();
+            var services = Initialize(fileService, folderService);
             var lambda = new Parser(hl).Lambda();
             var signaler = services.GetService(typeof(ISignaler)) as ISignaler;
             signaler.Signal("eval", lambda);
             return lambda;
         }
 
-        static public async Task<Node> EvaluateAsync(string hl)
+        static public async Task<Node> EvaluateAsync(
+            string hl,
+            FileService fileService = null,
+            FolderService folderService = null)
         {
-            var services = Initialize();
+            var services = Initialize(fileService, folderService);
             var lambda = new Parser(hl).Lambda();
             var signaler = services.GetService(typeof(ISignaler)) as ISignaler;
             await signaler.SignalAsync("wait.eval", lambda);
@@ -45,14 +51,22 @@ namespace magic.lambda.io.tests
 
         #region [ -- Private helper methods -- ]
 
-        static IServiceProvider Initialize()
+        static IServiceProvider Initialize(
+            FileService fileService = null,
+            FolderService folderService = null)
         {
             var configuration = new ConfigurationBuilder().Build();
             var services = new ServiceCollection();
             services.AddTransient<IConfiguration>((svc) => configuration);
             services.AddTransient<ISignaler, Signaler>();
-            services.AddTransient<IFileService, FileService>();
-            services.AddTransient<IFolderService, FolderService>();
+            if (fileService == null)
+                services.AddTransient<IFileService, FileService>();
+            else
+                services.AddTransient<IFileService>(svc => fileService);
+            if (folderService == null)
+                services.AddTransient<IFolderService, FolderService>();
+            else
+                services.AddTransient<IFolderService>(svc => folderService);
             services.AddTransient<IRootResolver, RootResolver>();
             var types = new SignalsProvider(InstantiateAllTypes<ISlot>(services));
             services.AddTransient<ISignalsProvider>((svc) => types);

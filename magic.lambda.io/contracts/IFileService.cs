@@ -21,7 +21,7 @@ namespace magic.lambda.io.contracts
 
         void Move(string source, string destination);
 
-        Task CopyAsync(string source, string detination);
+        Task CopyAsync(string source, string destination);
 
         string Load(string path);
 

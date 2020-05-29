@@ -16,10 +16,10 @@ using magic.lambda.io.utilities;
 namespace magic.lambda.io.files
 {
     /// <summary>
-    /// [io.files.load] slot for loading a file on your server.
+    /// [io.file.load] slot for loading a file on your server.
     /// </summary>
-    [Slot(Name = "io.files.load")]
-    [Slot(Name = "wait.io.files.load")]
+    [Slot(Name = "io.file.load")]
+    [Slot(Name = "wait.io.file.load")]
     public class LoadFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
@@ -42,7 +42,10 @@ namespace magic.lambda.io.files
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            input.Value = _service.Load(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()));
+            input.Value = _service.Load(
+                PathResolver.CombinePaths(
+                    _rootResolver.RootFolder,
+                    input.GetEx<string>()));
         }
 
         /// <summary>
@@ -53,7 +56,10 @@ namespace magic.lambda.io.files
         /// <returns>An awaitable task.</returns>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            input.Value = await _service.LoadAsync(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()));
+            input.Value = await _service.LoadAsync(
+                PathResolver.CombinePaths(
+                    _rootResolver.RootFolder,
+                    input.GetEx<string>()));
         }
     }
 }

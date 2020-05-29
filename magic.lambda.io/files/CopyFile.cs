@@ -46,12 +46,27 @@ namespace magic.lambda.io.files
             if (!input.Children.Any())
                 throw new ArgumentNullException("No destination provided to [io.files.copy]");
 
-            // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
+            // Making sure we evaluate any children, to make sure any signals wanting to retrieve our destination is evaluated.
             signaler.Signal("eval", input);
-            string sourcePath = PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>());
-            var destinationPath = PathResolver.CombinePaths(_rootResolver.RootFolder, input.Children.First().GetEx<string>());
+
+            // Finding absolute paths.
+            string sourcePath = PathResolver
+                .CombinePaths(
+                    _rootResolver.RootFolder,
+                    input.GetEx<string>());
+
+            var destinationPath = PathResolver
+                .CombinePaths(
+                    _rootResolver.RootFolder,
+                    input.Children.First().GetEx<string>());
+
+            // Defaulting filename to the filename of the source file, unless another filename is explicitly given.
             if (destinationPath.EndsWith("/", StringComparison.InvariantCultureIgnoreCase))
                 destinationPath += Path.GetFileName(sourcePath);
+
+            // Sanity checking arguments.
+            if (sourcePath == destinationPath)
+                throw new ArgumentException("You cannot copy a file using the same source and destination path");
 
             // For simplicity, we're deleting any existing files with the path of the destination file.
             if (_service.Exists(destinationPath))
@@ -74,10 +89,21 @@ namespace magic.lambda.io.files
             if (!input.Children.Any())
                 throw new ArgumentException("No destination provided to [io.files.copy]");
 
-            // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
+            // Making sure we evaluate any children, to make sure any signals wanting to retrieve our destination is evaluated.
             await signaler.SignalAsync("wait.eval", input);
-            string sourcePath = PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>());
-            var destinationPath = PathResolver.CombinePaths(_rootResolver.RootFolder, input.Children.First().GetEx<string>());
+
+            // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
+            string sourcePath = PathResolver.CombinePaths(
+                _rootResolver.RootFolder,
+                input.GetEx<string>());
+
+            var destinationPath = PathResolver.CombinePaths(
+                _rootResolver.RootFolder,
+                input.Children.First().GetEx<string>());
+
+            // Sanity checking arguments.
+            if (sourcePath == destinationPath)
+                throw new ArgumentException("You cannot copy a file using the same source and destination path");
 
             // For simplicity, we're deleting any existing files with the path of the destination file.
             if (_service.Exists(destinationPath))

@@ -39,7 +39,10 @@ namespace magic.lambda.io.files
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            input.Value = _service.Exists(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()));
+            input.Value = _service.Exists(
+                PathResolver.CombinePaths(
+                    _rootResolver.RootFolder,
+                    input.GetEx<string>()));
         }
     }
 }

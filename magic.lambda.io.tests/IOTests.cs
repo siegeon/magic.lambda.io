@@ -3,6 +3,7 @@
  * See the enclosed LICENSE file for details.
  */
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -17,11 +18,36 @@ namespace magic.lambda.io.tests
         [Fact]
         public void SaveFile()
         {
+            var saveInvoked = false;
+            var existsInvoked = false;
+            var fileService = new FileService
+            {
+                SaveAction = (path, content) =>
+                {
+                    Assert.Equal("foo", content);
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", path);
+                    saveInvoked = true;
+                },
+                ExistsAction = (path) =>
+                {
+                    existsInvoked = true;
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", path);
+                    return true;
+                }
+            };
             var lambda = Common.Evaluate(@"
 io.files.save:existing.txt
    .:foo
 io.files.exists:/existing.txt
-");
+", fileService);
+            Assert.True(saveInvoked);
+            Assert.True(existsInvoked);
             Assert.True(lambda.Children.Skip(1).First().Get<bool>());
         }
 
@@ -31,7 +57,7 @@ io.files.exists:/existing.txt
             var lambda = Common.Evaluate(@"
 io.files.save:existing.txt
    .:foo
-io.files.load:/existing.txt
+io.file.load:/existing.txt
 ");
             Assert.Equal("foo", lambda.Children.Skip(1).First().Get<string>());
         }
@@ -42,7 +68,7 @@ io.files.load:/existing.txt
             var lambda = await Common.EvaluateAsync(@"
 wait.io.files.save:existing.txt
    .:foo
-wait.io.files.load:/existing.txt
+wait.io.file.load:/existing.txt
 ");
             Assert.Equal("foo", lambda.Children.Skip(1).First().Get<string>());
         }
@@ -119,7 +145,7 @@ io.files.exists:/existing-x.txt
             var lambda = Common.Evaluate(@"
 io.files.save:existing.txt
    foo:error
-io.files.load:/existing.txt
+io.file.load:/existing.txt
 ");
             Assert.Equal("success", lambda.Children.Skip(1).First().Get<string>());
         }
@@ -132,7 +158,7 @@ io.files.save:existing.txt
    .:foo
 io.files.save:existing.txt
    .:foo1
-io.files.load:/existing.txt
+io.file.load:/existing.txt
 ");
             Assert.Equal("foo1", lambda.Children.Skip(2).First().Get<string>());
         }

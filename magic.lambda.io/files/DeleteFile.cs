@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.IO;
 using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
@@ -39,7 +38,10 @@ namespace magic.lambda.io.files
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            _service.Delete(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()));
+            _service.Delete(
+                PathResolver.CombinePaths(
+                    _rootResolver.RootFolder,
+                    input.GetEx<string>()));
         }
     }
 }

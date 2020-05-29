@@ -6,6 +6,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
@@ -18,7 +19,7 @@ namespace magic.lambda.io.files
     /// [io.files.move] slot for moving a file on your server.
     /// </summary>
     [Slot(Name = "io.files.move")]
-    public class MoveFile : ISlot
+    public class MoveFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
         readonly IFileService _service;
@@ -44,15 +45,67 @@ namespace magic.lambda.io.files
             if (!input.Children.Any())
                 throw new ArgumentException("No destination provided to [io.files.move]");
 
-            // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
+            // Making sure we evaluate any children, to make sure any signals wanting to retrieve our destination is evaluated.
             signaler.Signal("eval", input);
-            string sourcePath = PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>());
+
+            // Retrieving source path.
+            string sourcePath = PathResolver.CombinePaths(
+                _rootResolver.RootFolder,
+                input.GetEx<string>());
+
+            // Retrieving destination path.
             var destinationPath = PathResolver
                 .CombinePaths(
                     _rootResolver.RootFolder,
                     input.Children.First().GetEx<string>());
+
+            // Defaulting detination folder to be the same as source folder, unless a different folder is explicitly given.
             if (destinationPath.EndsWith("/", StringComparison.InvariantCultureIgnoreCase))
                 destinationPath += Path.GetFileName(sourcePath);
+
+            // Sanity checking arguments.
+            if (sourcePath == destinationPath)
+                throw new ArgumentException("You cannot copy a file using the same source and destination path");
+
+            // For simplicity, we're deleting any existing files with the path of the destination file.
+            if (_service.Exists(destinationPath))
+                _service.Delete(destinationPath);
+
+            _service.Move(sourcePath, destinationPath);
+        }
+
+        /// <summary>
+        /// Implementation of slot.
+        /// </summary>
+        /// <param name="signaler">Signaler used to raise the signal.</param>
+        /// <param name="input">Arguments to slot.</param>
+        public async Task SignalAsync(ISignaler signaler, Node input)
+        {
+            // Sanity checking invocation.
+            if (!input.Children.Any())
+                throw new ArgumentException("No destination provided to [io.files.move]");
+
+            // Making sure we evaluate any children, to make sure any signals wanting to retrieve our destination is evaluated.
+            await signaler.SignalAsync("wait.eval", input);
+
+            // Retrieving source path.
+            string sourcePath = PathResolver.CombinePaths(
+                _rootResolver.RootFolder,
+                input.GetEx<string>());
+
+            // Retrieving destination path.
+            var destinationPath = PathResolver
+                .CombinePaths(
+                    _rootResolver.RootFolder,
+                    input.Children.First().GetEx<string>());
+
+            // Defaulting detination folder to be the same as source folder, unless a different folder is explicitly given.
+            if (destinationPath.EndsWith("/", StringComparison.InvariantCultureIgnoreCase))
+                destinationPath += Path.GetFileName(sourcePath);
+
+            // Sanity checking arguments.
+            if (sourcePath == destinationPath)
+                throw new ArgumentException("You cannot copy a file using the same source and destination path");
 
             // For simplicity, we're deleting any existing files with the path of the destination file.
             if (_service.Exists(destinationPath))

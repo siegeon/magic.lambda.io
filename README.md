@@ -120,6 +120,9 @@ io.file.copy:/misc/README.md
    .:/misc/backup/README-backup.md
 ```
 
+Notice, the folder parts of thye destination folder is _optional_, and if you don't supply a folder
+as a part of the path, the source folder will be used by default.
+
 ### io.files.execute
 
 Executes the specified Hyperlambda file. Just like when evaluating a dynamic slot, you can

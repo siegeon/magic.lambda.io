@@ -4,8 +4,6 @@
  */
 
 using System;
-using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using magic.node;
 using magic.node.extensions;
@@ -59,7 +57,9 @@ namespace magic.lambda.io.files
                 var lambda = new Parser(hyperlambda).Lambda();
 
                 // Preparing arguments, if there are any, making sure we remove any declarative [.arguments] first.
-                lambda.Children.FirstOrDefault(x => x.Name == ".arguments")?.UnTie();
+                lambda.Children
+                    .FirstOrDefault(x => x.Name == ".arguments")?
+                    .UnTie();
                 if (input.Children.Any())
                     lambda.Insert(0, new Node(".arguments", null, input.Children.ToList()));
 
@@ -91,7 +91,10 @@ namespace magic.lambda.io.files
             await signaler.ScopeAsync("slots.result", result, async () =>
             {
                 // Loading file and converting its content to lambda.
-                var hyperlambda = await _service.LoadAsync(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()));
+                var hyperlambda = await _service.LoadAsync(
+                    PathResolver.CombinePaths(
+                        _rootResolver.RootFolder,
+                        input.GetEx<string>()));
                 var lambda = new Parser(hyperlambda).Lambda();
 
                 // Preparing arguments, if there are any.
