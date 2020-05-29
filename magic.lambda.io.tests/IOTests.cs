@@ -721,7 +721,9 @@ io.file.eval:foo.hl
                         + "/" +
                         "foo.hl", path);
                     loadInvoked = true;
-                    return @"unwrap:x:+/*
+                    return @".arguments
+   foo:bar
+unwrap:x:+/*
 slots.return-nodes
    result:x:@.arguments/*";
                 }

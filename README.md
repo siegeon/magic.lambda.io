@@ -160,7 +160,7 @@ this doesn't create a zip file, but rather a zip stream, which you can manipulat
 slots. This slot is useful if you need to return zipped content as your HTTP response for instance.
 
 Notice, both the root arguments (lambda children) of this slot will be evaluated, in addition to
-its content nodes, evaluated once for each file.
+its content nodes, evaluated once for each file declaration node.
 
 ```
 io.content.zip-stream
