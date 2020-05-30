@@ -691,7 +691,7 @@ io.folder.list:/
                         + "/" +
                         "foo.hl", path);
                     loadInvoked = true;
-                    return @"slots.return-nodes
+                    return @"return-nodes
    result:hello world";
                 }
             };
@@ -724,7 +724,7 @@ io.file.eval:foo.hl
                     return @".arguments
    foo:bar
 unwrap:x:+/*
-slots.return-nodes
+return-nodes
    result:x:@.arguments/*";
                 }
             };
@@ -756,7 +756,7 @@ io.file.eval:foo.hl
                         + "/" +
                         "foo.hl", path);
                     loadInvoked = true;
-                    return "slots.return-value:howdy world";
+                    return "return-value:howdy world";
                 }
             };
 
