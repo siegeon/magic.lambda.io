@@ -26,6 +26,7 @@ namespace magic.lambda.io.file
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
+        /// <param name="service">Underlaying file service implementation.</param>
         public FileExists(IRootResolver rootResolver, IFileService service)
         {
             _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));

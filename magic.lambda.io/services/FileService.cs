@@ -14,11 +14,13 @@ namespace magic.lambda.io.file.services
     /// <inheritdoc/>
     public class FileService : IFileService
     {
+        /// <inheritdoc/>
         public void Copy(string source, string destination)
         {
             File.Copy(source, destination);
         }
 
+        /// <inheritdoc/>
         public async Task CopyAsync(string source, string destination)
         {
             using (Stream sourceStream = File.OpenRead(source))
@@ -30,26 +32,31 @@ namespace magic.lambda.io.file.services
             }
         }
 
+        /// <inheritdoc/>
         public void Delete(string path)
         {
             File.Delete(path);
         }
 
+        /// <inheritdoc/>
         public bool Exists(string path)
         {
             return File.Exists(path);
         }
 
+        /// <inheritdoc/>
         public IEnumerable<string> ListFiles(string folder)
         {
             return Directory.GetFiles(folder);
         }
 
+        /// <inheritdoc/>
         public string Load(string path)
         {
             return File.ReadAllText(path, Encoding.UTF8);
         }
 
+        /// <inheritdoc/>
         public async Task<string> LoadAsync(string path)
         {
             using (var file = File.OpenText(path))
@@ -58,16 +65,19 @@ namespace magic.lambda.io.file.services
             }
         }
 
+        /// <inheritdoc/>
         public void Move(string source, string destination)
         {
             File.Move(source, destination);
         }
 
+        /// <inheritdoc/>
         public void Save(string filename, string content)
         {
             File.WriteAllText(filename, content);;
         }
 
+        /// <inheritdoc/>
         public async Task SaveAsync(string filename, string content)
         {
             using (var writer = File.CreateText(filename))

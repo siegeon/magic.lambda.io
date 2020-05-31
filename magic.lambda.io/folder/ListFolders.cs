@@ -27,6 +27,7 @@ namespace magic.lambda.io.folder
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
+        /// <param name="service">Underlaying file service implementation.</param>
         public ListFolders(IRootResolver rootResolver, IFolderService service)
         {
             _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));

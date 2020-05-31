@@ -12,21 +12,25 @@ namespace magic.lambda.io.folder.services
     /// <inheritdoc/>
     public class FolderService : IFolderService
     {
+        /// <inheritdoc/>
         public void Create(string path)
         {
             Directory.CreateDirectory(path);
         }
 
+        /// <inheritdoc/>
         public void Delete(string path)
         {
             Directory.Delete(path, true);
         }
 
+        /// <inheritdoc/>
         public bool Exists(string path)
         {
             return Directory.Exists(path);
         }
 
+        /// <inheritdoc/>
         public IEnumerable<string> ListFolders(string folder)
         {
             return Directory.GetDirectories(folder);
