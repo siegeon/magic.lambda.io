@@ -128,7 +128,7 @@ as a part of the path, the source folder will be used by default.
 Executes the specified Hyperlambda file. Just like when evaluating a dynamic slot, you can
 pass in an **[.arguments]** node to the file, which will be considered arguments to your file.
 Hence, this slot allows you to invoke a file, as if it was a dynamically created slot, and there
-is no semantic difference really between this slot and **[slots.signal]** from the _magic.lambda.slots_
+is no semantic difference really between this slot and **[signal]** from the _magic.lambda.slots_
 project.
 
 ```
