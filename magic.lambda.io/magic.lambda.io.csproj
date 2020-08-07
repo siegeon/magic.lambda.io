@@ -31,6 +31,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="DotNetZip" Version="1.13.8" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="magic.node.extensions" Version="8.0.1" />
     <PackageReference Include="magic.signals.contracts" Version="8.0.1" />
   </ItemGroup>
