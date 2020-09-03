@@ -43,8 +43,7 @@ namespace magic.lambda.io.file
         public void Signal(ISignaler signaler, Node input)
         {
             // Sanity checking invocation.
-            if (!input.Children.Any())
-                throw new ArgumentException("No destination provided to [io.file.move]");
+            SanityCheckInvocation(input);
 
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our destination is evaluated.
             signaler.Signal("eval", input);
@@ -83,8 +82,7 @@ namespace magic.lambda.io.file
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
             // Sanity checking invocation.
-            if (!input.Children.Any())
-                throw new ArgumentException("No destination provided to [io.file.move]");
+            SanityCheckInvocation(input);
 
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our destination is evaluated.
             await signaler.SignalAsync("wait.eval", input);
@@ -114,5 +112,15 @@ namespace magic.lambda.io.file
 
             _service.Move(sourcePath, destinationPath);
         }
+
+        #region [ -- Private helper methods -- ]
+
+        void SanityCheckInvocation(Node input)
+        {
+            if (!input.Children.Any())
+                throw new ArgumentException("No destination provided to [io.file.move]");
+        }
+
+        #endregion
     }
 }
