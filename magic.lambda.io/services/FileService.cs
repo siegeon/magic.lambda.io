@@ -74,13 +74,13 @@ namespace magic.lambda.io.file.services
         /// <inheritdoc/>
         public void Save(string path, string content)
         {
-            File.WriteAllText(path, content);;
+            File.WriteAllText(path, content);
         }
 
         /// <inheritdoc/>
-        public async Task SaveAsync(string filename, string content)
+        public async Task SaveAsync(string path, string content)
         {
-            using (var writer = File.CreateText(filename))
+            using (var writer = File.CreateText(path))
             {
                 await writer.WriteAsync(content);
             }
