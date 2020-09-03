@@ -72,9 +72,9 @@ namespace magic.lambda.io.file.services
         }
 
         /// <inheritdoc/>
-        public void Save(string filename, string content)
+        public void Save(string path, string content)
         {
-            File.WriteAllText(filename, content);;
+            File.WriteAllText(path, content);;
         }
 
         /// <inheritdoc/>

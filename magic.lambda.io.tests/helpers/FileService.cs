@@ -72,9 +72,9 @@ namespace magic.lambda.io.tests.helpers
             MoveAction(source, destination);
         }
 
-        public void Save(string filename, string content)
+        public void Save(string path, string content)
         {
-            SaveAction(filename, content);
+            SaveAction(path, content);
         }
 
         public async Task SaveAsync(string filename, string content)

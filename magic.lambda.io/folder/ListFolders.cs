@@ -4,7 +4,6 @@
  */
 
 using System;
-using System.IO;
 using System.Linq;
 using magic.node;
 using magic.node.extensions;
