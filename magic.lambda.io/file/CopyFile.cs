@@ -45,7 +45,7 @@ namespace magic.lambda.io.file
         {
             // Sanity checking invocation.
             if (!input.Children.Any())
-                throw new ArgumentNullException("No destination provided to [io.file.copy]");
+                throw new ArgumentException("No destination provided to [io.file.copy]");
 
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our destination is evaluated.
             signaler.Signal("eval", input);
