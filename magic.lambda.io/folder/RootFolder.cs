@@ -24,7 +24,7 @@ namespace magic.lambda.io.folder
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
         public RootFolder(IRootResolver rootResolver)
         {
-            _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));
+            _rootResolver = rootResolver;
         }
 
         /// <summary>

@@ -28,8 +28,8 @@ namespace magic.lambda.io.folder
         /// <param name="service">Underlaying file service implementation.</param>
         public CreateFolder(IRootResolver rootResolver, IFolderService service)
         {
-            _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));
-            _service = service ?? throw new ArgumentNullException(nameof(service));
+            _rootResolver = rootResolver;
+            _service = service;
         }
 
         /// <summary>

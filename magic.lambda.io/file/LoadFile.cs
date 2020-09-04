@@ -30,8 +30,8 @@ namespace magic.lambda.io.file
         /// <param name="service">Underlaying file service implementation.</param>
         public LoadFile(IRootResolver rootResolver, IFileService service)
         {
-            _rootResolver = rootResolver ?? throw new ArgumentNullException(nameof(rootResolver));
-            _service = service ?? throw new ArgumentNullException(nameof(service));
+            _rootResolver = rootResolver;
+            _service = service;
         }
 
         /// <summary>
