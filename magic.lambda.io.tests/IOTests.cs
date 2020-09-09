@@ -693,6 +693,54 @@ io.file.copy:/existing.txt
         }
 
         [Fact]
+        public async Task SaveFileAndCopy_Throws_03()
+        {
+            #region [ -- Setting up mock service(s) -- ]
+
+            var fileService = new FileService
+            {
+                SaveAsyncAction = (path, content) =>
+                {
+                    Assert.Equal("foo", content);
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", path);
+                    return Task.CompletedTask;
+                },
+                ExistsAction = (path) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "moved.txt", path);
+                    return false;
+                },
+                CopyAsyncAction = (src, dest) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", src);
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "moved.txt", dest);
+                    return Task.CompletedTask;
+                }
+            };
+
+            #endregion
+
+            await Assert.ThrowsAsync<ArgumentException>(async () => await Common.EvaluateAsync(@"
+wait.io.file.save:/existing.txt
+   .:foo
+wait.io.file.copy:/existing.txt
+   .:existing.txt
+", fileService));
+        }
+
+        [Fact]
         public async Task SaveFileAndCopyAsync()
         {
             #region [ -- Setting up mock service(s) -- ]
