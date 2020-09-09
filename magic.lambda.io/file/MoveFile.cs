@@ -19,6 +19,7 @@ namespace magic.lambda.io.file
     /// [io.file.move] slot for moving a file on your server.
     /// </summary>
     [Slot(Name = "io.file.move")]
+    [Slot(Name = "wait.io.file.move")]
     public class MoveFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
@@ -44,34 +45,8 @@ namespace magic.lambda.io.file
         {
             // Sanity checking invocation.
             SanityCheckInvocation(input);
-
-            // Making sure we evaluate any children, to make sure any signals wanting to retrieve our destination is evaluated.
             signaler.Signal("eval", input);
-
-            // Retrieving source path.
-            string sourcePath = PathResolver.CombinePaths(
-                _rootResolver.RootFolder,
-                input.GetEx<string>());
-
-            // Retrieving destination path.
-            var destinationPath = PathResolver
-                .CombinePaths(
-                    _rootResolver.RootFolder,
-                    input.Children.First().GetEx<string>());
-
-            // Defaulting detination folder to be the same as source folder, unless a different folder is explicitly given.
-            if (destinationPath.EndsWith("/", StringComparison.InvariantCultureIgnoreCase))
-                destinationPath += Path.GetFileName(sourcePath);
-
-            // Sanity checking arguments.
-            if (sourcePath == destinationPath)
-                throw new ArgumentException("You cannot copy a file using the same source and destination path");
-
-            // For simplicity, we're deleting any existing files with the path of the destination file.
-            if (_service.Exists(destinationPath))
-                _service.Delete(destinationPath);
-
-            _service.Move(sourcePath, destinationPath);
+            MoveImplementation(input);
         }
 
         /// <summary>
@@ -81,12 +56,21 @@ namespace magic.lambda.io.file
         /// <param name="input">Arguments to slot.</param>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            // Sanity checking invocation.
             SanityCheckInvocation(input);
-
-            // Making sure we evaluate any children, to make sure any signals wanting to retrieve our destination is evaluated.
             await signaler.SignalAsync("wait.eval", input);
+            MoveImplementation(input);
+        }
 
+        #region [ -- Private helper methods -- ]
+
+        void SanityCheckInvocation(Node input)
+        {
+            if (!input.Children.Any())
+                throw new ArgumentException("No destination provided to [io.file.move]");
+        }
+
+        void MoveImplementation(Node input)
+        {
             // Retrieving source path.
             string sourcePath = PathResolver.CombinePaths(
                 _rootResolver.RootFolder,
@@ -111,14 +95,6 @@ namespace magic.lambda.io.file
                 _service.Delete(destinationPath);
 
             _service.Move(sourcePath, destinationPath);
-        }
-
-        #region [ -- Private helper methods -- ]
-
-        void SanityCheckInvocation(Node input)
-        {
-            if (!input.Children.Any())
-                throw new ArgumentException("No destination provided to [io.file.move]");
         }
 
         #endregion
