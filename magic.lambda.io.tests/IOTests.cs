@@ -11,6 +11,8 @@ using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.io.tests.helpers;
+using System.IO;
+using System.IO.Compression;
 
 namespace magic.lambda.io.tests
 {
@@ -144,6 +146,7 @@ io.file.delete:/existing.txt
 
             var createInvoked = false;
             var deleteInvoked = false;
+            var existsInvoked = false;
             var folderService = new FolderService
             {
                 CreateAction = (path) =>
@@ -161,6 +164,15 @@ io.file.delete:/existing.txt
                         + "/" +
                         "foo", path);
                     deleteInvoked = true;
+                },
+                ExistsAction = (path) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "foo", path);
+                    existsInvoked = true;
+                    return true;
                 }
             };
 
@@ -169,10 +181,12 @@ io.file.delete:/existing.txt
             var lambda = Common.Evaluate(@"
 io.folder.create:foo
    .:foo
+io.folder.exists:foo
 io.folder.delete:foo
 ", null, folderService);
             Assert.True(createInvoked);
             Assert.True(deleteInvoked);
+            Assert.True(existsInvoked);
         }
 
         [Fact]
@@ -766,6 +780,59 @@ io.file.eval:foo.hl
             Assert.True(loadInvoked);
             Assert.Empty(lambda.Children.First().Children);
             Assert.Equal("howdy world", lambda.Children.First().Get<string>());
+        }
+
+        [Fact]
+        public void CreateZipStream_01()
+        {
+            var lambda = Common.Evaluate(@"
+.filename1:foo.txt
+.content1:foo-content
+io.content.zip-stream
+   get-value:x:@.filename1
+      get-value:x:@.content1
+");
+            var zipNode = lambda.Children.FirstOrDefault(x => x.Name == "io.content.zip-stream");
+            Assert.NotNull(zipNode);
+
+            using var archive = new ZipArchive(zipNode.Get<MemoryStream>());
+            Assert.Single(archive.Entries);
+            var entry = archive.Entries.First();
+            using (var reader = new StreamReader(entry.Open()))
+            {
+                Assert.Equal("foo-content", reader.ReadToEnd());
+            }
+            Assert.Equal("foo.txt", entry.FullName);
+        }
+
+        [Fact]
+        public void CreateZipStream_02()
+        {
+            var lambda = Common.Evaluate(@"
+io.content.zip-stream
+   .:/foo1.txt
+      .:howdy
+   .:/foo2.txt
+      .:world
+");
+            var zipNode = lambda.Children.FirstOrDefault(x => x.Name == "io.content.zip-stream");
+            Assert.NotNull(zipNode);
+
+            var mem = zipNode.Get<MemoryStream>();
+            using var archive = new ZipArchive(mem);
+            Assert.Equal(2, archive.Entries.Count());
+            var entry = archive.Entries.First();
+            using (var reader = new StreamReader(entry.Open()))
+            {
+                Assert.Equal("howdy", reader.ReadToEnd());
+            }
+            Assert.Equal("foo1.txt", entry.FullName);
+            entry = archive.Entries.Skip(1).First();
+            using (var reader = new StreamReader(entry.Open()))
+            {
+                Assert.Equal("world", reader.ReadToEnd());
+            }
+            Assert.Equal("foo2.txt", entry.FullName);
         }
     }
 }

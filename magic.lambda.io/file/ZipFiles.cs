@@ -3,12 +3,15 @@
  * See the enclosed LICENSE file for details.
  */
 
-using System.IO;
-using System.Linq;
-using System.IO.Compression;
+using ICSharpCode.SharpZipLib.Zip;
+using ICSharpCode.SharpZipLib.Core;
 using magic.node;
-using magic.node.extensions;
 using magic.signals.contracts;
+using System.IO;
+using magic.node.extensions;
+using System;
+using System.Linq;
+using System.Text;
 
 namespace magic.lambda.io.file
 {
@@ -25,41 +28,32 @@ namespace magic.lambda.io.file
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            // Evaluating file paths node(s).
+            // Evaluating all filenames, in case they're slot invocations.
             signaler.Signal("eval", input);
-
-            // Resulting stream, returned to caller as Value.
-            var mem = new MemoryStream();
-
-            /*
-             * Creating our ZIP archive, making sure memory stream is not disposed
-             * when we finish with it.
-             */
-            using (var archive = new ZipArchive(mem, ZipArchiveMode.Create, true))
+            var result = new MemoryStream();
+            using (var zipStream = new ZipOutputStream(result))
             {
-                // Creating one ZIP entry for each argument supplied as child of input.
+                zipStream.IsStreamOwner = false;
+                zipStream.SetLevel(3);
                 foreach (var idx in input.Children)
                 {
-                    // Evaluating content node.
+                    // Evaluating content node, in case it's a slot invocation.
                     signaler.Signal("eval", idx);
-
-                    // Creating zip entry.
-                    var idxEntry = archive.CreateEntry(idx.GetEx<string>());
-                    using (var writer = new StreamWriter(idxEntry.Open()))
+                    var newEntry = new ZipEntry(ZipEntry.CleanName(idx.GetEx<string>()))
                     {
-                        /*
-                            * Writing the first child's value of currently iterated
-                            * input child as content to archive.
-                            */
-                        writer.Write(idx.Children.FirstOrDefault()?.GetEx<string>() ?? "");
+                        DateTime = DateTime.Now
+                    };
+                    var content = idx.Children.First().GetEx<string>();
+                    newEntry.Size = content.Length;
+                    zipStream.PutNextEntry(newEntry);
+                    using (var contentStream = new MemoryStream(Encoding.UTF8.GetBytes(content)))
+                    {
+                        contentStream.CopyTo(zipStream);
                     }
                 }
             }
-
-            // Cleaning up, and returning MemoryStream to caller.
-            input.Clear();
-            mem.Seek(0, SeekOrigin.Begin);
-            input.Value = mem;
+            result.Position = 0;
+            input.Value = result;
         }
     }
 }

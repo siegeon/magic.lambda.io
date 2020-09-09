@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -23,11 +23,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="../LICENSE.txt" Pack="true" PackagePath="$(PackageLicenseFile)"/>
+    <None Include="../LICENSE.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="../ico.png" Pack="true" PackagePath="$(PackageIcon)"/>
+    <None Include="../ico.png" Pack="true" PackagePath="$(PackageIcon)" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,11 +39,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetZip" Version="1.13.8" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="magic.node.extensions" Version="8.1.*" />
     <PackageReference Include="magic.signals.contracts" Version="8.1.*" />
+    <PackageReference Include="SharpZipLib" Version="1.2.0" />
   </ItemGroup>
 </Project>
