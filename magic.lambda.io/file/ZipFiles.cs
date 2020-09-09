@@ -12,7 +12,6 @@ using magic.signals.contracts;
 
 namespace magic.lambda.io.file
 {
-    // TODO: Create [io.file.zip] slot
     /// <summary>
     /// [io.content.zip-stream] slot for zipping a bunch of files into a specified stream.
     /// </summary>
@@ -46,16 +45,13 @@ namespace magic.lambda.io.file
 
                     // Creating zip entry.
                     var idxEntry = archive.CreateEntry(idx.GetEx<string>());
-                    using (var entryStream = idxEntry.Open())
+                    using (var writer = new StreamWriter(idxEntry.Open()))
                     {
-                        using (var writer = new StreamWriter(entryStream))
-                        {
-                            /*
-                             * Writing the first child's value of currently iterated
-                             * input child as content to archive.
-                             */
-                            writer.Write(idx.Children.FirstOrDefault()?.GetEx<string>() ?? "");
-                        }
+                        /*
+                            * Writing the first child's value of currently iterated
+                            * input child as content to archive.
+                            */
+                        writer.Write(idx.Children.FirstOrDefault()?.GetEx<string>() ?? "");
                     }
                 }
             }

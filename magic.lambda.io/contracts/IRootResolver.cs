@@ -5,7 +5,6 @@
 
 namespace magic.lambda.io.contracts
 {
-    // TODO: Rethink this. We have a slot now that does the same!
     /// <summary>
     /// Contracts for resolving root folder on disc for magic.lambda.io
     /// </summary>
