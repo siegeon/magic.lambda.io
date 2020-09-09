@@ -606,9 +606,6 @@ io.file.exists:/existing.txt
         {
             #region [ -- Setting up mock service(s) -- ]
 
-            var existsInvoked = 0;
-            var saveInvoked = false;
-            var copyInvoked = false;
             var fileService = new FileService
             {
                 SaveAction = (path, content) =>
@@ -618,39 +615,14 @@ io.file.exists:/existing.txt
                         AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
                         + "/" +
                         "existing.txt", path);
-                    saveInvoked = true;
                 },
                 ExistsAction = (path) =>
                 {
-                    existsInvoked += 1;
-                    if (existsInvoked == 1)
-                    {
-                        Assert.Equal(
-                            AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                            + "/" +
-                            "moved.txt", path);
-                        return false;
-                    }
-                    else if (existsInvoked == 2)
-                    {
-                        Assert.Equal(
-                            AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                            + "/" +
-                            "moved.txt", path);
-                        return true;
-                    }
-                    else if (existsInvoked == 3)
-                    {
-                        Assert.Equal(
-                            AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                            + "/" +
-                            "existing.txt", path);
-                        return false;
-                    }
-                    else
-                    {
-                        throw new Exception("Failure in unit test");
-                    }
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "moved.txt", path);
+                    return false;
                 },
                 CopyAction = (src, dest) =>
                 {
@@ -662,7 +634,6 @@ io.file.exists:/existing.txt
                         AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
                         + "/" +
                         "moved.txt", dest);
-                    copyInvoked = true;
                 }
             };
 
@@ -680,9 +651,6 @@ io.file.copy:/existing.txt
         {
             #region [ -- Setting up mock service(s) -- ]
 
-            var existsInvoked = 0;
-            var saveInvoked = false;
-            var copyInvoked = false;
             var fileService = new FileService
             {
                 SaveAction = (path, content) =>
@@ -692,39 +660,14 @@ io.file.copy:/existing.txt
                         AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
                         + "/" +
                         "existing.txt", path);
-                    saveInvoked = true;
                 },
                 ExistsAction = (path) =>
                 {
-                    existsInvoked += 1;
-                    if (existsInvoked == 1)
-                    {
-                        Assert.Equal(
-                            AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                            + "/" +
-                            "moved.txt", path);
-                        return false;
-                    }
-                    else if (existsInvoked == 2)
-                    {
-                        Assert.Equal(
-                            AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                            + "/" +
-                            "moved.txt", path);
-                        return true;
-                    }
-                    else if (existsInvoked == 3)
-                    {
-                        Assert.Equal(
-                            AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                            + "/" +
-                            "existing.txt", path);
-                        return false;
-                    }
-                    else
-                    {
-                        throw new Exception("Failure in unit test");
-                    }
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "moved.txt", path);
+                    return false;
                 },
                 CopyAction = (src, dest) =>
                 {
@@ -736,7 +679,6 @@ io.file.copy:/existing.txt
                         AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
                         + "/" +
                         "moved.txt", dest);
-                    copyInvoked = true;
                 }
             };
 
@@ -1144,15 +1086,15 @@ io.file.eval:foo.hl
             var loadInvoked = false;
             var fileService = new FileService
             {
-                LoadAsyncAction = async (path) =>
+                LoadAsyncAction = (path) =>
                 {
                     Assert.Equal(
                         AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
                         + "/" +
                         "foo.hl", path);
                     loadInvoked = true;
-                    return @"return-nodes
-   result:hello world";
+                    return Task.FromResult(@"return-nodes
+   result:hello world");
                 }
             };
 
