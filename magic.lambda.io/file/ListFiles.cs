@@ -61,7 +61,8 @@ namespace magic.lambda.io.file
             foreach (var idx in files)
             {
                 // Making sure we don't show hidden operating system files by default.
-                if (displayHiddenFiles || !Path.GetFileName(idx).StartsWith(".", StringComparison.InvariantCulture))
+                if (displayHiddenFiles ||
+                    !Path.GetFileName(idx).StartsWith(".", StringComparison.InvariantCulture))
                     input.Add(new Node("", idx.Substring(root.Length)));
             }
         }

@@ -446,7 +446,7 @@ io.file.exists:/existing.txt
         }
 
         [Fact]
-        public void SaveFileAndMove_Throws()
+        public void SaveFileAndMove_Throws_01()
         {
             #region [ -- Setting up mock service(s) -- ]
 
@@ -515,6 +515,80 @@ io.file.save:/existing.txt
    .:foo
 io.file.move:/existing.txt
    .:existing.txt
+", fileService));
+            Assert.False(moveInvoked);
+        }
+
+
+        [Fact]
+        public void SaveFileAndMove_Throws_02()
+        {
+            #region [ -- Setting up mock service(s) -- ]
+
+            var existsInvoked = 0;
+            var moveInvoked = false;
+            var fileService = new FileService
+            {
+                SaveAction = (path, content) =>
+                {
+                    Assert.Equal("foo", content);
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", path);
+                },
+                ExistsAction = (path) =>
+                {
+                    existsInvoked += 1;
+                    if (existsInvoked == 1)
+                    {
+                        Assert.Equal(
+                            AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                            + "/" +
+                            "moved.txt", path);
+                        return false;
+                    }
+                    else if (existsInvoked == 2)
+                    {
+                        Assert.Equal(
+                            AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                            + "/" +
+                            "moved.txt", path);
+                        return true;
+                    }
+                    else if (existsInvoked == 3)
+                    {
+                        Assert.Equal(
+                            AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                            + "/" +
+                            "existing.txt", path);
+                        return false;
+                    }
+                    else
+                    {
+                        throw new Exception("Failure in unit test");
+                    }
+                },
+                MoveAction = (src, dest) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", src);
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "moved.txt", dest);
+                    moveInvoked = true;
+                }
+            };
+
+            #endregion
+
+            Assert.Throws<ArgumentException>(() => Common.Evaluate(@"
+io.file.save:/existing.txt
+   .:foo
+io.file.move:/existing.txt
 ", fileService));
             Assert.False(moveInvoked);
         }
@@ -936,6 +1010,9 @@ io.file.load:/existing.txt
                         "foo.txt",
                         AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
                         + "/" +
+                        ".hidden.txt",
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
                         "bar.txt"
                     };
                 }
@@ -951,6 +1028,43 @@ io.file.list:/
             // Notice, files are SORTED!
             Assert.Equal("/bar.txt", lambda.Children.First().Children.First().Get<string>());
             Assert.Equal("/foo.txt", lambda.Children.First().Children.Skip(1).First().Get<string>());
+        }
+
+        [Fact]
+        public void ListHiddenFiles()
+        {
+            #region [ -- Setting up mock service(s) -- ]
+
+            var fileService = new FileService
+            {
+                ListFilesAction = (path) =>
+                {
+                    return new string[] {
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "foo.txt",
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        ".hidden.txt",
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "bar.txt"
+                    };
+                }
+            };
+
+            #endregion
+
+            var lambda = Common.Evaluate(@"
+io.file.list:/
+   display-hidden:true
+", fileService);
+            Assert.Equal(3, lambda.Children.First().Children.Count());
+
+            // Notice, files are SORTED!
+            Assert.Equal("/.hidden.txt", lambda.Children.First().Children.First().Get<string>());
+            Assert.Equal("/bar.txt", lambda.Children.First().Children.Skip(1).First().Get<string>());
+            Assert.Equal("/foo.txt", lambda.Children.First().Children.Skip(2).First().Get<string>());
         }
 
         [Fact]
@@ -970,6 +1084,9 @@ io.file.list:/
                         "foo/",
                         AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
                         + "/" +
+                        ".foo/",
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
                         "bar/"
                     };
                 }
@@ -981,11 +1098,51 @@ io.file.list:/
 io.folder.list:/
 ", null, folderService);
             Assert.True(listInvoked);
-            Assert.True(lambda.Children.First().Children.Count() == 2);
+            Assert.Equal(2, lambda.Children.First().Children.Count());
 
             // Notice, files are SORTED!
             Assert.Equal("/bar/", lambda.Children.First().Children.First().Get<string>());
             Assert.Equal("/foo/", lambda.Children.First().Children.Skip(1).First().Get<string>());
+        }
+
+        [Fact]
+        public void ListHiddenFolders()
+        {
+            #region [ -- Setting up mock service(s) -- ]
+
+            var listInvoked = false;
+            var folderService = new FolderService
+            {
+                ListAction = (path) =>
+                {
+                    listInvoked = true;
+                    return new string[] {
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "foo/",
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        ".hidden/",
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "bar/"
+                    };
+                }
+            };
+
+            #endregion
+
+            var lambda = Common.Evaluate(@"
+io.folder.list:/
+   display-hidden:true
+", null, folderService);
+            Assert.True(listInvoked);
+            Assert.Equal(3, lambda.Children.First().Children.Count());
+
+            // Notice, files are SORTED!
+            Assert.Equal("/.hidden/", lambda.Children.First().Children.First().Get<string>());
+            Assert.Equal("/bar/", lambda.Children.First().Children.Skip(1).First().Get<string>());
+            Assert.Equal("/foo/", lambda.Children.First().Children.Skip(2).First().Get<string>());
         }
 
         [Fact]

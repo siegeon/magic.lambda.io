@@ -56,8 +56,9 @@ namespace magic.lambda.io.folder
             foreach (var idx in folders)
             {
                 // Making sure we don't show hidden operating system folders by default.
-                if (!displayHiddenFolders && !idx.StartsWith("."))
-                    input.Add(new Node("", idx.Substring(root.Length).TrimEnd('/') + "/"));
+                if (displayHiddenFolders ||
+                    !idx.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries).Last().StartsWith(".", StringComparison.InvariantCulture))
+                    input.Add(new Node("", idx.Substring(root.Length)));
             }
         }
     }
