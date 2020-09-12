@@ -195,12 +195,3 @@ need to supply your own bindings to the following two interfaces, using your IoC
 If you want to do this, you would probably want to manually declare your own implementation for these classes, by tapping
 into _"magic.library"_ somehow, or not invoking its default method that binds towards the default implementation classes
 somehow.
-
-## License
-
-Although most of Magic's source code is Open Source, you will need a license key to use it.
-[You can obtain a license key here](https://servergardens.com/buy/).
-Notice, 7 days after you put Magic into production, it will stop working, unless you have a valid
-license for it.
-
-* [Get licensed](https://servergardens.com/buy/)
