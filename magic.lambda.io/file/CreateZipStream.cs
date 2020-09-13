@@ -36,9 +36,8 @@ namespace magic.lambda.io.file
             // Creating Zip archive.
             using (var zipStream = new ZipOutputStream(result))
             {
-                // Making sure underlaying stream is NOT disposed as ZipOutputStream is disposed.
                 zipStream.IsStreamOwner = false;
-                zipStream.SetLevel(3);
+                var writer = new StreamWriter(zipStream);
 
                 // Iterating through each entity caller wants to zip, and creating entry for item.
                 foreach (var idx in input.Children)
@@ -52,14 +51,8 @@ namespace magic.lambda.io.file
                         DateTime = DateTime.Now
                     };
                     var content = idx.Children.FirstOrDefault().GetEx<string>() ?? "";
-                    newEntry.Size = content.Length;
                     zipStream.PutNextEntry(newEntry);
-
-                    // For simplicity reasons, we create a MemoryStream containing raw bytes, and copies that stream to zipStream.
-                    using (var contentStream = new MemoryStream(Encoding.UTF8.GetBytes(content)))
-                    {
-                        contentStream.CopyTo(zipStream);
-                    }
+                    writer.Write(content);
                 }
             }
 
