@@ -53,6 +53,7 @@ namespace magic.lambda.io.file
                     var content = idx.Children.FirstOrDefault().GetEx<string>() ?? "";
                     zipStream.PutNextEntry(newEntry);
                     writer.Write(content);
+                    writer.Flush();
                 }
             }
 
