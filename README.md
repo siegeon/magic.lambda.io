@@ -1,7 +1,7 @@
 
 # Magic Lambda IO
 
-[![Build status](https://travis-ci.org/polterguy/magic.lambda.io.svg?master)](https://travis-ci.org/polterguy/magic.lambda.io)
+[![Build status](https://travis-ci.com/polterguy/magic.lambda.io.svg?master)](https://travis-ci.com/polterguy/magic.lambda.io)
 
 This project provides file/folder slots for [Magic](https://github.com/polterguy/magic). More specifically, it provides the following slots.
 
