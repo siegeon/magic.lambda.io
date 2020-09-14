@@ -195,3 +195,18 @@ need to supply your own bindings to the following two interfaces, using your IoC
 If you want to do this, you would probably want to manually declare your own implementation for these classes, by tapping
 into _"magic.library"_ somehow, or not invoking its default method that binds towards the default implementation classes
 somehow.
+
+## Quality gates
+
+- [![Build status](https://travis-ci.com/polterguy/magic.lambda.io.svg?master)](https://travis-ci.com/polterguy/magic.lambda.io)
+- [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=polterguy_magic.lambda.io&metric=alert_status)](https://sonarcloud.io/dashboard?id=polterguy_magic.lambda.io)
+- [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=polterguy_magic.lambda.io&metric=bugs)](https://sonarcloud.io/dashboard?id=polterguy_magic.lambda.io)
+- [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=polterguy_magic.lambda.io&metric=code_smells)](https://sonarcloud.io/dashboard?id=polterguy_magic.lambda.io)
+- [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=polterguy_magic.lambda.io&metric=coverage)](https://sonarcloud.io/dashboard?id=polterguy_magic.lambda.io)
+- [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=polterguy_magic.lambda.io&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=polterguy_magic.lambda.io)
+- [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=polterguy_magic.lambda.io&metric=ncloc)](https://sonarcloud.io/dashboard?id=polterguy_magic.lambda.io)
+- [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=polterguy_magic.lambda.io&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=polterguy_magic.lambda.io)
+- [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=polterguy_magic.lambda.io&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=polterguy_magic.lambda.io)
+- [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=polterguy_magic.lambda.io&metric=security_rating)](https://sonarcloud.io/dashboard?id=polterguy_magic.lambda.io)
+- [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=polterguy_magic.lambda.io&metric=sqale_index)](https://sonarcloud.io/dashboard?id=polterguy_magic.lambda.io)
+- [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=polterguy_magic.lambda.io&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=polterguy_magic.lambda.io)
