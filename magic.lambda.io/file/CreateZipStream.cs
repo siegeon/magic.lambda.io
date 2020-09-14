@@ -10,7 +10,6 @@ using magic.signals.contracts;
 using System;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace magic.lambda.io.file
 {
