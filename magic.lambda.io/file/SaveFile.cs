@@ -17,7 +17,6 @@ namespace magic.lambda.io.file
     /// [io.file.save] slot for saving a file on your server.
     /// </summary>
     [Slot(Name = "io.file.save")]
-    [Slot(Name = "wait.io.file.save")]
     public class SaveFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
@@ -61,7 +60,7 @@ namespace magic.lambda.io.file
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
-            await signaler.SignalAsync("wait.eval", input);
+            await signaler.SignalAsync("eval", input);
 
             // Saving file
             await _service.SaveAsync(

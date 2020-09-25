@@ -223,9 +223,9 @@ io.folder.delete:foo
             #endregion
 
             var lambda = await Common.EvaluateAsync(@"
-wait.io.file.save:existing.txt
+io.file.save:existing.txt
    .:foo
-wait.io.file.load:/existing.txt
+io.file.load:/existing.txt
 ", fileService);
             Assert.True(saveInvoked);
             Assert.True(loadInvoked);
@@ -431,9 +431,9 @@ io.file.move:/existing.txt
             #endregion
 
             var lambda = await Common.EvaluateAsync(@"
-wait.io.file.save:/existing.txt
+io.file.save:/existing.txt
    .:foo
-wait.io.file.move:/existing.txt
+io.file.move:/existing.txt
    .:moved.txt
 io.file.exists:/moved.txt
 io.file.exists:/existing.txt
@@ -889,9 +889,9 @@ io.file.copy:/existing.txt
             #endregion
 
             await Assert.ThrowsAsync<ArgumentException>(async () => await Common.EvaluateAsync(@"
-wait.io.file.save:/existing.txt
+io.file.save:/existing.txt
    .:foo
-wait.io.file.copy:/existing.txt
+io.file.copy:/existing.txt
    .:existing.txt
 ", fileService));
         }
@@ -1395,7 +1395,7 @@ io.file.eval:foo.hl
             #endregion
 
             var lambda = await Common.EvaluateAsync(@"
-wait.io.file.eval:foo.hl
+io.file.eval:foo.hl
 ", fileService);
             Assert.True(loadInvoked);
             Assert.Single(lambda.Children.First().Children);

@@ -19,9 +19,7 @@ namespace magic.lambda.io.file
     /// [io.file.execute] slot for executing a Hyperlambda file on your server.
     /// </summary>
     [Slot(Name = "io.file.execute")]
-    [Slot(Name = "wait.io.file.execute")]
     [Slot(Name = "io.file.eval")]
-    [Slot(Name = "wait.io.file.eval")]
     public class ExecuteFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
@@ -103,7 +101,7 @@ namespace magic.lambda.io.file
                     lambda.Insert(0, new Node(".arguments", null, input.Children.ToList()));
 
                 // Evaluating lambda of slot.
-                await signaler.SignalAsync("wait.eval", lambda);
+                await signaler.SignalAsync("eval", lambda);
 
                 // Clearing Children collection, since it might contain input parameters.
                 input.Clear();

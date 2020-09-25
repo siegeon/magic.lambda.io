@@ -19,7 +19,6 @@ namespace magic.lambda.io.file
     /// [io.file.move] slot for moving a file on your server.
     /// </summary>
     [Slot(Name = "io.file.move")]
-    [Slot(Name = "wait.io.file.move")]
     public class MoveFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
@@ -57,7 +56,7 @@ namespace magic.lambda.io.file
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
             SanityCheckInvocation(input);
-            await signaler.SignalAsync("wait.eval", input);
+            await signaler.SignalAsync("eval", input);
             MoveImplementation(input);
         }
 

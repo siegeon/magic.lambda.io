@@ -19,7 +19,6 @@ namespace magic.lambda.io.file
     /// [io.file.copy] slot for moving a file on your server.
     /// </summary>
     [Slot(Name = "io.file.copy")]
-    [Slot(Name = "wait.io.file.copy")]
     public class CopyFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
@@ -89,7 +88,7 @@ namespace magic.lambda.io.file
             SanityCheckArguments(input);
 
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our destination is evaluated.
-            await signaler.SignalAsync("wait.eval", input);
+            await signaler.SignalAsync("eval", input);
 
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
             string sourcePath = PathResolver.CombinePaths(
@@ -99,6 +98,10 @@ namespace magic.lambda.io.file
             var destinationPath = PathResolver.CombinePaths(
                 _rootResolver.RootFolder,
                 input.Children.First().GetEx<string>());
+
+            // Defaulting filename to the filename of the source file, unless another filename is explicitly given.
+            if (destinationPath.EndsWith("/", StringComparison.InvariantCultureIgnoreCase))
+                destinationPath += Path.GetFileName(sourcePath);
 
             // Sanity checking arguments.
             if (sourcePath == destinationPath)
