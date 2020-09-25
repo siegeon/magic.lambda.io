@@ -906,7 +906,7 @@ wait.io.file.copy:/existing.txt
             var copyInvoked = false;
             var fileService = new FileService
             {
-                SaveAction = (path, content) =>
+                SaveAsyncAction = (path, content) =>
                 {
                     Assert.Equal("foo", content);
                     Assert.Equal(
@@ -914,6 +914,7 @@ wait.io.file.copy:/existing.txt
                         + "/" +
                         "existing.txt", path);
                     saveInvoked = true;
+                    return Task.CompletedTask;
                 },
                 ExistsAction = (path) =>
                 {
@@ -964,10 +965,16 @@ wait.io.file.copy:/existing.txt
 
             #endregion
 
+            /*
+             * Notice, even though we don't explicitly invoke async slots here,
+             * the async slots whould be invoked none the less, due to the signaler's
+             * default behaviour, which is to invoke async slots, from an async context,
+             * if the slot implements the ISlotAsync interface.
+             */
             var lambda = await Common.EvaluateAsync(@"
 io.file.save:/existing.txt
    .:foo
-wait.io.file.copy:/existing.txt
+io.file.copy:/existing.txt
    .:moved.txt
 io.file.exists:/moved.txt
 io.file.exists:/existing.txt
