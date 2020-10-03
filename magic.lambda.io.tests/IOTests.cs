@@ -1303,7 +1303,7 @@ io.folder.list:/
             #endregion
 
             var lambda = Common.Evaluate(@"
-io.file.eval:foo.hl
+io.file.execute:foo.hl
 ", fileService);
             Assert.True(loadInvoked);
             Assert.Single(lambda.Children.First().Children);
@@ -1336,13 +1336,45 @@ return-nodes
             #endregion
 
             var lambda = Common.Evaluate(@"
-io.file.eval:foo.hl
+io.file.execute:foo.hl
    input:jo world
 ", fileService);
             Assert.True(loadInvoked);
             Assert.Single(lambda.Children.First().Children);
             Assert.Equal("result", lambda.Children.First().Children.First().Name);
             Assert.Equal("jo world", lambda.Children.First().Children.First().Get<string>());
+        }
+
+        [Fact]
+        public void EvaluateFileReturningRootFilename()
+        {
+            #region [ -- Setting up mock service(s) -- ]
+
+            var loadInvoked = false;
+            var fileService = new FileService
+            {
+                LoadAction = (path) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "foo.hl", path);
+                    loadInvoked = true;
+                    return @"unwrap:x:+/*
+return-nodes
+   result:x:..";
+                }
+            };
+
+            #endregion
+
+            var lambda = Common.Evaluate(@"
+io.file.execute:foo.hl
+", fileService);
+            Assert.True(loadInvoked);
+            Assert.Single(lambda.Children.First().Children);
+            Assert.Equal("result", lambda.Children.First().Children.First().Name);
+            Assert.EndsWith("foo.hl", lambda.Children.First().Children.First().Get<string>());
         }
 
         [Fact]
@@ -1366,7 +1398,7 @@ io.file.eval:foo.hl
 
             #endregion
 
-            var lambda = Common.Evaluate("io.file.eval:foo.hl", fileService);
+            var lambda = Common.Evaluate("io.file.execute:foo.hl", fileService);
             Assert.True(loadInvoked);
             Assert.Empty(lambda.Children.First().Children);
             Assert.Equal("howdy world", lambda.Children.First().Get<string>());
@@ -1395,7 +1427,7 @@ io.file.eval:foo.hl
             #endregion
 
             var lambda = await Common.EvaluateAsync(@"
-io.file.eval:foo.hl
+io.file.execute:foo.hl
 ", fileService);
             Assert.True(loadInvoked);
             Assert.Single(lambda.Children.First().Children);

@@ -3,7 +3,7 @@
  * See the enclosed LICENSE file for details.
  */
 
-using System;
+using System.Linq;
 using System.Threading.Tasks;
 using magic.node;
 using magic.node.extensions;
@@ -11,7 +11,6 @@ using magic.signals.contracts;
 using magic.lambda.io.contracts;
 using magic.lambda.io.utilities;
 using magic.node.extensions.hyperlambda;
-using System.Linq;
 
 namespace magic.lambda.io.file
 {
@@ -19,7 +18,6 @@ namespace magic.lambda.io.file
     /// [io.file.execute] slot for executing a Hyperlambda file on your server.
     /// </summary>
     [Slot(Name = "io.file.execute")]
-    [Slot(Name = "io.file.eval")]
     public class ExecuteFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
@@ -48,12 +46,14 @@ namespace magic.lambda.io.file
             signaler.Scope("slots.result", result, () =>
             {
                 // Loading file and converting its content to lambda.
+                var filename = input.GetEx<string>();
                 var hyperlambda = _service
                     .Load(
                         PathResolver.CombinePaths(
                             _rootResolver.RootFolder,
-                            input.GetEx<string>()));
+                            filename));
                 var lambda = new Parser(hyperlambda).Lambda();
+                lambda.Value = filename;
 
                 // Preparing arguments, if there are any, making sure we remove any declarative [.arguments] first.
                 lambda.Children
