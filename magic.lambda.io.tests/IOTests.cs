@@ -1362,7 +1362,7 @@ io.file.execute:foo.hl
                     loadInvoked = true;
                     return @"unwrap:x:+/*
 return-nodes
-   result:x:..";
+   result:x:@.filename";
                 }
             };
 
@@ -1375,6 +1375,15 @@ io.file.execute:foo.hl
             Assert.Single(lambda.Children.First().Children);
             Assert.Equal("result", lambda.Children.First().Children.First().Name);
             Assert.EndsWith("foo.hl", lambda.Children.First().Children.First().Get<string>());
+        }
+
+        [Fact]
+        public void GetPathFolder()
+        {
+            var lambda = Common.Evaluate(@"
+io.path.get-folder:/foo/howdy/file.hl
+");
+            Assert.Equal("/foo/howdy/", lambda.Children.First().Value);
         }
 
         [Fact]

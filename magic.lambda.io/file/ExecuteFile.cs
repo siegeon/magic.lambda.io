@@ -53,7 +53,6 @@ namespace magic.lambda.io.file
                             _rootResolver.RootFolder,
                             filename));
                 var lambda = new Parser(hyperlambda).Lambda();
-                lambda.Value = filename;
 
                 // Preparing arguments, if there are any, making sure we remove any declarative [.arguments] first.
                 lambda.Children
@@ -61,6 +60,7 @@ namespace magic.lambda.io.file
                     .UnTie();
                 if (input.Children.Any())
                     lambda.Insert(0, new Node(".arguments", null, input.Children.ToList()));
+                lambda.Insert(0, new Node(".filename", filename));
 
                 // Evaluating lambda of slot.
                 signaler.Signal("eval", lambda);
@@ -90,15 +90,17 @@ namespace magic.lambda.io.file
             await signaler.ScopeAsync("slots.result", result, async () =>
             {
                 // Loading file and converting its content to lambda.
+                var filename = input.GetEx<string>();
                 var hyperlambda = await _service.LoadAsync(
                     PathResolver.CombinePaths(
                         _rootResolver.RootFolder,
-                        input.GetEx<string>()));
+                        filename));
                 var lambda = new Parser(hyperlambda).Lambda();
 
                 // Preparing arguments, if there are any.
                 if (input.Children.Any())
                     lambda.Insert(0, new Node(".arguments", null, input.Children.ToList()));
+                lambda.Insert(0, new Node(".filename", filename));
 
                 // Evaluating lambda of slot.
                 await signaler.SignalAsync("eval", lambda);
