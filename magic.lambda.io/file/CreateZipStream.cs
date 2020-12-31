@@ -3,13 +3,13 @@
  * See the enclosed LICENSE file for details.
  */
 
+using System;
+using System.IO;
+using System.Linq;
 using ICSharpCode.SharpZipLib.Zip;
 using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
-using System;
-using System.IO;
-using System.Linq;
 
 namespace magic.lambda.io.file
 {
