@@ -32,6 +32,13 @@ namespace magic.lambda.io.contracts
         void Delete(string path);
 
         /// <summary>
+        /// Moves the specified folder.
+        /// </summary>
+        /// <param name="source">Path of folder to move.</param>
+        /// <param name="destination">New path of folder.</param>
+        void Move(string source, string destination);
+
+        /// <summary>
         /// Lists all folders within the specified folder.
         /// </summary>
         /// <param name="folder">Folder to query for folders.</param>

@@ -13,23 +13,23 @@ using magic.signals.contracts;
 using magic.lambda.io.contracts;
 using magic.lambda.io.utilities;
 
-namespace magic.lambda.io.file
+namespace magic.lambda.io.folder
 {
     /// <summary>
-    /// [io.file.move] slot for moving a file on your server.
+    /// [io.folder.move] slot for moving a folder on your server.
     /// </summary>
-    [Slot(Name = "io.file.move")]
-    public class MoveFile : ISlot, ISlotAsync
+    [Slot(Name = "io.folder.move")]
+    public class MoveFolder : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
-        readonly IFileService _service;
+        readonly IFolderService _service;
 
         /// <summary>
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
         /// <param name="service">Underlaying file service implementation.</param>
-        public MoveFile(IRootResolver rootResolver, IFileService service)
+        public MoveFolder(IRootResolver rootResolver, IFolderService service)
         {
             _rootResolver = rootResolver;
             _service = service;
@@ -65,7 +65,7 @@ namespace magic.lambda.io.file
         void SanityCheckInvocation(Node input)
         {
             if (!input.Children.Any())
-                throw new ArgumentException("No destination provided to [io.file.move]");
+                throw new ArgumentException("No destination provided to [io.folder.move]");
         }
 
         void MoveImplementation(Node input)
@@ -81,17 +81,13 @@ namespace magic.lambda.io.file
                     _rootResolver.RootFolder,
                     input.Children.First().GetEx<string>());
 
-            // Defaulting destination folder to be the same as source folder, unless a different folder is explicitly given.
-            if (destinationPath.EndsWith("/", StringComparison.InvariantCultureIgnoreCase))
-                destinationPath += Path.GetFileName(sourcePath);
-
             // Sanity checking arguments.
             if (sourcePath == destinationPath)
                 throw new ArgumentException("You cannot move a file using the same source and destination path");
 
-            // For simplicity, we're deleting any existing files with the path of the destination file.
+            // Verifying folder doesn't exist from before.
             if (_service.Exists(destinationPath))
-                _service.Delete(destinationPath);
+                throw new ArgumentException("Cannot move folder, destination folder already exists");
 
             _service.Move(sourcePath, destinationPath);
         }

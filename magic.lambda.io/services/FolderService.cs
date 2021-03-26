@@ -31,6 +31,12 @@ namespace magic.lambda.io.folder.services
         }
 
         /// <inheritdoc/>
+        public void Move(string source, string destination)
+        {
+            Directory.Move(source, destination);
+        }
+
+        /// <inheritdoc/>
         public IEnumerable<string> ListFolders(string folder)
         {
             return Directory.GetDirectories(folder);
