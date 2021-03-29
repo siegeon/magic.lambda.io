@@ -46,6 +46,7 @@ namespace magic.lambda.io.folder
             var root = PathResolver.Normalize(_rootResolver.RootFolder);
             var folder = input.GetEx<string>();
             input.Clear();
+            input.Value = null;
             var folders = _service
                 .ListFolders(
                     PathResolver.CombinePaths(
