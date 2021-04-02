@@ -6,7 +6,7 @@
     <PackageId>magic.lambda.io</PackageId>
     <Authors>Thomas Hansen</Authors>
     <Company>Thomas Hansen</Company>
-    <Copyright>Thomas Hansen, thomas@gaiasoul.com</Copyright>
+    <Copyright>Thomas Hansen, thomas@servergardens.com</Copyright>
     <Description>IO helper slots for Magic to manipulate files and folders on your server using Hyperlambda. To use package go to https://polterguy.github.io</Description>
     <PackageProjectUrl>https://github.com/polterguy/magic.lambda.io</PackageProjectUrl>
     <PackOnBuild>true</PackOnBuild>
@@ -38,8 +38,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="magic.node.extensions" Version="8.9.*" />
-    <PackageReference Include="magic.signals.contracts" Version="8.9.*" />
-    <PackageReference Include="SharpZipLib" Version="1.2.0" />
+    <PackageReference Include="magic.node.extensions" Version="8.9.9" />
+    <PackageReference Include="magic.signals.contracts" Version="8.9.9" />
+    <PackageReference Include="SharpZipLib" Version="1.3.1" />
   </ItemGroup>
 </Project>
