@@ -19,6 +19,8 @@ namespace magic.lambda.io.tests.helpers
 
         public Func<string, bool> ExistsAction { get; set; }
 
+        public Action<string, string> MoveAction { get; set; }
+
         public void Create(string path)
         {
             CreateAction(path);
@@ -37,6 +39,11 @@ namespace magic.lambda.io.tests.helpers
         public IEnumerable<string> ListFolders(string folder)
         {
             return ListAction(folder);
+        }
+
+        public void Move(string source, string destination)
+        {
+            MoveAction(source, destination);
         }
     }
 }
