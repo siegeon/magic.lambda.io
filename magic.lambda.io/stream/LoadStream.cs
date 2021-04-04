@@ -4,21 +4,19 @@
  */
 
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.io.contracts;
-using magic.lambda.io.utilities;
 
 namespace magic.lambda.io.stream
 {
     /// <summary>
-    /// [io.stream.save] slot for saving a stream on your server.
+    /// [io.stream.load] slot for loading a stream raw as byte[] content.
     /// </summary>
-    [Slot(Name = "io.stream.save")]
-    public class SaveStream : ISlot, ISlotAsync
+    [Slot(Name = "io.stream.load")]
+    public class LoadStream : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
 
@@ -26,7 +24,7 @@ namespace magic.lambda.io.stream
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        public SaveStream(IRootResolver rootResolver)
+        public LoadStream(IRootResolver rootResolver)
         {
             _rootResolver = rootResolver;
         }
@@ -38,11 +36,10 @@ namespace magic.lambda.io.stream
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            var args = GetArguments(signaler, input);
-            using (var fileStream = File.Create(args.Item1))
-            {
-                args.Item2.CopyTo(fileStream);
-            }
+            var stream = input.GetEx<Stream>();
+            var memory = new MemoryStream();
+            stream.CopyTo(memory);
+            input.Value = memory.ToArray();
         }
 
         /// <summary>
@@ -53,32 +50,10 @@ namespace magic.lambda.io.stream
         /// <returns>An awaitable task.</returns>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            var args = GetArguments(signaler, input);
-            using (var fileStream = File.Create(args.Item1))
-            {
-                await args.Item2.CopyToAsync(fileStream);
-            }
+            var stream = input.GetEx<Stream>();
+            var memory = new MemoryStream();
+            await stream.CopyToAsync(memory);
+            input.Value = memory.ToArray();
         }
-
-        #region [ -- Private helper methods -- ]
-
-        (string, Stream) GetArguments(ISignaler signaler, Node input)
-        {
-            // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
-            signaler.Signal("eval", input);
-
-            // Figuring out where to save file.
-            var destination = PathResolver.CombinePaths(
-                _rootResolver.RootFolder,
-                input.GetEx<string>());
-
-            // Retrieving stream
-            var stream = input.Children.First().GetEx<Stream>();
-
-            // Returning results to caller.
-            return (destination, stream);
-        }
-
-        #endregion
     }
 }

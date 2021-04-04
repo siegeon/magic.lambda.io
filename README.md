@@ -17,6 +17,7 @@ This project provides file/folder slots for Magic. More specifically, it provide
 * __[io.file.move]__ - Moves a file on your server.
 * __[io.file.unzip]__ - Unzips a file on your server.
 * __[io.stream.save]__ - Saves a stream to the specified destination path
+* __[io.stream.load]__ - Loads all content from the specified stream as a byte array
 * __[io.content.zip-stream]__ - Creates a ZipStream for you, without touching the file system.
 * __[.io.folder.root]__ - Returns the root folder of your system. (private C# slot)
 
@@ -191,6 +192,20 @@ source is an open `Stream` of some sort.
 .stream
 io.stream.save:/foo/bar.txt
    get-value:x:@.stream
+```
+
+### io.stream.load
+
+Works similarly to **[io.file.load]** but instead of taking a source file of some kind, assumes the
+source is an open `Stream` of some sort.
+
+```
+/*
+ * [.stream] here is an open stream, from for instance the HTTP
+ * request object, or something similar.
+ */
+.stream
+io.stream.save:x:@.stream
 ```
 
 ### .io.folder.root
