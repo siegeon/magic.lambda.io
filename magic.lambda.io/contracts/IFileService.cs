@@ -9,7 +9,7 @@ using System.Collections.Generic;
 namespace magic.lambda.io.contracts
 {
     /// <summary>
-    /// Contracts for handling files for magic.lambda.io
+    /// Contract for handling files for magic.lambda.io
     /// </summary>
     public interface IFileService
     {

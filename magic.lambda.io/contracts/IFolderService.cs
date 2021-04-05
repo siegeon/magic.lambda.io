@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace magic.lambda.io.contracts
 {
     /// <summary>
-    /// Contracts for handling folders for magic.lambda.io
+    /// Contract for handling folders for magic.lambda.io
     /// </summary>
     public interface IFolderService
     {

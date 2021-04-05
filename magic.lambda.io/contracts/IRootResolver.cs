@@ -6,7 +6,7 @@
 namespace magic.lambda.io.contracts
 {
     /// <summary>
-    /// Contracts for resolving root folder on disc for magic.lambda.io
+    /// Contract for resolving root folder on disc for magic.lambda.io
     /// </summary>
     public interface IRootResolver
     {

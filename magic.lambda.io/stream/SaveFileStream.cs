@@ -15,20 +15,24 @@ using magic.lambda.io.utilities;
 namespace magic.lambda.io.stream
 {
     /// <summary>
-    /// [io.stream.save] slot for saving a stream on your server.
+    /// [io.stream.save-file] slot for saving a stream on your server
+    /// to the specified filename.
     /// </summary>
-    [Slot(Name = "io.stream.save")]
-    public class SaveStream : ISlot, ISlotAsync
+    [Slot(Name = "io.stream.save-file")]
+    public class SaveFileStream : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
+        readonly IStreamService _service;
 
         /// <summary>
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        public SaveStream(IRootResolver rootResolver)
+        /// <param name="service">Service implementation.</param>
+        public SaveFileStream(IRootResolver rootResolver, IStreamService service)
         {
             _rootResolver = rootResolver;
+            _service = service;
         }
 
         /// <summary>
@@ -39,10 +43,7 @@ namespace magic.lambda.io.stream
         public void Signal(ISignaler signaler, Node input)
         {
             var args = GetArguments(signaler, input);
-            using (var fileStream = File.Create(args.Item1))
-            {
-                args.Item2.CopyTo(fileStream);
-            }
+            _service.SaveFile(args.Stream, args.Destination);
         }
 
         /// <summary>
@@ -54,15 +55,12 @@ namespace magic.lambda.io.stream
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
             var args = GetArguments(signaler, input);
-            using (var fileStream = File.Create(args.Item1))
-            {
-                await args.Item2.CopyToAsync(fileStream);
-            }
+            await _service.SaveFileAsync(args.Stream, args.Destination);
         }
 
         #region [ -- Private helper methods -- ]
 
-        (string, Stream) GetArguments(ISignaler signaler, Node input)
+        (string Destination, Stream Stream) GetArguments(ISignaler signaler, Node input)
         {
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
             signaler.Signal("eval", input);

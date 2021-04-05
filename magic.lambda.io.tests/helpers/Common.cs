@@ -27,9 +27,10 @@ namespace magic.lambda.io.tests.helpers
         static public Node Evaluate(
             string hl,
             FileService fileService = null,
-            FolderService folderService = null)
+            FolderService folderService = null,
+            StreamService streamService = null)
         {
-            var services = Initialize(fileService, folderService);
+            var services = Initialize(fileService, folderService, streamService);
             var lambda = new Parser(hl).Lambda();
             var signaler = services.GetService(typeof(ISignaler)) as ISignaler;
             signaler.Signal("eval", lambda);
@@ -39,9 +40,10 @@ namespace magic.lambda.io.tests.helpers
         static public async Task<Node> EvaluateAsync(
             string hl,
             FileService fileService = null,
-            FolderService folderService = null)
+            FolderService folderService = null,
+            StreamService streamService = null)
         {
-            var services = Initialize(fileService, folderService);
+            var services = Initialize(fileService, folderService, streamService);
             var lambda = new Parser(hl).Lambda();
             var signaler = services.GetService(typeof(ISignaler)) as ISignaler;
             await signaler.SignalAsync("eval", lambda);
@@ -52,7 +54,8 @@ namespace magic.lambda.io.tests.helpers
 
         static IServiceProvider Initialize(
             FileService fileService = null,
-            FolderService folderService = null)
+            FolderService folderService = null,
+            StreamService streamService = null)
         {
             var configuration = new ConfigurationBuilder().Build();
             var services = new ServiceCollection();
@@ -66,6 +69,10 @@ namespace magic.lambda.io.tests.helpers
                 services.AddTransient<IFolderService, folder.services.FolderService>();
             else
                 services.AddTransient<IFolderService>(svc => folderService);
+            if (streamService == null)
+                services.AddTransient<IStreamService, stream.services.StreamService>();
+            else
+                services.AddTransient<IStreamService>(svc => streamService);
             services.AddTransient<IRootResolver, RootResolver>();
             var types = new SignalsProvider(InstantiateAllTypes<ISlot>(services));
             services.AddTransient<ISignalsProvider>((svc) => types);

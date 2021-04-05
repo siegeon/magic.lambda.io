@@ -4,29 +4,33 @@
  */
 
 using System.IO;
-using System.Threading.Tasks;
 using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.io.contracts;
+using magic.lambda.io.utilities;
 
 namespace magic.lambda.io.stream
 {
     /// <summary>
-    /// [io.stream.load] slot for loading a stream raw as byte[] content.
+    /// [io.stream.open-file] slot for opening a file in read only mode
+    /// and returning it as a stream to caller.
     /// </summary>
-    [Slot(Name = "io.stream.load")]
-    public class LoadStream : ISlot, ISlotAsync
+    [Slot(Name = "io.stream.open-file")]
+    public class OpenFileStream : ISlot
     {
         readonly IRootResolver _rootResolver;
+        readonly IStreamService _service;
 
         /// <summary>
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        public LoadStream(IRootResolver rootResolver)
+        /// <param name="service">Service implementation.</param>
+        public OpenFileStream(IRootResolver rootResolver, IStreamService service)
         {
             _rootResolver = rootResolver;
+            _service = service;
         }
 
         /// <summary>
@@ -36,24 +40,13 @@ namespace magic.lambda.io.stream
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            var stream = input.GetEx<Stream>();
-            var memory = new MemoryStream();
-            stream.CopyTo(memory);
-            input.Value = memory.ToArray();
-        }
+            // Figuring out filename.
+            var filename = PathResolver.CombinePaths(
+                _rootResolver.RootFolder,
+                input.GetEx<string>());
 
-        /// <summary>
-        /// Implementation of slot.
-        /// </summary>
-        /// <param name="signaler">Signaler used to raise the signal.</param>
-        /// <param name="input">Arguments to slot.</param>
-        /// <returns>An awaitable task.</returns>
-        public async Task SignalAsync(ISignaler signaler, Node input)
-        {
-            var stream = input.GetEx<Stream>();
-            var memory = new MemoryStream();
-            await stream.CopyToAsync(memory);
-            input.Value = memory.ToArray();
+            // Opening file and returning to caller.
+            input.Value = _service.OpenFile(filename);
         }
     }
 }
