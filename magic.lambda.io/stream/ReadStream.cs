@@ -19,17 +19,6 @@ namespace magic.lambda.io.stream
     [Slot(Name = "io.stream.read")]
     public class ReadStream : ISlot, ISlotAsync
     {
-        readonly IRootResolver _rootResolver;
-
-        /// <summary>
-        /// Constructs a new instance of your type.
-        /// </summary>
-        /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        public ReadStream(IRootResolver rootResolver)
-        {
-            _rootResolver = rootResolver;
-        }
-
         /// <summary>
         /// Implementation of slot.
         /// </summary>
