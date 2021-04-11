@@ -4,11 +4,8 @@
  */
 
 using System;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using magic.node;
-using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.io.contracts;
 using magic.lambda.io.utilities;
@@ -42,10 +39,8 @@ namespace magic.lambda.io.folder
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            // Sanity checking invocation.
-            SanityCheckInvocation(input);
-            signaler.Signal("eval", input);
-            MoveImplementation(input);
+            // Invoking helper method containing commonalities.
+            Helpers.Move(signaler, _rootResolver, input, "io.folder.move", Move);
         }
 
         /// <summary>
@@ -55,41 +50,32 @@ namespace magic.lambda.io.folder
         /// <param name="input">Arguments to slot.</param>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            SanityCheckInvocation(input);
-            await signaler.SignalAsync("eval", input);
-            MoveImplementation(input);
+            // Invoking helper method containing commonalities.
+            await Helpers.MoveAsync(signaler, _rootResolver, input, "io.folder.move", Move);
         }
 
         #region [ -- Private helper methods -- ]
 
-        void SanityCheckInvocation(Node input)
+        /*
+         * Commonalities between async and sync version to keep code DRY.
+         */
+        void Move(string src, string dest)
         {
-            if (!input.Children.Any())
-                throw new ArgumentException("No destination provided to [io.folder.move]");
-        }
-
-        void MoveImplementation(Node input)
-        {
-            // Retrieving source path.
-            string sourcePath = PathResolver.CombinePaths(
-                _rootResolver.RootFolder,
-                input.GetEx<string>());
-
-            // Retrieving destination path.
-            var destinationPath = PathResolver
-                .CombinePaths(
-                    _rootResolver.RootFolder,
-                    input.Children.First().GetEx<string>());
-
             // Sanity checking arguments.
-            if (sourcePath == destinationPath)
-                throw new ArgumentException("You cannot move a file using the same source and destination path");
+            if (src == dest)
+                throw new ArgumentException("You cannot move a folder using the same source and destination path");
 
-            // Verifying folder doesn't exist from before.
-            if (_service.Exists(destinationPath))
+            /*
+             * Verifying folder doesn't exist from before.
+             *
+             * Notice, contrary to the move file version, we cannot delete any
+             * existing folders here, since it might include deleting a lot of
+             * files unintentionally.
+             */
+            if (_service.Exists(dest))
                 throw new ArgumentException("Cannot move folder, destination folder already exists");
 
-            _service.Move(sourcePath, destinationPath);
+            _service.Move(src, dest);
         }
 
         #endregion

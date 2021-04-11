@@ -5,10 +5,8 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using magic.node;
-using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.io.contracts;
 using magic.lambda.io.utilities;
@@ -42,10 +40,8 @@ namespace magic.lambda.io.file
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            // Sanity checking invocation.
-            SanityCheckInvocation(input);
-            signaler.Signal("eval", input);
-            MoveImplementation(input);
+            // Invoking helper method containing commonalities.
+            Helpers.Move(signaler, _rootResolver, input, "io.file.move", Move);
         }
 
         /// <summary>
@@ -55,45 +51,39 @@ namespace magic.lambda.io.file
         /// <param name="input">Arguments to slot.</param>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            SanityCheckInvocation(input);
-            await signaler.SignalAsync("eval", input);
-            MoveImplementation(input);
+            // Invoking helper method containing commonalities.
+            await Helpers.MoveAsync(signaler, _rootResolver, input, "io.file.move", Move);
         }
 
         #region [ -- Private helper methods -- ]
 
-        void SanityCheckInvocation(Node input)
+        /*
+         * Commonalities between async and sync version to keep code DRY.
+         */
+        void Move(string src, string dest)
         {
-            if (!input.Children.Any())
-                throw new ArgumentException("No destination provided to [io.file.move]");
-        }
-
-        void MoveImplementation(Node input)
-        {
-            // Retrieving source path.
-            string sourcePath = PathResolver.CombinePaths(
-                _rootResolver.RootFolder,
-                input.GetEx<string>());
-
-            // Retrieving destination path.
-            var destinationPath = PathResolver
-                .CombinePaths(
-                    _rootResolver.RootFolder,
-                    input.Children.First().GetEx<string>());
-
-            // Defaulting destination folder to be the same as source folder, unless a different folder is explicitly given.
-            if (destinationPath.EndsWith("/", StringComparison.InvariantCultureIgnoreCase))
-                destinationPath += Path.GetFileName(sourcePath);
+            /*
+             * Defaulting destination filename to be the same as source filename,
+             * unless a different filename is explicitly given.
+             *
+             * This allows us to do things such as Move("/foo1/bar.txt", "/foo2/") making sure
+             * the filename is kept as is, but the file is moved to a different folder.
+             */
+            if (dest.EndsWith("/", StringComparison.InvariantCultureIgnoreCase))
+                dest += Path.GetFileName(src);
 
             // Sanity checking arguments.
-            if (sourcePath == destinationPath)
+            if (src == dest)
                 throw new ArgumentException("You cannot move a file using the same source and destination path");
 
-            // For simplicity, we're deleting any existing files with the path of the destination file.
-            if (_service.Exists(destinationPath))
-                _service.Delete(destinationPath);
+            /*
+             * For simplicity, we're deleting any existing files
+             * with the path of the destination file.
+             */
+            if (_service.Exists(dest))
+                _service.Delete(dest);
 
-            _service.Move(sourcePath, destinationPath);
+            _service.Move(src, dest);
         }
 
         #endregion
