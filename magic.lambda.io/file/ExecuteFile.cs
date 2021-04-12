@@ -52,28 +52,15 @@ namespace magic.lambda.io.file
                         PathResolver.CombinePaths(
                             _rootResolver.RootFolder,
                             filename));
-                var lambda = new Parser(hyperlambda).Lambda();
 
-                // Preparing arguments, if there are any, making sure we remove any declarative [.arguments] first.
-                lambda.Children
-                    .FirstOrDefault(x => x.Name == ".arguments")?
-                    .UnTie();
-                if (input.Children.Any())
-                    lambda.Insert(0, new Node(".arguments", null, input.Children.ToList()));
-                lambda.Insert(0, new Node(".filename", filename));
+                // Creating and parametrising our lambda object from argument + file's Hyperlambda content.
+                var lambda = GetLambda(input, hyperlambda, filename);
 
                 // Evaluating lambda of slot.
                 signaler.Signal("eval", lambda);
 
-                // Clearing Children collection, since it might contain input parameters.
-                input.Clear();
-
-                /*
-                * Simply setting value and children to "slots.result" stack object, since its value
-                * was initially set to its old value during startup of method.
-                */
-                input.Value = result.Value;
-                input.AddRange(result.Children.ToList());
+                // Applying result.
+                ApplyResult(input, result);
             });
         }
 
@@ -89,32 +76,64 @@ namespace magic.lambda.io.file
             var result = new Node();
             await signaler.ScopeAsync("slots.result", result, async () =>
             {
-                // Loading file and converting its content to lambda.
+                // Loading file and converting its content to Hyperlambda.
                 var filename = input.GetEx<string>();
                 var hyperlambda = await _service.LoadAsync(
                     PathResolver.CombinePaths(
                         _rootResolver.RootFolder,
                         filename));
-                var lambda = new Parser(hyperlambda).Lambda();
 
-                // Preparing arguments, if there are any.
-                if (input.Children.Any())
-                    lambda.Insert(0, new Node(".arguments", null, input.Children.ToList()));
-                lambda.Insert(0, new Node(".filename", filename));
+                // Creating and parametrising our lambda object from argument + file's Hyperlambda content.
+                var lambda = GetLambda(input, hyperlambda, filename);
 
                 // Evaluating lambda of slot.
                 await signaler.SignalAsync("eval", lambda);
 
-                // Clearing Children collection, since it might contain input parameters.
-                input.Clear();
-
-                /*
-                * Simply setting value and children to "slots.result" stack object, since its value
-                * was initially set to its old value during startup of method.
-                */
-                input.Value = result.Value;
-                input.AddRange(result.Children.ToList());
+                // Applying result.
+                ApplyResult(input, result);
             });
         }
+
+        #region [ -- Private helper methods -- ]
+
+        /*
+         * Helper method containing commonalities to retrieve and parametrise lambda object.
+         */
+        Node GetLambda(Node input, string hyperlambda, string filename)
+        {
+            // Parsing specified Hyperlambda, creating our lambda object.
+            var lambda = new Parser(hyperlambda).Lambda();
+
+            /*
+             * Preparing arguments, if there are any, making sure we remove
+             * any declarative [.arguments] first.
+             */
+            lambda.Children
+                .FirstOrDefault(x => x.Name == ".arguments")?
+                .UnTie();
+            if (input.Children.Any())
+                lambda.Insert(0, new Node(".arguments", null, input.Children.ToList()));
+
+            // Making sure we declare our [.filename] node in the lambda object.
+            lambda.Insert(0, new Node(".filename", filename));
+
+            // Returning lambda object to caller.
+            return lambda;
+        }
+
+        /*
+         * Commonalities to apply result after invocation of [eval].
+         */
+        void ApplyResult(Node input, Node result)
+        {
+            // Clearing Children collection, since it might contain input parameters.
+            input.Clear();
+
+            // Making sure we return both value and any children nodes to caller.
+            input.Value = result.Value;
+            input.AddRange(result.Children.ToList());
+        }
+
+        #endregion
     }
 }

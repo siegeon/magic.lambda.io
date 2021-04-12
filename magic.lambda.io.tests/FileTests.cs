@@ -1421,8 +1421,23 @@ io.file.execute:foo.hl
                         + "/" +
                         "foo.hl", path);
                     loadInvoked = true;
-                    return @".arguments
+                    return @"
+.arguments
    foo:bar
+if
+   not
+      eq
+         get-value:x:@.filename
+         .:/foo.hl
+   .lambda
+      throw:Wrong filename
+if
+   not
+      eq
+         get-count:x:../*/.arguments
+         .:int:1
+   .lambda
+      throw:Too many [.arguments] nodes
 unwrap:x:+/*
 return-nodes
    result:x:@.arguments/*";
@@ -1432,7 +1447,7 @@ return-nodes
             #endregion
 
             var lambda = Common.Evaluate(@"
-io.file.execute:foo.hl
+io.file.execute:/foo.hl
    input:jo world
 ", fileService);
             Assert.True(loadInvoked);
@@ -1531,6 +1546,56 @@ io.file.execute:foo.hl
         }
 
         [Fact]
+        public async Task EvaluateFileWithArgumentsAsync()
+        {
+            #region [ -- Setting up mock service(s) -- ]
+
+            var loadInvoked = false;
+            var fileService = new FileService
+            {
+                LoadAsyncAction = (path) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "foo.hl", path);
+                    loadInvoked = true;
+                    return Task.FromResult(@"
+.arguments
+   foo:bar
+if
+   not
+      eq
+         get-value:x:@.filename
+         .:/foo.hl
+   .lambda
+      throw:Wrong filename
+if
+   not
+      eq
+         get-count:x:../*/.arguments
+         .:int:1
+   .lambda
+      throw:Too many [.arguments] nodes
+unwrap:x:+/*
+return-nodes
+   result:x:@.arguments/*");
+                }
+            };
+
+            #endregion
+
+            var lambda = await Common.EvaluateAsync(@"
+io.file.execute:/foo.hl
+   input:jo world
+", fileService);
+            Assert.True(loadInvoked);
+            Assert.Single(lambda.Children.First().Children);
+            Assert.Equal("result", lambda.Children.First().Children.First().Name);
+            Assert.Equal("jo world", lambda.Children.First().Children.First().Get<string>());
+        }
+
+        [Fact]
         public void CreateZipStream_01()
         {
             var lambda = Common.Evaluate(@"
@@ -1562,13 +1627,14 @@ io.content.zip-stream
       .:howdy
    .:/foo2.txt
       .:world
+   .:/another-folder/foo3.txt
 ");
             var zipNode = lambda.Children.FirstOrDefault(x => x.Name == "io.content.zip-stream");
             Assert.NotNull(zipNode);
 
             var mem = zipNode.Get<MemoryStream>();
             using var archive = new ZipArchive(mem);
-            Assert.Equal(2, archive.Entries.Count());
+            Assert.Equal(3, archive.Entries.Count());
             var entry = archive.Entries.First();
             using (var reader = new StreamReader(entry.Open()))
             {
@@ -1581,6 +1647,12 @@ io.content.zip-stream
                 Assert.Equal("world", reader.ReadToEnd());
             }
             Assert.Equal("foo2.txt", entry.FullName);
+            entry = archive.Entries.Skip(2).First();
+            using (var reader = new StreamReader(entry.Open()))
+            {
+                Assert.Equal("", reader.ReadToEnd());
+            }
+            Assert.Equal("another-folder/foo3.txt", entry.FullName);
         }
     }
 }

@@ -49,7 +49,7 @@ namespace magic.lambda.io.file
                     {
                         DateTime = DateTime.Now
                     };
-                    var content = idx.Children.FirstOrDefault().GetEx<string>() ?? "";
+                    var content = idx.Children.FirstOrDefault()?.GetEx<string>() ?? "";
                     zipStream.PutNextEntry(newEntry);
                     writer.Write(content);
                     writer.Flush();
