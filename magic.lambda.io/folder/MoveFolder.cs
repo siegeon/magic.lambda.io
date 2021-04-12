@@ -59,10 +59,10 @@ namespace magic.lambda.io.folder
         /*
          * Commonalities between async and sync version to keep code DRY.
          */
-        void Move(string src, string dest)
+        void Move(string source, string destination)
         {
             // Sanity checking arguments.
-            if (src == dest)
+            if (source == destination)
                 throw new ArgumentException("You cannot move a folder using the same source and destination path");
 
             /*
@@ -72,10 +72,10 @@ namespace magic.lambda.io.folder
              * existing folders here, since it might include deleting a lot of
              * files unintentionally.
              */
-            if (_service.Exists(dest))
+            if (_service.Exists(destination))
                 throw new ArgumentException("Cannot move folder, destination folder already exists");
 
-            _service.Move(src, dest);
+            _service.Move(source, destination);
         }
 
         #endregion

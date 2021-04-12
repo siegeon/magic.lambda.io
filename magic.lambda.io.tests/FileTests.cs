@@ -16,7 +16,7 @@ using magic.lambda.io.tests.helpers;
 
 namespace magic.lambda.io.tests
 {
-    public class IOTests
+    public class FileTests
     {
         [Fact]
         public void SaveFile()
@@ -190,6 +190,42 @@ convert:x:-
         }
 
         [Fact]
+        public async Task OpenAndReadFileFromStreamAsync()
+        {
+            #region [ -- Setting up mock service(s) -- ]
+
+            var openFileInvoked = false;
+            var streamService = new StreamService
+            {
+                OpenFileAction = (path) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/') + "/foo",
+                        path);
+                    var stream = new MemoryStream();
+                    var writer = new StreamWriter(stream);
+                    writer.Write("foo bar");
+                    writer.Flush();
+                    stream.Flush();
+                    stream.Position = 0;
+                    openFileInvoked = true;
+                    return stream;
+                }
+            };
+
+            #endregion
+
+            var lambda = await Common.EvaluateAsync(@"
+io.stream.open-file:foo
+io.stream.read:x:@io.stream.open-file
+convert:x:-
+   type:string
+", null, null, streamService);
+            Assert.True(openFileInvoked);
+            Assert.Equal("foo bar", lambda.Children.Skip(2).First().Value);
+        }
+
+        [Fact]
         public void SaveAndLoadFile()
         {
             #region [ -- Setting up mock service(s) -- ]
@@ -267,56 +303,6 @@ io.file.delete:/existing.txt
 ", fileService);
             Assert.True(saveInvoked);
             Assert.True(deleteInvoked);
-        }
-
-        [Fact]
-        public void CreateAndDeleteFolder()
-        {
-            #region [ -- Setting up mock service(s) -- ]
-
-            var createInvoked = false;
-            var deleteInvoked = false;
-            var existsInvoked = false;
-            var folderService = new FolderService
-            {
-                CreateAction = (path) =>
-                {
-                    Assert.Equal(
-                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                        + "/" +
-                        "foo", path);
-                    createInvoked = true;
-                },
-                DeleteAction = (path) =>
-                {
-                    Assert.Equal(
-                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                        + "/" +
-                        "foo", path);
-                    deleteInvoked = true;
-                },
-                ExistsAction = (path) =>
-                {
-                    Assert.Equal(
-                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                        + "/" +
-                        "foo", path);
-                    existsInvoked = true;
-                    return true;
-                }
-            };
-
-            #endregion
-
-            var lambda = Common.Evaluate(@"
-io.folder.create:foo
-   .:foo
-io.folder.exists:foo
-io.folder.delete:foo
-", null, folderService);
-            Assert.True(createInvoked);
-            Assert.True(deleteInvoked);
-            Assert.True(existsInvoked);
         }
 
         [Fact]
@@ -433,7 +419,7 @@ io.file.load:/existing.txt
 io.file.save:/existing.txt
    .:foo
 io.file.move:/existing.txt
-   .:moved.txt
+   .:/moved.txt
 io.file.exists:/moved.txt
 io.file.exists:/existing.txt
 ", fileService);
@@ -564,7 +550,7 @@ io.file.move:/existing.txt
 io.file.save:/existing.txt
    .:foo
 io.file.move:/existing.txt
-   .:moved.txt
+   .:/moved.txt
 io.file.exists:/moved.txt
 io.file.exists:/existing.txt
 ", fileService);
@@ -644,7 +630,7 @@ io.file.exists:/existing.txt
 io.file.save:/existing.txt
    .:foo
 io.file.move:/existing.txt
-   .:existing.txt
+   .:/existing.txt
 ", fileService));
             Assert.False(moveInvoked);
         }
@@ -721,6 +707,58 @@ io.file.save:/existing.txt
 io.file.move:/existing.txt
 ", fileService));
             Assert.False(moveInvoked);
+        }
+
+        [Fact]
+        public void MoveFileExists()
+        {
+            #region [ -- Setting up mock service(s) -- ]
+
+            var existsInvoked = false;
+            var moveInvoked = false;
+            var deleteInvoked = false;
+            var fileService = new FileService
+            {
+                ExistsAction = (path) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "moved.txt", path);
+                    existsInvoked = true;
+                    return true;
+                },
+                MoveAction = (src, dest) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", src);
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "moved.txt", dest);
+                    moveInvoked = true;
+                },
+                DeleteAction = (src) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "moved.txt", src);
+                    deleteInvoked = true;
+                }
+            };
+
+            #endregion
+
+            var lambda = Common.Evaluate(@"
+io.file.move:/existing.txt
+   .:/moved.txt
+", fileService);
+            Assert.True(existsInvoked);
+            Assert.True(moveInvoked);
+            Assert.True(deleteInvoked);
         }
 
         [Fact]
@@ -1287,130 +1325,6 @@ io.file.list:/
         }
 
         [Fact]
-        public void ListFolders()
-        {
-            #region [ -- Setting up mock service(s) -- ]
-
-            var listInvoked = false;
-            var folderService = new FolderService
-            {
-                ListAction = (path) =>
-                {
-                    listInvoked = true;
-                    return new string[] {
-                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                        + "/" +
-                        "foo/",
-                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                        + "/" +
-                        ".foo/",
-                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                        + "/" +
-                        "bar/"
-                    };
-                }
-            };
-
-            #endregion
-
-            var lambda = Common.Evaluate(@"
-io.folder.list:/
-", null, folderService);
-            Assert.True(listInvoked);
-            Assert.Equal(2, lambda.Children.First().Children.Count());
-
-            // Notice, files are SORTED!
-            Assert.Equal("/bar/", lambda.Children.First().Children.First().Get<string>());
-            Assert.Equal("/foo/", lambda.Children.First().Children.Skip(1).First().Get<string>());
-        }
-
-        [Fact]
-        public void ListHiddenFolders()
-        {
-            #region [ -- Setting up mock service(s) -- ]
-
-            var listInvoked = false;
-            var folderService = new FolderService
-            {
-                ListAction = (path) =>
-                {
-                    listInvoked = true;
-                    return new string[] {
-                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                        + "/" +
-                        "foo/",
-                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                        + "/" +
-                        ".hidden/",
-                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                        + "/" +
-                        "bar/"
-                    };
-                }
-            };
-
-            #endregion
-
-            var lambda = Common.Evaluate(@"
-io.folder.list:/
-   display-hidden:true
-", null, folderService);
-            Assert.True(listInvoked);
-            Assert.Equal(3, lambda.Children.First().Children.Count());
-
-            // Notice, files are SORTED!
-            Assert.Equal("/.hidden/", lambda.Children.First().Children.First().Get<string>());
-            Assert.Equal("/bar/", lambda.Children.First().Children.Skip(1).First().Get<string>());
-            Assert.Equal("/foo/", lambda.Children.First().Children.Skip(2).First().Get<string>());
-        }
-
-        [Fact]
-        public void CreateFolderListFolders()
-        {
-            #region [ -- Setting up mock service(s) -- ]
-
-            var listInvoked = false;
-            var createInvoked = true;
-            var folderService = new FolderService
-            {
-                CreateAction = (path) =>
-                {
-                    createInvoked = true;
-                    Assert.Equal(
-                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                        + "/" +
-                        "foo", path);
-                },
-                ListAction = (path) =>
-                {
-                    listInvoked = true;
-                    return new string[] {
-                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                        + "/" +
-                        "foo/",
-                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                        + "/" +
-                        "bar/"
-                    };
-                }
-            };
-
-            #endregion
-
-            var lambda = Common.Evaluate(@"
-io.folder.create:/foo
-io.folder.list:/
-", null, folderService);
-            Assert.True(listInvoked);
-            Assert.True(createInvoked);
-            Assert.True(lambda.Children.Skip(1).First().Children.Count() == 2);
-
-            // Notice, files are SORTED!
-            Assert.Equal("/bar/", lambda.Children.Skip(1).First().Children.First().Get<string>());
-            Assert.Equal("/foo/", lambda.Children.Skip(1).First().Children.Skip(1).First().Get<string>());
-        }
-
-        [Fact]
         public void EvaluateFile()
         {
             #region [ -- Setting up mock service(s) -- ]
@@ -1505,15 +1419,6 @@ io.file.execute:foo.hl
             Assert.Single(lambda.Children.First().Children);
             Assert.Equal("result", lambda.Children.First().Children.First().Name);
             Assert.EndsWith("foo.hl", lambda.Children.First().Children.First().Get<string>());
-        }
-
-        [Fact]
-        public void GetPathFolder()
-        {
-            var lambda = Common.Evaluate(@"
-io.path.get-folder:/foo/howdy/file.hl
-");
-            Assert.Equal("/foo/howdy/", lambda.Children.First().Value);
         }
 
         [Fact]

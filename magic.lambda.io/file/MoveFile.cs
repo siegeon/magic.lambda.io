@@ -60,7 +60,7 @@ namespace magic.lambda.io.file
         /*
          * Commonalities between async and sync version to keep code DRY.
          */
-        void Move(string src, string dest)
+        void Move(string source, string destination)
         {
             /*
              * Defaulting destination filename to be the same as source filename,
@@ -69,21 +69,21 @@ namespace magic.lambda.io.file
              * This allows us to do things such as Move("/foo1/bar.txt", "/foo2/") making sure
              * the filename is kept as is, but the file is moved to a different folder.
              */
-            if (dest.EndsWith("/", StringComparison.InvariantCultureIgnoreCase))
-                dest += Path.GetFileName(src);
+            if (destination.EndsWith("/", StringComparison.InvariantCultureIgnoreCase))
+                destination += Path.GetFileName(source);
 
             // Sanity checking arguments.
-            if (src == dest)
+            if (source == destination)
                 throw new ArgumentException("You cannot move a file using the same source and destination path");
 
             /*
              * For simplicity, we're deleting any existing files
              * with the path of the destination file.
              */
-            if (_service.Exists(dest))
-                _service.Delete(dest);
+            if (_service.Exists(destination))
+                _service.Delete(destination);
 
-            _service.Move(src, dest);
+            _service.Move(source, destination);
         }
 
         #endregion
