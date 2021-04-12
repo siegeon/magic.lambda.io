@@ -844,6 +844,58 @@ io.file.exists:/existing.txt
         }
 
         [Fact]
+        public void CopyFileAlreadyExisting()
+        {
+            #region [ -- Setting up mock service(s) -- ]
+
+            var existsInvoked = false;
+            var copyInvoked = false;
+            var deleteInvoked = false;
+            var fileService = new FileService
+            {
+                ExistsAction = (path) =>
+                {
+                    existsInvoked = true;
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "dest.txt", path);
+                    return true;
+                },
+                CopyAction = (src, dest) =>
+                {
+                    copyInvoked = true;
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "src.txt", src);
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "dest.txt", dest);
+                },
+                DeleteAction = (src) =>
+                {
+                    deleteInvoked = true;
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "dest.txt", src);
+                }
+            };
+
+            #endregion
+
+            var lambda = Common.Evaluate(@"
+io.file.copy:/src.txt
+   .:/dest.txt
+", fileService);
+            Assert.True(existsInvoked);
+            Assert.True(copyInvoked);
+            Assert.True(deleteInvoked);
+        }
+
+        [Fact]
         public void SaveFileAndCopy_SameFileName()
         {
             #region [ -- Setting up mock service(s) -- ]

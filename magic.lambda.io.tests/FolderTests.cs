@@ -5,6 +5,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 using magic.node.extensions;
 using magic.lambda.io.tests.helpers;
@@ -222,6 +223,48 @@ io.folder.list:/
             #endregion
 
             var lambda = Common.Evaluate(@"
+io.folder.move:/source/
+   .:/destination/
+", null, folderService);
+            Assert.True(moveInvoked);
+            Assert.True(existsInvoked);
+        }
+
+        [Fact]
+        public async Task MoveFolderAsync()
+        {
+            #region [ -- Setting up mock service(s) -- ]
+
+            var moveInvoked = false;
+            var existsInvoked = false;
+            var folderService = new FolderService
+            {
+                MoveAction = (src, dest) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "source/", src);
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "destination/", dest);
+                    moveInvoked = true;
+                },
+                ExistsAction = (src) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "destination/", src);
+                    existsInvoked = true;
+                    return false;
+                }
+            };
+
+            #endregion
+
+            var lambda = await Common.EvaluateAsync(@"
 io.folder.move:/source/
    .:/destination/
 ", null, folderService);
