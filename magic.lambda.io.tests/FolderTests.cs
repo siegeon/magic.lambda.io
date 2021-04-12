@@ -357,10 +357,19 @@ io.folder.move:/source/
         }
 
         [Fact]
-        public void GetPathFolder()
+        public void GetPathFolder_01()
         {
             var lambda = Common.Evaluate(@"
 io.path.get-folder:/foo/howdy/file.hl
+");
+            Assert.Equal("/foo/howdy/", lambda.Children.First().Value);
+        }
+
+        [Fact]
+        public void GetPathFolder_02()
+        {
+            var lambda = Common.Evaluate(@"
+io.path.get-folder:/foo/howdy/
 ");
             Assert.Equal("/foo/howdy/", lambda.Children.First().Value);
         }
