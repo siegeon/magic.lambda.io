@@ -9,6 +9,7 @@ This project provides file/folder slots for Magic. More specifically, it provide
 * __[io.folder.list]__ - Lists all folders within another source folder.
 * __[io.file.load]__ - Loads a file from disc on your server.
 * __[io.file.save]__ - Saves a file on disc on your server.
+* __[io.file.save.binary]__ - Saves a file on disc on your server but contrary to the above assumes content to save is binary.
 * __[io.file.exists]__ - Returns true if file exists, otherwise false.
 * __[io.file.delete]__ - Deletes a file on your server.
 * __[io.file.copy]__ - Copies a file on your server.
@@ -92,6 +93,8 @@ the file, to return dynamically the content of your file.
 io.file.save:/misc/README2.md
    .:This is new content for file
 ```
+
+**Notice** - If you want to save binary content you should use the **[io.file.save.binary]** override.
 
 ### [io.file.exists]
 
