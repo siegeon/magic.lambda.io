@@ -42,10 +42,12 @@ namespace magic.lambda.io.file
                 _rootResolver.RootFolder,
                 input.GetEx<string>());
 
-            var targetFolder = input.Children
+            var folderNode = input.Children
                 .FirstOrDefault(x => x.Name == "folder")?
-                .GetEx<string>() ??
-                Path.GetDirectoryName(zipFile);
+                .GetEx<string>();
+
+            var targetFolder = folderNode == null ?
+                Path.GetDirectoryName(zipFile) : PathResolver.CombinePaths(_rootResolver.RootFolder, folderNode).Replace("/", "\\");
 
             var fastZip = new FastZip();
             fastZip.ExtractZip(zipFile, targetFolder, null);

@@ -78,11 +78,26 @@ namespace magic.lambda.io.file.services
         }
 
         /// <inheritdoc/>
+        public void Save(string path, byte[] content)
+        {
+            File.WriteAllBytes(path, content);
+        }
+
+        /// <inheritdoc/>
         public async Task SaveAsync(string path, string content)
         {
             using (var writer = File.CreateText(path))
             {
                 await writer.WriteAsync(content);
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task SaveAsync(string path, byte[] content)
+        {
+            using (var writer = File.Create(path))
+            {
+                await writer.WriteAsync(content, 0, content.Length);
             }
         }
     }

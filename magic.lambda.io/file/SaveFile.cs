@@ -17,6 +17,7 @@ namespace magic.lambda.io.file
     /// [io.file.save] slot for saving a file on your server.
     /// </summary>
     [Slot(Name = "io.file.save")]
+    [Slot(Name = "io.file.save.binary")]
     public class SaveFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
@@ -44,11 +45,24 @@ namespace magic.lambda.io.file
             signaler.Signal("eval", input);
 
             // Saving file.
-            _service.Save(
-                PathResolver.CombinePaths(
-                    _rootResolver.RootFolder,
-                    input.GetEx<string>()),
-                input.Children.First().GetEx<string>());
+            if (input.Name == "io.file.save")
+            {
+                // Text content.
+                _service.Save(
+                    PathResolver.CombinePaths(
+                        _rootResolver.RootFolder,
+                        input.GetEx<string>()),
+                    input.Children.First().GetEx<string>());
+            }
+            else
+            {
+                // Binary content.
+                _service.Save(
+                    PathResolver.CombinePaths(
+                        _rootResolver.RootFolder,
+                        input.GetEx<string>()),
+                    input.Children.First().GetEx<byte[]>());
+            }
         }
 
         /// <summary>
@@ -62,12 +76,25 @@ namespace magic.lambda.io.file
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
             await signaler.SignalAsync("eval", input);
 
-            // Saving file
-            await _service.SaveAsync(
-                PathResolver.CombinePaths(
-                    _rootResolver.RootFolder,
-                    input.GetEx<string>()),
-                input.Children.First().GetEx<string>());
+            // Saving file.
+            if (input.Name == "io.file.save")
+            {
+                // Text content.
+                await _service.SaveAsync(
+                    PathResolver.CombinePaths(
+                        _rootResolver.RootFolder,
+                        input.GetEx<string>()),
+                    input.Children.First().GetEx<string>());
+            }
+            else
+            {
+                // Binary content.
+                await _service.SaveAsync(
+                    PathResolver.CombinePaths(
+                        _rootResolver.RootFolder,
+                        input.GetEx<string>()),
+                    input.Children.First().GetEx<byte[]>());
+            }
         }
     }
 }

@@ -70,12 +70,27 @@ namespace magic.lambda.io.contracts
         void Save(string path, string content);
 
         /// <summary>
+        /// Saves the specified content into a file at the specified path.
+        /// </summary>
+        /// <param name="path">Path of file to save.</param>
+        /// <param name="content">Content of file.</param>
+        void Save(string path, byte[] content);
+
+        /// <summary>
         /// Saves the specified content into a file at the specified path async.
         /// </summary>
         /// <param name="path">Path of file to save.</param>
         /// <param name="content">Content of file.</param>
         /// <returns>Awaitable task</returns>
         Task SaveAsync(string path, string content);
+
+        /// <summary>
+        /// Saves the specified content into a file at the specified path async.
+        /// </summary>
+        /// <param name="path">Path of file to save.</param>
+        /// <param name="content">Content of file.</param>
+        /// <returns>Awaitable task</returns>
+        Task SaveAsync(string path, byte[] content);
 
         /// <summary>
         /// Returns all files found in the specified folder.
