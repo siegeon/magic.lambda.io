@@ -68,7 +68,7 @@ namespace magic.lambda.io.folder
             /*
              * Verifying folder doesn't exist from before.
              *
-             * Notice, contrary to the move file version, we cannot delete any
+             * Notice, contrary to the copy file version, we cannot delete any
              * existing folders here, since it might include deleting a lot of
              * files unintentionally.
              */

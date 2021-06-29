@@ -39,20 +39,14 @@ namespace magic.lambda.io.folder.services
         /// <inheritdoc/>
         public void Copy(string source, string destination)
         {
-            var dir = new DirectoryInfo(source);
-            if (!dir.Exists)
+            // Sanity checking invocation, and verifying source folder exists.
+            var sourceFolder = new DirectoryInfo(source);
+            if (!sourceFolder.Exists)
                 throw new DirectoryNotFoundException($"Source directory does not exist or could not be found '{source}'");
-
-            /*
-             * If the destination directory does not exist, create it.
-             * Notice, this logic allows for 'merging' folders where the destination folder might already exist.
-             */
-            if (!Directory.Exists(destination))
-                Directory.CreateDirectory(destination);
+            Directory.CreateDirectory(destination);
 
             foreach (var file in dir.GetFiles())
             {
-                // Create the path to the new copy of the file.
                 file.CopyTo(Path.Combine(destination, file.Name), false);
             }
             foreach (var idxSub in dir.GetDirectories())
