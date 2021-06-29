@@ -75,7 +75,7 @@ namespace magic.lambda.io.folder
             if (_service.Exists(destination))
                 throw new ArgumentException("Cannot copy folder, destination folder already exists");
 
-            _service.Move(source, destination);
+            _service.Copy(source, destination);
         }
 
         #endregion
