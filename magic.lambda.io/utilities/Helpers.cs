@@ -19,9 +19,9 @@ namespace magic.lambda.io.utilities
     internal static class Helpers
     {
         /*
-         * Commonalities between the move folder and move file signals.
+         * Commonalities between the move/copy folder/file async/sync implementations.
          */
-        public static void Move(
+        public static void Execute(
             ISignaler signaler,
             IRootResolver resolver,
             Node input,
@@ -30,13 +30,13 @@ namespace magic.lambda.io.utilities
         {
             SanityCheckInvocation(input, slot);
             signaler.Signal("eval", input);
-            MoveImplementation(resolver, input, functor);
+            ExecuteImplementation(resolver, input, functor);
         }
 
         /*
-         * Async commonalities between the move folder and move file signals.
+         * Commonalities between the move/copy folder/file async/sync implementations.
          */
-        public static async Task MoveAsync(
+        public static async Task ExecuteAsync(
             ISignaler signaler,
             IRootResolver resolver,
             Node input,
@@ -45,7 +45,7 @@ namespace magic.lambda.io.utilities
         {
             SanityCheckInvocation(input, slot);
             await signaler.SignalAsync("eval", input);
-            MoveImplementation(resolver, input, functor);
+            ExecuteImplementation(resolver, input, functor);
         }
 
         #region [ -- Private helper methods -- ]
@@ -63,7 +63,7 @@ namespace magic.lambda.io.utilities
          * Actual implementation retrieving source and destination,
          * for the to invoke lambda callback supplied by caller.
          */
-        static void MoveImplementation(
+        static void ExecuteImplementation(
             IRootResolver rootResolver,
             Node input,
             Action<string, string> functor)

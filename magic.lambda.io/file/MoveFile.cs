@@ -41,7 +41,7 @@ namespace magic.lambda.io.file
         public void Signal(ISignaler signaler, Node input)
         {
             // Invoking helper method containing commonalities.
-            Helpers.Move(signaler, _rootResolver, input, "io.file.move", Move);
+            Helpers.Execute(signaler, _rootResolver, input, "io.file.move", Move);
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace magic.lambda.io.file
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
             // Invoking helper method containing commonalities.
-            await Helpers.MoveAsync(signaler, _rootResolver, input, "io.file.move", Move);
+            await Helpers.ExecuteAsync(signaler, _rootResolver, input, "io.file.move", Move);
         }
 
         #region [ -- Private helper methods -- ]

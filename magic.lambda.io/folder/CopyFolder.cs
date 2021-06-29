@@ -13,10 +13,10 @@ using magic.lambda.io.utilities;
 namespace magic.lambda.io.folder
 {
     /// <summary>
-    /// [io.folder.move] slot for moving a folder on your server.
+    /// [io.folder.copy] slot for copying a folder on your server.
     /// </summary>
-    [Slot(Name = "io.folder.move")]
-    public class MoveFolder : ISlot, ISlotAsync
+    [Slot(Name = "io.folder.copy")]
+    public class CopyFolder : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
         readonly IFolderService _service;
@@ -26,7 +26,7 @@ namespace magic.lambda.io.folder
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
         /// <param name="service">Underlaying folder service implementation.</param>
-        public MoveFolder(IRootResolver rootResolver, IFolderService service)
+        public CopyFolder(IRootResolver rootResolver, IFolderService service)
         {
             _rootResolver = rootResolver;
             _service = service;
@@ -40,7 +40,7 @@ namespace magic.lambda.io.folder
         public void Signal(ISignaler signaler, Node input)
         {
             // Invoking helper method containing commonalities.
-            Helpers.Execute(signaler, _rootResolver, input, "io.folder.move", Move);
+            Helpers.Execute(signaler, _rootResolver, input, "io.folder.move", Copy);
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace magic.lambda.io.folder
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
             // Invoking helper method containing commonalities.
-            await Helpers.ExecuteAsync(signaler, _rootResolver, input, "io.folder.move", Move);
+            await Helpers.ExecuteAsync(signaler, _rootResolver, input, "io.folder.move", Copy);
         }
 
         #region [ -- Private helper methods -- ]
@@ -59,11 +59,11 @@ namespace magic.lambda.io.folder
         /*
          * Commonalities between async and sync version to keep code DRY.
          */
-        void Move(string source, string destination)
+        void Copy(string source, string destination)
         {
             // Sanity checking arguments.
             if (source == destination)
-                throw new ArgumentException("You cannot move a folder using the same source and destination path");
+                throw new ArgumentException("You cannot copy a folder using the same source and destination path");
 
             /*
              * Verifying folder doesn't exist from before.
@@ -73,7 +73,7 @@ namespace magic.lambda.io.folder
              * files unintentionally.
              */
             if (_service.Exists(destination))
-                throw new ArgumentException("Cannot move folder, destination folder already exists");
+                throw new ArgumentException("Cannot copy folder, destination folder already exists");
 
             _service.Move(source, destination);
         }

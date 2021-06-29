@@ -39,6 +39,13 @@ namespace magic.lambda.io.contracts
         void Move(string source, string destination);
 
         /// <summary>
+        /// Copies the specified folder.
+        /// </summary>
+        /// <param name="source">Path of folder to copy.</param>
+        /// <param name="destination">Destination path of where to copy folder.</param>
+        void Copy(string source, string destination);
+
+        /// <summary>
         /// Lists all folders within the specified folder.
         /// </summary>
         /// <param name="folder">Folder to query for folders.</param>

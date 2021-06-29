@@ -21,6 +21,8 @@ namespace magic.lambda.io.tests.helpers
 
         public Action<string, string> MoveAction { get; set; }
 
+        public Action<string, string> CopyAction { get; set; }
+
         public void Create(string path)
         {
             CreateAction(path);
@@ -44,6 +46,11 @@ namespace magic.lambda.io.tests.helpers
         public void Move(string source, string destination)
         {
             MoveAction(source, destination);
+        }
+
+        public void Copy(string source, string destination)
+        {
+            CopyAction(source, destination);
         }
     }
 }
