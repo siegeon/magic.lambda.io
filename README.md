@@ -7,6 +7,8 @@ This project provides file/folder slots for Magic. More specifically, it provide
 * __[io.folder.exists]__ - Returns true if folder exists, otherwise false.
 * __[io.folder.delete]__ - Deletes a folder on disc on your server.
 * __[io.folder.list]__ - Lists all folders within another source folder.
+* __[io.folder.move]__ - Moves a folder to its specified destination.
+* __[io.folder.copy]__ - Copies a folder to its specified destination.
 * __[io.file.load]__ - Loads a file from disc on your server.
 * __[io.file.save]__ - Saves a file on disc on your server.
 * __[io.file.save.binary]__ - Saves a file on disc on your server but contrary to the above assumes content to save is binary.
@@ -68,6 +70,24 @@ you pass in **[display-hidden]** and set its value to boolean _"true"_.
 
 ```
 io.folder.list:/misc/
+```
+
+### [io.folder.move]
+
+Moves the specified source folder to its specified destination folder.
+
+```
+io.folder.move:/misc/source-folder/
+   .:/misc/destination-folder/
+```
+
+### [io.folder.copy]
+
+Copies the specified source folder to its specified destination folder.
+
+```
+io.folder.copy:/misc/source-folder/
+   .:/misc/destination-folder/
 ```
 
 ### [io.file.load]
