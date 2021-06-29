@@ -45,11 +45,11 @@ namespace magic.lambda.io.folder.services
                 throw new DirectoryNotFoundException($"Source directory does not exist or could not be found '{source}'");
             Directory.CreateDirectory(destination);
 
-            foreach (var file in dir.GetFiles())
+            foreach (var file in sourceFolder.GetFiles())
             {
                 file.CopyTo(Path.Combine(destination, file.Name), false);
             }
-            foreach (var idxSub in dir.GetDirectories())
+            foreach (var idxSub in sourceFolder.GetDirectories())
             {
                 Copy(idxSub.FullName, Path.Combine(destination, idxSub.Name));
             }
