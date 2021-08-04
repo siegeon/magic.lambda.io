@@ -36,7 +36,6 @@ namespace magic.lambda.io.file
             using (var zipStream = new ZipOutputStream(result))
             {
                 zipStream.IsStreamOwner = false;
-                var writer = new StreamWriter(zipStream);
 
                 // Iterating through each entity caller wants to zip, and creating entry for item.
                 foreach (var idx in input.Children)
@@ -49,10 +48,25 @@ namespace magic.lambda.io.file
                     {
                         DateTime = DateTime.Now
                     };
-                    var content = idx.Children.FirstOrDefault()?.GetEx<string>() ?? "";
-                    zipStream.PutNextEntry(newEntry);
-                    writer.Write(content);
-                    writer.Flush();
+                    var content = idx.Children.FirstOrDefault()?.GetEx<object>();
+                    if (content != null)
+                    {
+                        zipStream.PutNextEntry(newEntry);
+                        if (content is string contentStr)
+                        {
+                            var writer = new StreamWriter(zipStream);
+                            writer.Write(contentStr);
+                            writer.Flush();
+                        }
+                        else
+                        {
+                            var contentBytes = content as byte[];
+                            if (contentBytes == null)
+                                throw new ArgumentException("[io.content.zip-stream] can only handle string and bytes content");
+                            zipStream.Write(contentBytes, 0, contentBytes.Length);
+                            zipStream.Flush();
+                        }
+                    }
                 }
             }
 
