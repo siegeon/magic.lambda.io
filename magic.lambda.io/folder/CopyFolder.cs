@@ -65,16 +65,6 @@ namespace magic.lambda.io.folder
             if (source == destination)
                 throw new ArgumentException("You cannot copy a folder using the same source and destination path");
 
-            /*
-             * Verifying folder doesn't exist from before.
-             *
-             * Notice, contrary to the copy file version, we cannot delete any
-             * existing folders here, since it might include deleting a lot of
-             * files unintentionally.
-             */
-            if (_service.Exists(destination))
-                throw new ArgumentException("Cannot copy folder, destination folder already exists");
-
             _service.Copy(source, destination);
         }
 
