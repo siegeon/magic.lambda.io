@@ -1462,6 +1462,7 @@ io.content.zip-stream
    .:/foo2.txt
       .:world
    .:/another-folder/foo3.txt
+      .:2.0
 ");
             var zipNode = lambda.Children.FirstOrDefault(x => x.Name == "io.content.zip-stream");
             Assert.NotNull(zipNode);
@@ -1484,7 +1485,7 @@ io.content.zip-stream
             entry = archive.Entries.Skip(2).First();
             using (var reader = new StreamReader(entry.Open()))
             {
-                Assert.Equal("", reader.ReadToEnd());
+                Assert.Equal("2.0", reader.ReadToEnd());
             }
             Assert.Equal("another-folder/foo3.txt", entry.FullName);
         }

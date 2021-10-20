@@ -7,6 +7,7 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using magic.lambda.io.contracts;
+using System.Text;
 
 namespace magic.lambda.io.tests.helpers
 {
@@ -80,6 +81,16 @@ namespace magic.lambda.io.tests.helpers
         public async Task SaveAsync(string filename, string content)
         {
             await SaveAsyncAction(filename, content);
+        }
+
+        public void Save(string path, byte[] content)
+        {
+            SaveAction(path, Encoding.UTF8.GetString(content));
+        }
+
+        public async Task SaveAsync(string filename, byte[] content)
+        {
+            await SaveAsyncAction(filename, Encoding.UTF8.GetString(content));
         }
     }
 }
