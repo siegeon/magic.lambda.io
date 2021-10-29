@@ -102,7 +102,7 @@ namespace magic.lambda.io.file
         Node GetLambda(Node input, string hyperlambda, string filename)
         {
             // Parsing specified Hyperlambda, creating our lambda object.
-            var lambda = new Parser(hyperlambda).Lambda();
+            var lambda = HyperlambdaParser.Parse(hyperlambda);
 
             /*
              * Preparing arguments, if there are any, making sure we remove
