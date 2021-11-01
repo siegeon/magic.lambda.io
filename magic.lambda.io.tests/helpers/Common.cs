@@ -31,7 +31,7 @@ namespace magic.lambda.io.tests.helpers
             StreamService streamService = null)
         {
             var services = Initialize(fileService, folderService, streamService);
-            var lambda = new Parser(hl).Lambda();
+            var lambda = HyperlambdaParser.Parse(hl);
             var signaler = services.GetService(typeof(ISignaler)) as ISignaler;
             signaler.Signal("eval", lambda);
             return lambda;
@@ -44,7 +44,7 @@ namespace magic.lambda.io.tests.helpers
             StreamService streamService = null)
         {
             var services = Initialize(fileService, folderService, streamService);
-            var lambda = new Parser(hl).Lambda();
+            var lambda = HyperlambdaParser.Parse(hl);
             var signaler = services.GetService(typeof(ISignaler)) as ISignaler;
             await signaler.SignalAsync("eval", lambda);
             return lambda;
