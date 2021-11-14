@@ -34,5 +34,17 @@ namespace magic.lambda.io.stream.services
                 await stream.CopyToAsync(fileStream);
             }
         }
+
+        /// <inheritdoc/>
+        public bool Exists(string path)
+        {
+            return File.Exists(path);
+        }
+
+        /// <inheritdoc/>
+        public void Delete(string path)
+        {
+            File.Delete(path);
+        }
     }
 }

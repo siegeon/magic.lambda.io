@@ -236,6 +236,10 @@ io.stream.save-file:/foo/bar.txt
 After invoking the above, assuming the **[.stream]** node contains a valid `Stream`
 object, the file above will contain the content from the stream.
 
+**Notice** - If the file exists from before, this will throw an exception, unless you
+pass in **[overwrite]** and set its value to boolean true, at which point the file
+will first be deleted before the stream is saved to the specified file path.
+
 ### [io.stream.read]
 
 Works similarly to **[io.file.load]** but instead of taking a source filename of some kind,

@@ -13,6 +13,13 @@ namespace magic.lambda.io.contracts
     public interface IStreamService
     {
         /// <summary>
+        /// Returns true if file exists.
+        /// </summary>
+        /// <param name="path">Absolute path to file</param>
+        /// <returns>True if file exists</returns>
+        bool Exists(string path);
+
+        /// <summary>
         /// Returns a stream wrapping the specified filename.
         /// </summary>
         /// <param name="path">Absolute path to file</param>
@@ -25,6 +32,12 @@ namespace magic.lambda.io.contracts
         /// <param name="stream">Stream to save content of</param>
         /// <param name="path">Absolute path to filename to save stream's content to</param>
         void SaveFile(Stream stream, string path);
+
+        /// <summary>
+        /// Deletes specified file.
+        /// </summary>
+        /// <param name="path">Absolute path to file to delete</param>
+        void Delete(string path);
 
         /// <summary>
         /// Saves the specified stream to the specified filename.

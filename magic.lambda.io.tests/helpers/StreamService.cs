@@ -15,6 +15,10 @@ namespace magic.lambda.io.tests.helpers
         public Action<Stream, string> SaveFileAction { get; set; }
         public Action<Stream, string> SaveFileActionAsync { get; set; }
 
+        public Action<string> DeleteAction { get; set; }
+
+        public Func<string, bool> ExistsAction { get; set; }
+
         public Stream OpenFile(string path)
         {
             return OpenFileAction(path);
@@ -29,6 +33,16 @@ namespace magic.lambda.io.tests.helpers
         {
             SaveFileActionAsync(stream, path);
             return Task.CompletedTask;
+        }
+
+        public void Delete(string path)
+        {
+            DeleteAction(path);
+        }
+
+        public bool Exists(string path)
+        {
+            return ExistsAction(path);
         }
     }
 }

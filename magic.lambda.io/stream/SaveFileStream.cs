@@ -42,6 +42,8 @@ namespace magic.lambda.io.stream
         public void Signal(ISignaler signaler, Node input)
         {
             var args = GetArguments(signaler, input);
+            if (args.Overwrite && _service.Exists(args.Destination))
+                _service.Delete(args.Destination);
             _service.SaveFile(args.Stream, args.Destination);
         }
 
@@ -54,13 +56,24 @@ namespace magic.lambda.io.stream
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
             var args = GetArguments(signaler, input);
+            if (args.Overwrite && _service.Exists(args.Destination))
+                _service.Delete(args.Destination);
             await _service.SaveFileAsync(args.Stream, args.Destination);
         }
 
         #region [ -- Private helper methods -- ]
 
-        (string Destination, Stream Stream) GetArguments(ISignaler signaler, Node input)
+        (string Destination, Stream Stream, bool Overwrite) GetArguments(ISignaler signaler, Node input)
         {
+            // Checking if caller wants to overwrite existing file.
+            var overwrite = false;
+            var overwriteNode = input.Children.FirstOrDefault(x => x.Name == "overwrite");
+            if (overwriteNode != null)
+            {
+                overwrite = overwriteNode.GetEx<bool>();
+                overwriteNode.UnTie();
+            }
+
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
             signaler.Signal("eval", input);
 
@@ -73,7 +86,7 @@ namespace magic.lambda.io.stream
             var stream = input.Children.First().GetEx<Stream>();
 
             // Returning results to caller.
-            return (destination, stream);
+            return (destination, stream, overwrite);
         }
 
         #endregion

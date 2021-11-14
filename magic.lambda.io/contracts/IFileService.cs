@@ -20,7 +20,7 @@ namespace magic.lambda.io.contracts
         bool Exists(string path);
 
         /// <summary>
-        /// Delets specified file.
+        /// Deletes specified file.
         /// </summary>
         /// <param name="path">Absolute path to file to delete</param>
         void Delete(string path);
