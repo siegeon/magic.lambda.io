@@ -66,7 +66,7 @@ namespace magic.lambda.io.stream
         (string Destination, Stream Stream, bool Overwrite) GetArguments(ISignaler signaler, Node input)
         {
             // Checking if caller wants to overwrite existing file.
-            var overwrite = false;
+            var overwrite = true;
             var overwriteNode = input.Children.FirstOrDefault(x => x.Name == "overwrite");
             if (overwriteNode != null)
             {
