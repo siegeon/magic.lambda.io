@@ -20,6 +20,7 @@ namespace magic.lambda.io.tests
 
             var saveInvoked = false;
             var openFileInvoked = false;
+            var deleteInvoked = false;
             var streamService = new StreamService
             {
                 SaveFileAction = (stream, path) =>
@@ -46,6 +47,11 @@ namespace magic.lambda.io.tests
                     stream.Position = 0;
                     openFileInvoked = true;
                     return stream;
+                },
+                ExistsAction = (path) => true,
+                DeleteAction = (path) => 
+                {
+                    deleteInvoked = true;
                 }
             };
 
@@ -59,6 +65,7 @@ io.stream.close:x:@io.stream.open-file
 ", null, null, streamService);
             Assert.True(saveInvoked);
             Assert.True(openFileInvoked);
+            Assert.True(deleteInvoked);
         }
 
         [Fact]
@@ -94,7 +101,9 @@ io.stream.close:x:@io.stream.open-file
                     stream.Position = 0;
                     openFileInvoked = true;
                     return stream;
-                }
+                },
+                ExistsAction = (path) => false,
+                DeleteAction = (path) => throw new ArgumentException("Shouldn't come here!")
             };
 
             #endregion
