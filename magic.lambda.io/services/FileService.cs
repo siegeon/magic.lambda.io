@@ -2,8 +2,8 @@
  * Magic Cloud, copyright Aista, Ltd. See the attached LICENSE file for details.
  */
 
-using System.Text;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using magic.lambda.io.contracts;
 using System.Collections.Generic;

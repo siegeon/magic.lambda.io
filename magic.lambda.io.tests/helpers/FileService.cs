@@ -3,10 +3,10 @@
  */
 
 using System;
+using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using magic.lambda.io.contracts;
-using System.Text;
 
 namespace magic.lambda.io.tests.helpers
 {
