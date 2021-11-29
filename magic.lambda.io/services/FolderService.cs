@@ -3,8 +3,9 @@
  */
 
 using System.IO;
-using magic.lambda.io.contracts;
 using System.Collections.Generic;
+using magic.node.extensions;
+using magic.lambda.io.contracts;
 
 namespace magic.lambda.io.folder.services
 {
@@ -41,7 +42,7 @@ namespace magic.lambda.io.folder.services
             // Sanity checking invocation, and verifying source folder exists.
             var sourceFolder = new DirectoryInfo(source);
             if (!sourceFolder.Exists)
-                throw new DirectoryNotFoundException($"Source directory does not exist or could not be found '{source}'");
+                throw new HyperlambdaException($"Source directory does not exist or could not be found '{source}'");
             Directory.CreateDirectory(destination);
 
             foreach (var file in sourceFolder.GetFiles())
