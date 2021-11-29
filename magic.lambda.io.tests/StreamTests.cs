@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using magic.node.extensions;
 using magic.lambda.io.tests.helpers;
 
 namespace magic.lambda.io.tests
@@ -103,7 +104,7 @@ io.stream.close:x:@io.stream.open-file
                     return stream;
                 },
                 ExistsAction = (path) => false,
-                DeleteAction = (path) => throw new ArgumentException("Shouldn't come here!")
+                DeleteAction = (path) => throw new HyperlambdaException("Shouldn't come here!")
             };
 
             #endregion

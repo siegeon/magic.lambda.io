@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using magic.node;
+using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.io.contracts;
 using magic.lambda.io.utilities;
@@ -73,7 +74,7 @@ namespace magic.lambda.io.file
 
             // Sanity checking arguments.
             if (source == destination)
-                throw new ArgumentException("You cannot move a file using the same source and destination path");
+                throw new HyperlambdaException("You cannot move a file using the same source and destination path");
 
             /*
              * For simplicity, we're deleting any existing files

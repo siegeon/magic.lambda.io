@@ -73,7 +73,7 @@ namespace magic.lambda.io.file
         static void SanityCheckArguments(Node input)
         {
             if (!input.Children.Any())
-                throw new ArgumentException("No destination provided to [io.file.copy]");
+                throw new HyperlambdaException("No destination provided to [io.file.copy]");
         }
 
         /*
@@ -98,7 +98,7 @@ namespace magic.lambda.io.file
 
             // Sanity checking arguments.
             if (sourcePath == destinationPath)
-                throw new ArgumentException("You cannot copy a file using the same source and destination path");
+                throw new HyperlambdaException("You cannot copy a file using the same source and destination path");
 
             // For simplicity, we're deleting any existing files with the path of the destination file.
             if (_service.Exists(destinationPath))

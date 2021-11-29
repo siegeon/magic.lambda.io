@@ -55,7 +55,7 @@ namespace magic.lambda.io.utilities
         static void SanityCheckInvocation(Node input, string slot)
         {
             if (!input.Children.Any())
-                throw new ArgumentException($"No destination provided to [{slot}]");
+                throw new HyperlambdaException($"No destination provided to [{slot}]");
         }
 
         /*

@@ -459,7 +459,7 @@ io.file.exists:/existing.txt
 
             #endregion
 
-            Assert.Throws<ArgumentException>(() => Common.Evaluate(@"
+            Assert.Throws<HyperlambdaException>(() => Common.Evaluate(@"
 io.file.save:/existing.txt
    .:foo
 io.file.move:/existing.txt
@@ -534,7 +534,7 @@ io.file.move:/existing.txt
 
             #endregion
 
-            Assert.Throws<ArgumentException>(() => Common.Evaluate(@"
+            Assert.Throws<HyperlambdaException>(() => Common.Evaluate(@"
 io.file.save:/existing.txt
    .:foo
 io.file.move:/existing.txt
@@ -848,7 +848,7 @@ io.file.exists:/existing.txt
 
             #endregion
 
-            Assert.Throws<ArgumentException>(() => Common.Evaluate(@"
+            Assert.Throws<HyperlambdaException>(() => Common.Evaluate(@"
 io.file.save:/existing.txt
    .:foo
 io.file.copy:/existing.txt
@@ -893,7 +893,7 @@ io.file.copy:/existing.txt
 
             #endregion
 
-            Assert.Throws<ArgumentException>(() => Common.Evaluate(@"
+            Assert.Throws<HyperlambdaException>(() => Common.Evaluate(@"
 io.file.save:/existing.txt
    .:foo
 io.file.copy:/existing.txt
@@ -941,7 +941,7 @@ io.file.copy:/existing.txt
 
             #endregion
 
-            await Assert.ThrowsAsync<ArgumentException>(async () => await Common.EvaluateAsync(@"
+            await Assert.ThrowsAsync<HyperlambdaException>(async () => await Common.EvaluateAsync(@"
 io.file.save:/existing.txt
    .:foo
 io.file.copy:/existing.txt

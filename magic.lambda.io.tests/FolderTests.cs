@@ -305,7 +305,7 @@ io.folder.move:/source/
 
             #endregion
 
-            Assert.Throws<ArgumentException>(() => Common.Evaluate(@"
+            Assert.Throws<HyperlambdaException>(() => Common.Evaluate(@"
 io.folder.move:/source/
    .:/destination/
 ", null, folderService));
@@ -347,7 +347,7 @@ io.folder.move:/source/
 
             #endregion
 
-            Assert.Throws<ArgumentException>(() => Common.Evaluate(@"
+            Assert.Throws<HyperlambdaException>(() => Common.Evaluate(@"
 io.folder.move:/source/
    .:/source/
 ", null, folderService));

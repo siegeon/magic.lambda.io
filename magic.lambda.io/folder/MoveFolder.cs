@@ -2,9 +2,9 @@
  * Magic Cloud, copyright Aista, Ltd. See the attached LICENSE file for details.
  */
 
-using System;
 using System.Threading.Tasks;
 using magic.node;
+using magic.node.extensions;
 using magic.signals.contracts;
 using magic.lambda.io.contracts;
 using magic.lambda.io.utilities;
@@ -62,7 +62,7 @@ namespace magic.lambda.io.folder
         {
             // Sanity checking arguments.
             if (source == destination)
-                throw new ArgumentException("You cannot move a folder using the same source and destination path");
+                throw new HyperlambdaException("You cannot move a folder using the same source and destination path");
 
             /*
              * Verifying folder doesn't exist from before.
@@ -72,7 +72,7 @@ namespace magic.lambda.io.folder
              * files unintentionally.
              */
             if (_service.Exists(destination))
-                throw new ArgumentException("Cannot move folder, destination folder already exists");
+                throw new HyperlambdaException("Cannot move folder, destination folder already exists");
 
             _service.Move(source, destination);
         }

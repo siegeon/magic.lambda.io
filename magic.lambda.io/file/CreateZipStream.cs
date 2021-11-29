@@ -61,7 +61,7 @@ namespace magic.lambda.io.file
                         {
                             var contentBytes = content as byte[];
                             if (contentBytes == null)
-                                throw new ArgumentException("[io.content.zip-stream] can only handle string and bytes content");
+                                throw new HyperlambdaException("[io.content.zip-stream] can only handle string and bytes content");
                             zipStream.Write(contentBytes, 0, contentBytes.Length);
                             zipStream.Flush();
                         }
