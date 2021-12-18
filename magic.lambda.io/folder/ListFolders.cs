@@ -3,12 +3,12 @@
  */
 
 using System;
+using System.IO;
 using System.Linq;
 using magic.node;
 using magic.node.contracts;
 using magic.node.extensions;
 using magic.signals.contracts;
-using magic.lambda.io.utilities;
 
 namespace magic.lambda.io.folder
 {
@@ -55,8 +55,7 @@ namespace magic.lambda.io.folder
             foreach (var idx in _service.ListFolders(_rootResolver.AbsolutePath(folder)))
             {
                 // Making sure we don't show hidden operating system folders by default.
-                if (displayHiddenFolders ||
-                    !idx.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries).Last().StartsWith(".", StringComparison.InvariantCulture))
+                if (displayHiddenFolders || !new DirectoryInfo(idx).Name.StartsWith("."))
                     input.Add(new Node("", _rootResolver.RelativePath(idx)));
             }
         }
