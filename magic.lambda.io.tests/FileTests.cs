@@ -1149,14 +1149,14 @@ io.file.load:/existing.txt
                     return new string[] {
                         AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
                         + "/" +
-                        "foo.txt",
-                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                        + "/" +
                         ".hidden.txt",
                         AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
                         + "/" +
-                        "bar.txt"
-                    };
+                        "bar.txt",
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "foo.txt"
+                    }.ToList();
                 }
             };
 
@@ -1184,14 +1184,14 @@ io.file.list:/
                     return new string[] {
                         AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
                         + "/" +
-                        "foo.txt",
-                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                        + "/" +
                         ".hidden.txt",
                         AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
                         + "/" +
-                        "bar.txt"
-                    };
+                        "bar.txt",
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "foo.txt"
+                    }.ToList();
                 }
             };
 

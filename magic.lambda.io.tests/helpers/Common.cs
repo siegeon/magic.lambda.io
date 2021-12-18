@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using magic.node;
+using magic.node.services;
+using magic.node.contracts;
 using magic.node.contracts;
 using magic.signals.services;
 using magic.signals.contracts;
@@ -71,15 +73,15 @@ namespace magic.lambda.io.tests.helpers
             services.AddTransient<IConfiguration>((svc) => configuration);
             services.AddTransient<ISignaler, Signaler>();
             if (fileService == null)
-                services.AddTransient<IFileService, file.services.FileService>();
+                services.AddTransient<IFileService, FileService>();
             else
                 services.AddTransient<IFileService>(svc => fileService);
             if (folderService == null)
-                services.AddTransient<IFolderService, folder.services.FolderService>();
+                services.AddTransient<IFolderService, FolderService>();
             else
                 services.AddTransient<IFolderService>(svc => folderService);
             if (streamService == null)
-                services.AddTransient<IStreamService, stream.services.StreamService>();
+                services.AddTransient<IStreamService, StreamService>();
             else
                 services.AddTransient<IStreamService>(svc => streamService);
             services.AddTransient<IRootResolver, RootResolver>();

@@ -6,7 +6,7 @@ using System;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using magic.lambda.io.contracts;
+using magic.node.contracts;
 
 namespace magic.lambda.io.tests.helpers
 {
@@ -20,7 +20,7 @@ namespace magic.lambda.io.tests.helpers
 
         public Func<string, bool> ExistsAction { get; set; }
 
-        public Func<string, IEnumerable<string>> ListFilesAction { get; set; }
+        public Func<string, List<string>> ListFilesAction { get; set; }
 
         public Func<string, string> LoadAction { get; set; }
 
@@ -52,7 +52,7 @@ namespace magic.lambda.io.tests.helpers
             return ExistsAction(path);
         }
 
-        public IEnumerable<string> ListFiles(string folder)
+        public List<string> ListFiles(string folder, string extension = null)
         {
             return ListFilesAction(folder);
         }
@@ -90,6 +90,28 @@ namespace magic.lambda.io.tests.helpers
         public async Task SaveAsync(string filename, byte[] content)
         {
             await SaveAsyncAction(filename, Encoding.UTF8.GetString(content));
+        }
+
+        public Task<bool> ExistsAsync(string path)
+        {
+            return Task.FromResult(Exists(path));
+        }
+
+        public Task DeleteAsync(string path)
+        {
+            Delete(path);
+            return Task.CompletedTask;
+        }
+
+        public Task MoveAsync(string source, string destination)
+        {
+            Move(source, destination);
+            return Task.CompletedTask;
+        }
+
+        public Task<List<string>> ListFilesAsync(string folder, string extension = null)
+        {
+            return Task.FromResult(ListFiles(folder, extension));
         }
     }
 }

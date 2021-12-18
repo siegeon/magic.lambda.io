@@ -4,7 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using magic.lambda.io.contracts;
+using System.Threading.Tasks;
+using magic.node.contracts;
 
 namespace magic.lambda.io.tests.helpers
 {
@@ -12,7 +13,7 @@ namespace magic.lambda.io.tests.helpers
     {
         public Action<string> CreateAction { get; set; }
 
-        public Func<string, IEnumerable<string>> ListAction { get; set; }
+        public Func<string, List<string>> ListAction { get; set; }
 
         public Action<string> DeleteAction { get; set; }
 
@@ -37,7 +38,7 @@ namespace magic.lambda.io.tests.helpers
             return ExistsAction(path);
         }
 
-        public IEnumerable<string> ListFolders(string folder)
+        public List<string> ListFolders(string folder)
         {
             return ListAction(folder);
         }
@@ -50,6 +51,40 @@ namespace magic.lambda.io.tests.helpers
         public void Copy(string source, string destination)
         {
             CopyAction(source, destination);
+        }
+
+        public Task CreateAsync(string path)
+        {
+            Create(path);
+            return Task.CompletedTask;
+        }
+
+        public Task<bool> ExistsAsync(string path)
+        {
+            return Task.FromResult(Exists(path));
+        }
+
+        public Task DeleteAsync(string path)
+        {
+            Delete(path);
+            return Task.CompletedTask;
+        }
+
+        public Task MoveAsync(string source, string destination)
+        {
+            Move(source, destination);
+            return Task.CompletedTask;
+        }
+
+        public Task CopyAsync(string source, string destination)
+        {
+            Copy(source, destination);
+            return Task.CompletedTask;
+        }
+
+        public Task<List<string>> ListFoldersAsync(string folder)
+        {
+            return Task.FromResult(ListFolders(folder));
         }
     }
 }

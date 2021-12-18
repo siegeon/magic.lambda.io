@@ -5,7 +5,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using magic.lambda.io.contracts;
+using magic.node.contracts;
 
 namespace magic.lambda.io.tests.helpers
 {

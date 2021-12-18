@@ -84,7 +84,7 @@ io.folder.delete:foo
                         AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
                         + "/" +
                         "bar/"
-                    };
+                    }.ToList();
                 }
             };
 
@@ -97,8 +97,8 @@ io.folder.list:/
             Assert.Equal(2, lambda.Children.First().Children.Count());
 
             // Notice, files are SORTED!
-            Assert.Equal("/bar/", lambda.Children.First().Children.First().Get<string>());
-            Assert.Equal("/foo/", lambda.Children.First().Children.Skip(1).First().Get<string>());
+            Assert.Equal("/foo/", lambda.Children.First().Children.First().Get<string>());
+            Assert.Equal("/bar/", lambda.Children.First().Children.Skip(1).First().Get<string>());
         }
 
         [Fact]
@@ -115,14 +115,14 @@ io.folder.list:/
                     return new string[] {
                         AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
                         + "/" +
-                        "foo/",
-                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                        + "/" +
                         ".hidden/",
                         AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
                         + "/" +
-                        "bar/"
-                    };
+                        "bar/",
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "foo/"
+                    }.ToList();
                 }
             };
 
@@ -164,11 +164,11 @@ io.folder.list:/
                     return new string[] {
                         AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
                         + "/" +
-                        "foo/",
+                        "bar/",
                         AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
                         + "/" +
-                        "bar/"
-                    };
+                        "foo/"
+                    }.ToList();
                 }
             };
 
