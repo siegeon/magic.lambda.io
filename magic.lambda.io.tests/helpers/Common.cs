@@ -11,7 +11,6 @@ using Microsoft.Extensions.DependencyInjection;
 using magic.node;
 using magic.node.services;
 using magic.node.contracts;
-using magic.node.contracts;
 using magic.signals.services;
 using magic.signals.contracts;
 using magic.node.extensions.hyperlambda;
