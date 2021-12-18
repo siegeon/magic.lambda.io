@@ -37,7 +37,7 @@ namespace magic.lambda.io.folder
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            _service.Create(PathResolver.CombinePaths(_rootResolver.RootFolder, input.GetEx<string>()));
+            _service.Create(_rootResolver.AbsolutePath(input.GetEx<string>()));
         }
     }
 }

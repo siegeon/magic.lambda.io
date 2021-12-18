@@ -37,16 +37,15 @@ namespace magic.lambda.io.file
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            var zipFile = PathResolver.CombinePaths(
-                _rootResolver.RootFolder,
-                input.GetEx<string>());
+            var zipFile = _rootResolver.AbsolutePath(input.GetEx<string>());
 
             var folderNode = input.Children
                 .FirstOrDefault(x => x.Name == "folder")?
                 .GetEx<string>();
 
             var targetFolder = folderNode == null ?
-                Path.GetDirectoryName(zipFile) : PathResolver.CombinePaths(_rootResolver.RootFolder, folderNode).Replace("/", "\\");
+                Path.GetDirectoryName(zipFile) :
+                _rootResolver.AbsolutePath(folderNode);
 
             var fastZip = new FastZip();
             fastZip.ExtractZip(zipFile, targetFolder, null);

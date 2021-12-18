@@ -39,26 +39,25 @@ namespace magic.lambda.io.folder
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
+            // Checking if we should display hidden files (files starting with ".").
             var displayHiddenFolders = input.Children
                 .FirstOrDefault(x => x.Name == "display-hidden")?
                 .GetEx<bool>() ?? false;
-            var root = PathResolver.Normalize(_rootResolver.RootFolder);
+
+            // Figuring out folder to list files from within.
             var folder = input.GetEx<string>();
+
+            // House cleaning
             input.Clear();
             input.Value = null;
-            var folders = _service
-                .ListFolders(
-                    PathResolver.CombinePaths(
-                        _rootResolver.RootFolder,
-                        folder))
-                .ToList();
-            folders.Sort();
-            foreach (var idx in folders)
+
+            // Returning files as lambda to caller.
+            foreach (var idx in _service.ListFolders(_rootResolver.AbsolutePath(folder)))
             {
                 // Making sure we don't show hidden operating system folders by default.
                 if (displayHiddenFolders ||
                     !idx.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries).Last().StartsWith(".", StringComparison.InvariantCulture))
-                    input.Add(new Node("", idx.Substring(root.Length).TrimEnd('/') + "/"));
+                    input.Add(new Node("", _rootResolver.RelativePath(idx)));
             }
         }
     }

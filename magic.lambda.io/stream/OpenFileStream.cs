@@ -38,13 +38,8 @@ namespace magic.lambda.io.stream
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            // Figuring out filename.
-            var filename = PathResolver.CombinePaths(
-                _rootResolver.RootFolder,
-                input.GetEx<string>());
-
             // Opening file and returning to caller.
-            input.Value = _service.OpenFile(filename);
+            input.Value = _service.OpenFile(_rootResolver.AbsolutePath(input.GetEx<string>()));
         }
     }
 }

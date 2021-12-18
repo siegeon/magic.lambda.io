@@ -44,23 +44,24 @@ namespace magic.lambda.io.file
             signaler.Signal("eval", input);
 
             // Saving file.
-            if (input.Name == "io.file.save")
+            switch (input.Name)
             {
                 // Text content.
-                _service.Save(
-                    PathResolver.CombinePaths(
-                        _rootResolver.RootFolder,
-                        input.GetEx<string>()),
-                    input.Children.First().GetEx<string>());
-            }
-            else
-            {
+                case "io.file.save":
+                    _service.Save(
+                        _rootResolver.AbsolutePath(input.GetEx<string>()),
+                        input.Children.First().GetEx<string>());
+                    break;
+
                 // Binary content.
-                _service.Save(
-                    PathResolver.CombinePaths(
-                        _rootResolver.RootFolder,
-                        input.GetEx<string>()),
-                    input.Children.First().GetEx<byte[]>());
+                case "io.file.save.binary":
+                    _service.Save(
+                        _rootResolver.AbsolutePath(input.GetEx<string>()),
+                        input.Children.First().GetEx<byte[]>());
+                    break;
+
+                default:
+                    throw new HyperlambdaException("You shouldn't be here ...??");
             }
         }
 
@@ -76,23 +77,24 @@ namespace magic.lambda.io.file
             await signaler.SignalAsync("eval", input);
 
             // Saving file.
-            if (input.Name == "io.file.save")
+            switch (input.Name)
             {
                 // Text content.
-                await _service.SaveAsync(
-                    PathResolver.CombinePaths(
-                        _rootResolver.RootFolder,
-                        input.GetEx<string>()),
-                    input.Children.First().GetEx<string>());
-            }
-            else
-            {
+                case "io.file.save":
+                    await _service.SaveAsync(
+                        _rootResolver.AbsolutePath(input.GetEx<string>()),
+                        input.Children.First().GetEx<string>());
+                    break;
+
                 // Binary content.
-                await _service.SaveAsync(
-                    PathResolver.CombinePaths(
-                        _rootResolver.RootFolder,
-                        input.GetEx<string>()),
-                    input.Children.First().GetEx<byte[]>());
+                case "io.file.save.binary":
+                    await _service.SaveAsync(
+                        _rootResolver.AbsolutePath(input.GetEx<string>()),
+                        input.Children.First().GetEx<byte[]>());
+                    break;
+
+                default:
+                    throw new HyperlambdaException("You shouldn't be here ...??");
             }
         }
     }

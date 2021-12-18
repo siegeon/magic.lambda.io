@@ -78,9 +78,7 @@ namespace magic.lambda.io.stream
             signaler.Signal("eval", input);
 
             // Figuring out where to save file.
-            var destination = PathResolver.CombinePaths(
-                _rootResolver.RootFolder,
-                input.GetEx<string>());
+            var destination = _rootResolver.AbsolutePath(input.GetEx<string>());
 
             // Retrieving stream
             var stream = input.Children.First().GetEx<Stream>();

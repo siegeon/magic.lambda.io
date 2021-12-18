@@ -46,11 +46,7 @@ namespace magic.lambda.io.file
             {
                 // Loading file and converting its content to lambda.
                 var filename = input.GetEx<string>();
-                var hyperlambda = _service
-                    .Load(
-                        PathResolver.CombinePaths(
-                            _rootResolver.RootFolder,
-                            filename));
+                var hyperlambda = _service.Load(_rootResolver.AbsolutePath(filename));
 
                 // Creating and parametrising our lambda object from argument + file's Hyperlambda content.
                 var lambda = GetLambda(input, hyperlambda, filename);
@@ -77,10 +73,7 @@ namespace magic.lambda.io.file
             {
                 // Loading file and converting its content to Hyperlambda.
                 var filename = input.GetEx<string>();
-                var hyperlambda = await _service.LoadAsync(
-                    PathResolver.CombinePaths(
-                        _rootResolver.RootFolder,
-                        filename));
+                var hyperlambda = await _service.LoadAsync(_rootResolver.AbsolutePath(filename));
 
                 // Creating and parametrising our lambda object from argument + file's Hyperlambda content.
                 var lambda = GetLambda(input, hyperlambda, filename);

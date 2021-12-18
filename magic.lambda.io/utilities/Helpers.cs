@@ -3,6 +3,7 @@
  */
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using magic.node;
@@ -67,19 +68,8 @@ namespace magic.lambda.io.utilities
             Node input,
             Action<string, string> functor)
         {
-            // Retrieving source path.
-            string sourcePath = PathResolver.CombinePaths(
-                rootResolver.RootFolder,
-                input.GetEx<string>());
-
-            // Retrieving destination path.
-            var destinationPath = PathResolver
-                .CombinePaths(
-                    rootResolver.RootFolder,
-                    input.Children.First().GetEx<string>());
-
             // Sanity checking arguments.
-            functor(sourcePath, destinationPath);
+            functor(rootResolver.AbsolutePath(input.GetEx<string>()), rootResolver.AbsolutePath(input.Children.First().GetEx<string>()));
         }
 
         #endregion

@@ -45,24 +45,20 @@ namespace magic.lambda.io.file
                 .FirstOrDefault(x => x.Name == "display-hidden")?
                 .GetEx<bool>() ?? false;
 
-            var root = PathResolver.Normalize(_rootResolver.RootFolder);
+            // Figuring out folder to list files from within.
             var folder = input.GetEx<string>();
-            var files = _service
-                .ListFiles(
-                    PathResolver.CombinePaths(
-                        _rootResolver.RootFolder,
-                        folder))
-                .ToList();
 
-            // Sorting and returning files to caller as lambda children.
-            files.Sort();
+            // House cleaning
             input.Clear();
-            foreach (var idx in files)
+            input.Value = null;
+
+            // Returning files as lambda to caller.
+            foreach (var idx in _service.ListFiles(_rootResolver.AbsolutePath(folder)))
             {
                 // Making sure we don't show hidden operating system files by default.
                 if (displayHiddenFiles ||
                     !Path.GetFileName(idx).StartsWith(".", StringComparison.InvariantCulture))
-                    input.Add(new Node("", idx.Substring(root.Length)));
+                    input.Add(new Node("", _rootResolver.RelativePath(idx)));
             }
         }
     }

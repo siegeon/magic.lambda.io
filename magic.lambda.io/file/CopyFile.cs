@@ -82,15 +82,9 @@ namespace magic.lambda.io.file
         (string SourcePath, string DestinationPath) GetPaths(Node input)
         {
             // Finding absolute paths.
-            var sourcePath = PathResolver
-                .CombinePaths(
-                    _rootResolver.RootFolder,
-                    input.GetEx<string>());
+            var sourcePath = _rootResolver.AbsolutePath(input.GetEx<string>());
 
-            var destinationPath = PathResolver
-                .CombinePaths(
-                    _rootResolver.RootFolder,
-                    input.Children.First().GetEx<string>());
+            var destinationPath = _rootResolver.AbsolutePath(input.Children.First().GetEx<string>());
 
             // Defaulting filename to the filename of the source file, unless another filename is explicitly given.
             if (destinationPath.EndsWith("/", StringComparison.InvariantCultureIgnoreCase))

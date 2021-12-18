@@ -2,6 +2,9 @@
  * Magic Cloud, copyright Aista, Ltd. See the attached LICENSE file for details.
  */
 
+using System.Linq;
+using System.Text;
+
 namespace magic.lambda.io.utilities
 {
     /*
@@ -10,19 +13,21 @@ namespace magic.lambda.io.utilities
     internal static class PathResolver
     {
         /*
-         * Combines the two specified paths.
+         * Combines the specified paths into a single path.
          */
-        public static string CombinePaths(string root, string path)
+        public static string Combine(params string[] args)
         {
-            return root.Replace("\\", "/").TrimEnd('/') + "/" + path.Replace("\\", "/").TrimStart('/');
-        }
-
-        /*
-         * Makes sure paths hare handled similarly on Windows and Unix like systems.
-         */
-        public static string Normalize(string path)
-        {
-            return path.Replace("\\", "/").TrimEnd('/');
+            var builder = new StringBuilder();
+            foreach (var idxArg in args)
+            {
+                foreach (var idxEntity in idxArg.Split(new char[] {'/', '\\'}, System.StringSplitOptions.RemoveEmptyEntries))
+                {
+                    builder.Append("/").Append(idxEntity);
+                }
+            }
+            if (args.Last().EndsWith("/"))
+                builder.Append("/");
+            return builder.ToString();
         }
     }
 }

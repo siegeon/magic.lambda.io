@@ -39,7 +39,7 @@ namespace magic.lambda.io.file
         public void Signal(ISignaler signaler, Node input)
         {
             input.Value = _service.Load(
-                PathResolver.CombinePaths(
+                PathResolver.Combine(
                     _rootResolver.RootFolder,
                     input.GetEx<string>()));
         }
@@ -52,10 +52,7 @@ namespace magic.lambda.io.file
         /// <returns>An awaitable task.</returns>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            input.Value = await _service.LoadAsync(
-                PathResolver.CombinePaths(
-                    _rootResolver.RootFolder,
-                    input.GetEx<string>()));
+            input.Value = await _service.LoadAsync(_rootResolver.AbsolutePath(input.GetEx<string>()));
         }
     }
 }
