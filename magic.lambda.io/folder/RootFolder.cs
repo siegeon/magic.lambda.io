@@ -3,8 +3,8 @@
  */
 
 using magic.node;
+using magic.node.contracts;
 using magic.signals.contracts;
-using magic.lambda.io.contracts;
 
 namespace magic.lambda.io.folder
 {

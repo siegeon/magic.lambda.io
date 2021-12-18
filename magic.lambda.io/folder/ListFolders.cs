@@ -5,9 +5,9 @@
 using System;
 using System.Linq;
 using magic.node;
+using magic.node.contracts;
 using magic.node.extensions;
 using magic.signals.contracts;
-using magic.lambda.io.contracts;
 using magic.lambda.io.utilities;
 
 namespace magic.lambda.io.folder
