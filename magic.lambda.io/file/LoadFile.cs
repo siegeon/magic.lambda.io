@@ -7,7 +7,6 @@ using magic.node;
 using magic.node.contracts;
 using magic.node.extensions;
 using magic.signals.contracts;
-using magic.lambda.io.utilities;
 
 namespace magic.lambda.io.file
 {
@@ -38,10 +37,7 @@ namespace magic.lambda.io.file
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            input.Value = _service.Load(
-                PathResolver.Combine(
-                    _rootResolver.RootFolder,
-                    input.GetEx<string>()));
+            input.Value = _service.Load(_rootResolver.AbsolutePath(input.GetEx<string>()));
         }
 
         /// <summary>
