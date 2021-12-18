@@ -77,14 +77,8 @@ namespace magic.lambda.io.stream
             // Making sure we evaluate any children, to make sure any signals wanting to retrieve our source is evaluated.
             signaler.Signal("eval", input);
 
-            // Figuring out where to save file.
-            var destination = _rootResolver.AbsolutePath(input.GetEx<string>());
-
-            // Retrieving stream
-            var stream = input.Children.First().GetEx<Stream>();
-
             // Returning results to caller.
-            return (destination, stream, overwrite);
+            return (_rootResolver.AbsolutePath(input.GetEx<string>()), input.Children.First().GetEx<Stream>(), overwrite);
         }
 
         #endregion
