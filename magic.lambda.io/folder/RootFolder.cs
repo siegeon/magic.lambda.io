@@ -12,7 +12,7 @@ namespace magic.lambda.io.folder
     /// [.io.folder.root] slot for returning root path of system.
     /// </summary>
     [Slot(Name = ".io.folder.root")]
-    public class RootFolder : ISlot
+    public class DynamicFiles : ISlot
     {
         readonly IRootResolver _rootResolver;
 
@@ -20,7 +20,7 @@ namespace magic.lambda.io.folder
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        public RootFolder(IRootResolver rootResolver)
+        public DynamicFiles(IRootResolver rootResolver)
         {
             _rootResolver = rootResolver;
         }
@@ -32,7 +32,7 @@ namespace magic.lambda.io.folder
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            input.Value = _rootResolver.RootFolder;
+            input.Value = _rootResolver.DynamicFiles;
         }
     }
 }
