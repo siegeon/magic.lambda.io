@@ -11,23 +11,24 @@ using magic.signals.contracts;
 namespace magic.lambda.io.file
 {
     /// <summary>
-    /// [io.file.copy] slot for moving a file on your server.
+    /// [io.file.copy]/[io.file.move] slot for moving a file on your server.
     /// </summary>
     [Slot(Name = "io.file.copy")]
-    public class CopyFile : ISlot, ISlotAsync
+    [Slot(Name = "io.file.move")]
+    public class CopyMoveFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
-        readonly IFileService _fileService;
+        readonly IIOService _service;
 
         /// <summary>
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        /// <param name="fileService">Underlaying file service implementation.</param>
-        public CopyFile(IRootResolver rootResolver, IFileService fileService)
+        /// <param name="service">Underlaying file service implementation.</param>
+        public CopyMoveFile(IRootResolver rootResolver, IFileService service)
         {
             _rootResolver = rootResolver;
-            _fileService = fileService;
+            _service = service;
         }
 
         /// <summary>
@@ -37,7 +38,7 @@ namespace magic.lambda.io.file
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            Utilities.CopyMoveHelper(signaler, _rootResolver, input, _fileService, true);
+            Utilities.CopyMoveHelper(signaler, _rootResolver, input, _service, input.Name == "io.file.copy");
         }
 
         /// <summary>
@@ -48,7 +49,7 @@ namespace magic.lambda.io.file
         /// <returns>An awaitable task.</returns>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            await Utilities.CopyMoveHelperAsync(signaler, _rootResolver, input, _fileService, true);
+            await Utilities.CopyMoveHelperAsync(signaler, _rootResolver, input, _service, input.Name == "io.file.copy");
         }
     }
 }

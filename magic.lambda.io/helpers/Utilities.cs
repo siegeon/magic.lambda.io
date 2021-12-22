@@ -80,6 +80,8 @@ namespace magic.lambda.io.helpers
                     paths.Destination);
         }
 
+        #region [ -- Private helper methods -- ]
+
         /*
          * Sanity checks arguments for copy and move file/folder.
          */
@@ -109,5 +111,7 @@ namespace magic.lambda.io.helpers
             // Returning arguments to caller.
             return (sourcePath, destinationPath);
         }
+
+        #endregion
     }
 }

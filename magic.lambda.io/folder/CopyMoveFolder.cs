@@ -11,23 +11,24 @@ using magic.signals.contracts;
 namespace magic.lambda.io.folder
 {
     /// <summary>
-    /// [io.folder.move] slot for moving a folder on your server.
+    /// [io.folder.copy]/[io.folder.move] slot for copying a folder on your server.
     /// </summary>
+    [Slot(Name = "io.folder.copy")]
     [Slot(Name = "io.folder.move")]
-    public class MoveFolder : ISlot, ISlotAsync
+    public class CopyMoveFolder : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
-        readonly IFolderService _folderService;
+        readonly IIOService _service;
 
         /// <summary>
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        /// <param name="folderService">Underlaying folder service implementation.</param>
-        public MoveFolder(IRootResolver rootResolver, IFolderService folderService)
+        /// <param name="service">Underlaying folder service implementation.</param>
+        public CopyMoveFolder(IRootResolver rootResolver, IFolderService service)
         {
             _rootResolver = rootResolver;
-            _folderService = folderService;
+            _service = service;
         }
 
         /// <summary>
@@ -37,7 +38,7 @@ namespace magic.lambda.io.folder
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            Utilities.CopyMoveHelper(signaler, _rootResolver, input, _folderService, false);
+            Utilities.CopyMoveHelper(signaler, _rootResolver, input, _service, input.Name == "io.folder.copy");
         }
 
         /// <summary>
@@ -47,7 +48,7 @@ namespace magic.lambda.io.folder
         /// <param name="input">Arguments to slot.</param>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            await Utilities.CopyMoveHelperAsync(signaler, _rootResolver, input, _folderService, false);
+            await Utilities.CopyMoveHelperAsync(signaler, _rootResolver, input, _service, input.Name == "io.folder.copy");
         }
     }
 }
