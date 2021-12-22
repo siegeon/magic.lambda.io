@@ -31,6 +31,11 @@ namespace magic.lambda.io.file
             // Notice, this stream is returned to caller, and never disposed - Which is its entire purpose!
             var result = new MemoryStream();
 
+            /*
+             * Creating our ZIP archive, notice the boolean true allowing us to keep MemoryStream open
+             * after disposing ZIP stream. This is needed since ZipArchive writes the last bytes to the ZIP file
+             * only once it's actually disposed.
+             */
             using (var archive = new ZipArchive(result, ZipArchiveMode.Create, true))
             {
                 // Iterating through each entity caller wants to zip, and creating entry for item.
@@ -39,26 +44,34 @@ namespace magic.lambda.io.file
                     // Evaluating content node, in case it's a slot invocation.
                     signaler.Signal("eval", idx);
 
+                    // Creating currently iterated ZIP entry and opening stream to write to it.
                     var entry = archive.CreateEntry(idx.GetEx<string>());
                     using (var entryStream = entry.Open())
                     {
+                        // Figuring out content type of current entry (byte[] or string), and sanity checking invocation.
                         var content = idx.Children.FirstOrDefault()?.GetEx<object>();
-                        if (content != null)
+                        if (content == null)
+                            throw new HyperlambdaException($"Empty entry for ZIP file found, name was '{entry.FullName}'");
+
+                        // Correctly persisting currently iterated entry according to its type.
+                        if (content is byte[] bytesContent)
                         {
-                            if (content is byte[] bytesContent)
+                            // Byte array content.
+                            entryStream.Write(bytesContent, 0, bytesContent.Length);
+                            entryStream.Flush();
+                        }
+                        else if (content is string stringContent)
+                        {
+                            // String content.
+                            using (var writer = new StreamWriter(entryStream, Encoding.UTF8))
                             {
-                                if (bytesContent == null)
-                                    throw new HyperlambdaException("[io.content.zip-stream] can only handle string and bytes content");
-                                entryStream.Write(bytesContent, 0, bytesContent.Length);
-                                entryStream.Flush();
+                                writer.Write(stringContent);
                             }
-                            else if (content is string stringContent)
-                            {
-                                using (var writer = new StreamWriter(entryStream, Encoding.UTF8))
-                                {
-                                    writer.Write(stringContent);
-                                }
-                            }
+                        }
+                        else
+                        {
+                            // Oops, we only support string or byte[] content ...
+                            throw new HyperlambdaException("[io.content.zip-stream] can only handle string and byte[] content");
                         }
                     }
                 }
