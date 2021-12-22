@@ -2,12 +2,14 @@
  * Magic Cloud, copyright Aista, Ltd. See the attached LICENSE file for details.
  */
 
+using System;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using magic.node;
 using magic.node.contracts;
 using magic.node.extensions;
 using magic.signals.contracts;
-using magic.lambda.io.utilities;
 
 namespace magic.lambda.io.folder
 {
@@ -18,17 +20,17 @@ namespace magic.lambda.io.folder
     public class MoveFolder : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
-        readonly IFolderService _service;
+        readonly IFolderService _folderService;
 
         /// <summary>
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        /// <param name="service">Underlaying folder service implementation.</param>
-        public MoveFolder(IRootResolver rootResolver, IFolderService service)
+        /// <param name="folderService">Underlaying folder service implementation.</param>
+        public MoveFolder(IRootResolver rootResolver, IFolderService folderService)
         {
             _rootResolver = rootResolver;
-            _service = service;
+            _folderService = folderService;
         }
 
         /// <summary>
@@ -38,8 +40,21 @@ namespace magic.lambda.io.folder
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            // Invoking helper method containing commonalities.
-            Helpers.Execute(signaler, _rootResolver, input, "io.folder.move", Move);
+            // Sanity checking arguments and evaluating them.
+            SanityCheckArguments(input);
+            signaler.Signal("eval", input);
+
+            // Retrieving source and destination path.
+            var paths = GetPaths(input);
+
+            // For simplicity, we're deleting any existing folders with the path of the destination file.
+            if (_folderService.Exists(paths.DestinationPath))
+                _folderService.Delete(paths.DestinationPath);
+
+            // Actual move implementation.
+            _folderService.Move(
+                paths.SourcePath,
+                paths.DestinationPath);
         }
 
         /// <summary>
@@ -49,32 +64,55 @@ namespace magic.lambda.io.folder
         /// <param name="input">Arguments to slot.</param>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            // Invoking helper method containing commonalities.
-            await Helpers.ExecuteAsync(signaler, _rootResolver, input, "io.folder.move", Move);
+            // Sanity checking arguments and evaluating them.
+            SanityCheckArguments(input);
+            await signaler.SignalAsync("eval", input);
+
+            // Retrieving source and destination path.
+            var paths = GetPaths(input);
+
+            // For simplicity, we're deleting any existing folders with the path of the destination file.
+            if (await _folderService.ExistsAsync(paths.DestinationPath))
+                await _folderService.DeleteAsync(paths.DestinationPath);
+
+            // Actual copy implementation.
+            await _folderService.MoveAsync(
+                paths.SourcePath,
+                paths.DestinationPath);
         }
 
         #region [ -- Private helper methods -- ]
 
         /*
-         * Commonalities between async and sync version to keep code DRY.
+         * Sanity checks arguments provided.
          */
-        void Move(string source, string destination)
+        static void SanityCheckArguments(Node input)
         {
+            if (!input.Children.Any())
+                throw new HyperlambdaException("No destination provided to [io.folder.move]");
+        }
+
+        /*
+         * Retrieves source and destination path for operation.
+         */
+        (string SourcePath, string DestinationPath) GetPaths(Node input)
+        {
+            // Finding absolute paths.
+            var sourcePath = _rootResolver.AbsolutePath(input.GetEx<string>());
+            var destinationPath = _rootResolver.AbsolutePath(input.Children.First().GetEx<string>());
+
+            // Defaulting filename to the filename of the source file, unless another filename is explicitly given.
+            if (destinationPath.EndsWith("/", StringComparison.InvariantCultureIgnoreCase))
+                destinationPath += Path.GetFileName(sourcePath);
+
             // Sanity checking arguments.
-            if (source == destination)
+            if (sourcePath == destinationPath)
                 throw new HyperlambdaException("You cannot move a folder using the same source and destination path");
 
-            /*
-             * Verifying folder doesn't exist from before.
-             *
-             * Notice, contrary to the move file version, we cannot delete any
-             * existing folders here, since it might include deleting a lot of
-             * files unintentionally.
-             */
-            if (_service.Exists(destination))
-                throw new HyperlambdaException("Cannot move folder, destination folder already exists");
-
-            _service.Move(source, destination);
+            // For simplicity, we're deleting any existing files with the path of the destination file.
+            if (_folderService.Exists(destinationPath))
+                _folderService.Delete(destinationPath);
+            return (sourcePath, destinationPath);
         }
 
         #endregion

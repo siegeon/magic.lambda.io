@@ -40,9 +40,18 @@ namespace magic.lambda.io.folder
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
+            // Sanity checking arguments and evaluating them.
             SanityCheckArguments(input);
             signaler.Signal("eval", input);
+
+            // Retrieving source and destination path.
             var paths = GetPaths(input);
+
+            // For simplicity, we're deleting any existing folders with the path of the destination file.
+            if (_folderService.Exists(paths.DestinationPath))
+                _folderService.Delete(paths.DestinationPath);
+
+            // Actual copy implementation.
             _folderService.Copy(
                 paths.SourcePath,
                 paths.DestinationPath);
@@ -55,9 +64,18 @@ namespace magic.lambda.io.folder
         /// <param name="input">Arguments to slot.</param>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
+            // Sanity checking arguments and evaluating them.
             SanityCheckArguments(input);
             await signaler.SignalAsync("eval", input);
+
+            // Retrieving source and destination path.
             var paths = GetPaths(input);
+
+            // For simplicity, we're deleting any existing folders with the path of the destination file.
+            if (await _folderService.ExistsAsync(paths.DestinationPath))
+                await _folderService.DeleteAsync(paths.DestinationPath);
+
+            // Actual copy implementation.
             await _folderService.CopyAsync(
                 paths.SourcePath,
                 paths.DestinationPath);
@@ -71,7 +89,7 @@ namespace magic.lambda.io.folder
         static void SanityCheckArguments(Node input)
         {
             if (!input.Children.Any())
-                throw new HyperlambdaException("No destination provided to [io.file.copy]");
+                throw new HyperlambdaException("No destination provided to [io.folder.copy]");
         }
 
         /*
@@ -89,7 +107,7 @@ namespace magic.lambda.io.folder
 
             // Sanity checking arguments.
             if (sourcePath == destinationPath)
-                throw new HyperlambdaException("You cannot copy a file using the same source and destination path");
+                throw new HyperlambdaException("You cannot copy a folder using the same source and destination path");
 
             // For simplicity, we're deleting any existing files with the path of the destination file.
             if (_folderService.Exists(destinationPath))

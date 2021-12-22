@@ -51,7 +51,7 @@ namespace magic.lambda.io.file
             if (_fileService.Exists(paths.DestinationPath))
                 _fileService.Delete(paths.DestinationPath);
 
-            // Actual copy implementation.
+            // Actual move implementation.
             _fileService.Move(
                 paths.SourcePath,
                 paths.DestinationPath);
@@ -75,7 +75,7 @@ namespace magic.lambda.io.file
             if (await _fileService.ExistsAsync(paths.DestinationPath))
                 await _fileService.DeleteAsync(paths.DestinationPath);
 
-            // Actual copy implementation.
+            // Actual move implementation.
             await _fileService.MoveAsync(
                 paths.SourcePath,
                 paths.DestinationPath);
@@ -89,7 +89,7 @@ namespace magic.lambda.io.file
         static void SanityCheckArguments(Node input)
         {
             if (!input.Children.Any())
-                throw new HyperlambdaException("No destination provided to [io.file.copy]");
+                throw new HyperlambdaException("No destination provided to [io.file.move]");
         }
 
         /*
