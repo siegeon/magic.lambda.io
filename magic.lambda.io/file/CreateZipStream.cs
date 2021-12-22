@@ -63,7 +63,7 @@ namespace magic.lambda.io.file
                         else if (content is string stringContent)
                         {
                             // String content.
-                            using (var writer = new StreamWriter(entryStream, Encoding.UTF8))
+                            using (var writer = new StreamWriter(entryStream))
                             {
                                 writer.Write(stringContent);
                             }
