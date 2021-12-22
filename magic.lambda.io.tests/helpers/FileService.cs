@@ -26,20 +26,24 @@ namespace magic.lambda.io.tests.helpers
 
         public Func<string, Task<string>> LoadAsyncAction { get; set; }
 
+        public Func<string, byte[]> LoadBinaryAction { get; set; }
+
+        public Func<string, Task<byte[]>> LoadBinaryAsyncAction { get; set; }
+
         public Action<string, string> MoveAction { get; set; }
 
         public Action<string, string> SaveAction { get; set; }
 
         public Func<string, string, Task> SaveAsyncAction { get; set; }
 
-        public void Copy(string source, string destination)
+        public bool Exists(string path)
         {
-            CopyAction(source, destination);
+            return ExistsAction(path);
         }
 
-        public async Task CopyAsync(string source, string destination)
+        public Task<bool> ExistsAsync(string path)
         {
-            await CopyAsyncAction(source, destination);
+            return Task.FromResult(ExistsAction(path));
         }
 
         public void Delete(string path)
@@ -47,24 +51,20 @@ namespace magic.lambda.io.tests.helpers
             DeleteAction(path);
         }
 
-        public bool Exists(string path)
+        public Task DeleteAsync(string path)
         {
-            return ExistsAction(path);
+            DeleteAction(path);
+            return Task.CompletedTask;
         }
 
-        public List<string> ListFiles(string folder, string extension = null)
+        public void Copy(string source, string destination)
         {
-            return ListFilesAction(folder);
+            CopyAction(source, destination);
         }
 
-        public string Load(string path)
+        public Task CopyAsync(string source, string destination)
         {
-            return LoadAction(path);
-        }
-
-        public async Task<string> LoadAsync(string path)
-        {
-            return await LoadAsyncAction(path);
+            return Task.FromResult(CopyAsyncAction(source, destination));
         }
 
         public void Move(string source, string destination)
@@ -72,14 +72,40 @@ namespace magic.lambda.io.tests.helpers
             MoveAction(source, destination);
         }
 
+        public Task MoveAsync(string source, string destination)
+        {
+            MoveAction(source, destination);
+            return Task.CompletedTask;
+        }
+
+        public string Load(string path)
+        {
+            return LoadAction(path);
+        }
+
+        public Task<string> LoadAsync(string path)
+        {
+            return LoadAsyncAction(path);
+        }
+
+        public byte[] LoadBinary(string path)
+        {
+            return LoadBinaryAction(path);
+        }
+
+        public Task<byte[]> LoadBinaryAsync(string path)
+        {
+            return LoadBinaryAsyncAction(path);
+        }
+
         public void Save(string path, string content)
         {
             SaveAction(path, content);
         }
 
-        public async Task SaveAsync(string filename, string content)
+        public Task SaveAsync(string filename, string content)
         {
-            await SaveAsyncAction(filename, content);
+            return Task.FromResult(SaveAsyncAction(filename, content));
         }
 
         public void Save(string path, byte[] content)
@@ -87,31 +113,19 @@ namespace magic.lambda.io.tests.helpers
             SaveAction(path, Encoding.UTF8.GetString(content));
         }
 
-        public async Task SaveAsync(string filename, byte[] content)
+        public Task SaveAsync(string filename, byte[] content)
         {
-            await SaveAsyncAction(filename, Encoding.UTF8.GetString(content));
+            return Task.FromResult(SaveAsyncAction(filename, Encoding.UTF8.GetString(content)));
         }
 
-        public Task<bool> ExistsAsync(string path)
+        public List<string> ListFiles(string folder, string extension = null)
         {
-            return Task.FromResult(Exists(path));
-        }
-
-        public Task DeleteAsync(string path)
-        {
-            Delete(path);
-            return Task.CompletedTask;
-        }
-
-        public Task MoveAsync(string source, string destination)
-        {
-            Move(source, destination);
-            return Task.CompletedTask;
+            return ListFilesAction(folder);
         }
 
         public Task<List<string>> ListFilesAsync(string folder, string extension = null)
         {
-            return Task.FromResult(ListFiles(folder, extension));
+            return Task.FromResult(ListFilesAction(folder));
         }
     }
 }

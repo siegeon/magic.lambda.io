@@ -21,22 +21,16 @@ namespace magic.lambda.io.stream
     {
         readonly IRootResolver _rootResolver;
         readonly IStreamService _streamService;
-        readonly IFileService _fileService;
 
         /// <summary>
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
         /// <param name="streamService">Service needed to save stream.</param>
-        /// <param name="fileService">Service needed to check if file exists from before, and if so, delete it.</param>
-        public SaveFileStream(
-            IRootResolver rootResolver,
-            IStreamService streamService,
-            IFileService fileService)
+        public SaveFileStream(IRootResolver rootResolver, IStreamService streamService)
         {
             _rootResolver = rootResolver;
             _streamService = streamService;
-            _fileService = fileService;
         }
 
         /// <summary>
@@ -47,9 +41,7 @@ namespace magic.lambda.io.stream
         public void Signal(ISignaler signaler, Node input)
         {
             var args = GetArguments(signaler, input);
-            if (args.Overwrite && _fileService.Exists(args.Destination))
-                _fileService.Delete(args.Destination);
-            _streamService.SaveFile(args.Stream, args.Destination);
+            _streamService.SaveFile(args.Stream, args.Destination, args.Overwrite);
         }
 
         /// <summary>
@@ -61,9 +53,7 @@ namespace magic.lambda.io.stream
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
             var args = GetArguments(signaler, input);
-            if (args.Overwrite && _fileService.Exists(args.Destination))
-                _fileService.Delete(args.Destination);
-            await _streamService.SaveFileAsync(args.Stream, args.Destination);
+            await _streamService.SaveFileAsync(args.Stream, args.Destination, args.Overwrite);
         }
 
         #region [ -- Private helper methods -- ]

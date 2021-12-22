@@ -151,7 +151,7 @@ namespace magic.lambda.io.file
 
             // Figuring out full filename of current entry and saving it.
             var fullFileName = currentFolder + entities.Last();
-            _streamService.SaveFile(contentStream, fullFileName);
+            _streamService.SaveFile(contentStream, fullFileName, true);
         }
 
         /*
@@ -173,7 +173,7 @@ namespace magic.lambda.io.file
 
             // Figuring out full filename of current entry and saving it.
             var fullFileName = currentFolder + entities.Last();
-            await _streamService.SaveFileAsync(contentStream, fullFileName);
+            await _streamService.SaveFileAsync(contentStream, fullFileName, true);
         }
 
         /*

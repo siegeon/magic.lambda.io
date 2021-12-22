@@ -66,7 +66,7 @@ io.stream.close:x:@io.stream.open-file
 ", null, null, streamService);
             Assert.True(saveInvoked);
             Assert.True(openFileInvoked);
-            Assert.True(deleteInvoked);
+            Assert.False(deleteInvoked);
         }
 
         [Fact]

@@ -24,12 +24,17 @@ namespace magic.lambda.io.tests.helpers
             return OpenFileAction(path);
         }
 
-        public void SaveFile(Stream stream, string path)
+        public Task<Stream> OpenFileAsync(string path)
+        {
+            return Task.FromResult(OpenFileAction(path));
+        }
+
+        public void SaveFile(Stream stream, string path, bool overwrite)
         {
             SaveFileAction(stream, path);
         }
 
-        public Task SaveFileAsync(Stream stream, string path)
+        public Task SaveFileAsync(Stream stream, string path, bool overwrite)
         {
             SaveFileActionAsync(stream, path);
             return Task.CompletedTask;
