@@ -2,6 +2,7 @@
  * Magic Cloud, copyright Aista, Ltd. See the attached LICENSE file for details.
  */
 
+using System.Threading.Tasks;
 using magic.node;
 using magic.node.contracts;
 using magic.node.extensions;
@@ -13,7 +14,7 @@ namespace magic.lambda.io.folder
     /// [io.folder.delete] slot for deleting a folder on server.
     /// </summary>
     [Slot(Name = "io.folder.delete")]
-    public class DeleteFolder : ISlot
+    public class DeleteFolder : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
         readonly IFolderService _service;
@@ -37,6 +38,17 @@ namespace magic.lambda.io.folder
         public void Signal(ISignaler signaler, Node input)
         {
             _service.Delete(_rootResolver.AbsolutePath(input.GetEx<string>()));
+        }
+
+        /// <summary>
+        /// Implementation of slot.
+        /// </summary>
+        /// <param name="signaler">Signaler used to raise the signal.</param>
+        /// <param name="input">Arguments to slot.</param>
+        /// <returns>Awaitable task</returns>
+        public async Task SignalAsync(ISignaler signaler, Node input)
+        {
+            await _service.DeleteAsync(_rootResolver.AbsolutePath(input.GetEx<string>()));
         }
     }
 }

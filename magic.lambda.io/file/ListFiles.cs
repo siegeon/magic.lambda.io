@@ -5,6 +5,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using magic.node;
 using magic.node.contracts;
 using magic.node.extensions;
@@ -16,7 +17,7 @@ namespace magic.lambda.io.file
     /// [io.file.list] slot for listing files on server.
     /// </summary>
     [Slot(Name = "io.file.list")]
-    public class ListFiles : ISlot
+    public class ListFiles : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
         readonly IFileService _service;
@@ -39,6 +40,42 @@ namespace magic.lambda.io.file
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
+            // Retrieving arguments to slot.
+            var args = GetArgs(input);
+
+            // Returning files as lambda to caller.
+            foreach (var idx in _service.ListFiles(_rootResolver.AbsolutePath(args.Folder)))
+            {
+                // Adds currently iterated file to result.
+                AddFile(input, idx, args.ShowHidden);
+            }
+        }
+
+        /// <summary>
+        /// Implementation of slot.
+        /// </summary>
+        /// <param name="signaler">Signaler used to raise the signal.</param>
+        /// <param name="input">Arguments to slot.</param>
+        public async Task SignalAsync(ISignaler signaler, Node input)
+        {
+            // Retrieving arguments to slot.
+            var args = GetArgs(input);
+
+            // Returning files as lambda to caller.
+            foreach (var idx in await _service.ListFilesAsync(_rootResolver.AbsolutePath(args.Folder)))
+            {
+                // Adds currently iterated file to result.
+                AddFile(input, idx, args.ShowHidden);
+            }
+        }
+
+        #region [ -- Private helper methods -- ]
+
+        /*
+         * Returns arguments to slot invocation.
+         */
+        (string Folder, bool ShowHidden) GetArgs(Node input)
+        {
             // Checking if we should display hidden files (files starting with ".").
             var displayHiddenFiles = input.Children
                 .FirstOrDefault(x => x.Name == "display-hidden")?
@@ -51,14 +88,21 @@ namespace magic.lambda.io.file
             input.Clear();
             input.Value = null;
 
-            // Returning files as lambda to caller.
-            foreach (var idx in _service.ListFiles(_rootResolver.AbsolutePath(folder)))
-            {
-                // Making sure we don't show hidden operating system files by default.
-                if (displayHiddenFiles ||
-                    !Path.GetFileName(idx).StartsWith(".", StringComparison.InvariantCulture))
-                    input.Add(new Node("", _rootResolver.RelativePath(idx)));
-            }
+            // Returning results to caller.
+            return (folder, displayHiddenFiles);
         }
+
+        /*
+         * Adds one file to result.
+         */
+        void AddFile(Node result, string filename, bool showHidden)
+        {
+            // Making sure we don't show hidden operating system files by default.
+            if (showHidden ||
+                !Path.GetFileName(filename).StartsWith(".", StringComparison.InvariantCulture))
+                result.Add(new Node("", _rootResolver.RelativePath(filename)));
+        }
+
+        #endregion
     }
 }

@@ -17,17 +17,17 @@ namespace magic.lambda.io.file
     public class FileExists : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
-        readonly IFileService _fileService;
+        readonly IFileService _service;
 
         /// <summary>
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        /// <param name="fileService">Underlaying file service implementation.</param>
-        public FileExists(IRootResolver rootResolver, IFileService fileService)
+        /// <param name="service">Underlaying file service implementation.</param>
+        public FileExists(IRootResolver rootResolver, IFileService service)
         {
             _rootResolver = rootResolver;
-            _fileService = fileService;
+            _service = service;
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace magic.lambda.io.file
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            input.Value = _fileService.Exists(_rootResolver.AbsolutePath(input.GetEx<string>()));
+            input.Value = _service.Exists(_rootResolver.AbsolutePath(input.GetEx<string>()));
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace magic.lambda.io.file
         /// <param name="input">Arguments to slot.</param>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            input.Value = await _fileService.ExistsAsync(_rootResolver.AbsolutePath(input.GetEx<string>()));
+            input.Value = await _service.ExistsAsync(_rootResolver.AbsolutePath(input.GetEx<string>()));
         }
     }
 }

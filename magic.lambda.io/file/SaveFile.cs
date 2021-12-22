@@ -47,16 +47,14 @@ namespace magic.lambda.io.file
             {
                 // Text content.
                 case "io.file.save":
-                    _service.Save(
-                        _rootResolver.AbsolutePath(input.GetEx<string>()),
-                        input.Children.First().GetEx<string>());
+                    var strArgs = GetArgs<string>(input);
+                    _service.Save(strArgs.Path, strArgs.Content);
                     break;
 
                 // Binary content.
                 case "io.file.save.binary":
-                    _service.Save(
-                        _rootResolver.AbsolutePath(input.GetEx<string>()),
-                        input.Children.First().GetEx<byte[]>());
+                    var byteArgs = GetArgs<byte[]>(input);
+                    _service.Save(byteArgs.Path, byteArgs.Content);
                     break;
 
                 default:
@@ -80,21 +78,31 @@ namespace magic.lambda.io.file
             {
                 // Text content.
                 case "io.file.save":
-                    await _service.SaveAsync(
-                        _rootResolver.AbsolutePath(input.GetEx<string>()),
-                        input.Children.First().GetEx<string>());
+                    var strArgs = GetArgs<string>(input);
+                    await _service.SaveAsync(strArgs.Path, strArgs.Content);
                     break;
 
                 // Binary content.
                 case "io.file.save.binary":
-                    await _service.SaveAsync(
-                        _rootResolver.AbsolutePath(input.GetEx<string>()),
-                        input.Children.First().GetEx<byte[]>());
+                    var byteArgs = GetArgs<byte[]>(input);
+                    await _service.SaveAsync(byteArgs.Path, byteArgs.Content);
                     break;
 
                 default:
                     throw new HyperlambdaException("You shouldn't be here ...??");
             }
         }
+
+        #region [ -- Private helper methods -- ]
+
+        /*
+         * Retrieves the arguments as supplied to slot invocation.
+         */
+        (string Path, T Content) GetArgs<T>(Node input)
+        {
+            return (_rootResolver.AbsolutePath(input.GetEx<string>()), input.Children.First().GetEx<T>());
+        }
+
+        #endregion
     }
 }

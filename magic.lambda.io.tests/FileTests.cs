@@ -1486,19 +1486,19 @@ io.content.zip-stream
             {
                 Assert.Equal("howdy", reader.ReadToEnd());
             }
-            Assert.Equal("foo1.txt", entry.FullName);
+            Assert.Equal("/foo1.txt", entry.FullName);
             entry = archive.Entries.Skip(1).First();
             using (var reader = new StreamReader(entry.Open()))
             {
                 Assert.Equal("world", reader.ReadToEnd());
             }
-            Assert.Equal("foo2.txt", entry.FullName);
+            Assert.Equal("/foo2.txt", entry.FullName);
             entry = archive.Entries.Skip(2).First();
             using (var reader = new StreamReader(entry.Open()))
             {
                 Assert.Equal("2.0", reader.ReadToEnd());
             }
-            Assert.Equal("another-folder/foo3.txt", entry.FullName);
+            Assert.Equal("/another-folder/foo3.txt", entry.FullName);
         }
     }
 }

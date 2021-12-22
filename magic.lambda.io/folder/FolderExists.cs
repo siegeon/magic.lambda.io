@@ -2,6 +2,7 @@
  * Magic Cloud, copyright Aista, Ltd. See the attached LICENSE file for details.
  */
 
+using System.Threading.Tasks;
 using magic.node;
 using magic.node.contracts;
 using magic.node.extensions;
@@ -13,7 +14,7 @@ namespace magic.lambda.io.folder
     /// [io.folder.exists] slot for figuring out if a folder exists from before or not.
     /// </summary>
     [Slot(Name = "io.folder.exists")]
-    public class FolderExists : ISlot
+    public class FolderExists : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
         readonly IFolderService _service;
@@ -37,6 +38,17 @@ namespace magic.lambda.io.folder
         public void Signal(ISignaler signaler, Node input)
         {
             input.Value = _service.Exists(_rootResolver.AbsolutePath(input.GetEx<string>()));
+        }
+
+        /// <summary>
+        /// Implementation of slot.
+        /// </summary>
+        /// <param name="signaler">Signaler used to raise the signal.</param>
+        /// <param name="input">Arguments to slot.</param>
+        /// <returns>Awaitable task</returns>
+        public async Task SignalAsync(ISignaler signaler, Node input)
+        {
+            input.Value = await _service.ExistsAsync(_rootResolver.AbsolutePath(input.GetEx<string>()));
         }
     }
 }
