@@ -96,11 +96,20 @@ namespace magic.lambda.io.file
                     // Looping through each entry in archive, ignoring garbage OS X "special files".
                     foreach (var idxEntry in archive.Entries)
                     {
-                        // Opening up currently iterated ZIP entry
-                        using (var srcStream = idxEntry.Open())
+                        // Verifying this is a file.
+                        if (idxEntry.FullName.Split('/').Last().IndexOf(".") == -1)
                         {
-                            // Saving currently iterated file.
-                            SaveFile(destinationFolder, idxEntry.FullName.Replace("\\", "/"), srcStream);
+                            // Currently iterated object is a folder.
+                            _folderService.Create(idxEntry.FullName);
+                        }
+                        else
+                        {
+                            // This is a file, opening it up and saving it.
+                            using (var srcStream = idxEntry.Open())
+                            {
+                                // Saving currently iterated file.
+                                SaveFile(destinationFolder, idxEntry.FullName.Replace("\\", "/"), srcStream);
+                            }
                         }
                     }
                 }
@@ -121,11 +130,20 @@ namespace magic.lambda.io.file
                     // Looping through each entry in archive, ignoring garbage OS X "special files".
                     foreach (var idxEntry in archive.Entries)
                     {
-                        // Opening up currently iterated ZIP entry
-                        using (var srcStream = idxEntry.Open())
+                        // Verifying this is a file.
+                        if (idxEntry.FullName.Split('/').Last().IndexOf(".") == -1)
                         {
-                            // Saving currently iterated file.
-                            await SaveFileAsync(destinationFolder, idxEntry.FullName.Replace("\\", "/"), srcStream);
+                            // Currently iterated object is a folder.
+                            await _folderService.CreateAsync(idxEntry.FullName);
+                        }
+                        else
+                        {
+                            // This is a file, opening it up and saving it.
+                            using (var srcStream = idxEntry.Open())
+                            {
+                                // Saving currently iterated file.
+                                await SaveFileAsync(destinationFolder, idxEntry.FullName.Replace("\\", "/"), srcStream);
+                            }
                         }
                     }
                 }

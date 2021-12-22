@@ -23,14 +23,15 @@ namespace magic.lambda.io.helpers
             IRootResolver rootResolver,
             Node input,
             IIOService service,
-            bool copy)
+            bool copy,
+            bool isFolder)
         {
             // Sanity checking arguments and evaluating them.
             Utilities.SanityCheckArguments(input);
             signaler.Signal("eval", input);
 
             // Retrieving source and destination path.
-            var paths = Utilities.GetPaths(input, rootResolver);
+            var paths = Utilities.GetPaths(input, rootResolver, isFolder);
 
             // Checking if IO object exists, at which point we delete it.
             if (service.Exists(paths.Destination))
@@ -55,14 +56,15 @@ namespace magic.lambda.io.helpers
             IRootResolver rootResolver,
             Node input,
             IIOService service,
-            bool copy)
+            bool copy,
+            bool isFolder)
         {
             // Sanity checking arguments and evaluating them.
             Utilities.SanityCheckArguments(input);
             await signaler.SignalAsync("eval", input);
 
             // Retrieving source and destination path.
-            var paths = Utilities.GetPaths(input, rootResolver);
+            var paths = GetPaths(input, rootResolver, isFolder);
 
             // Checking if IO object exists, at which point we delete it.
             if (await service.ExistsAsync(paths.Destination))
@@ -94,14 +96,14 @@ namespace magic.lambda.io.helpers
         /*
          * Retrieves source and destination path for copy/move file/folder.
          */
-        static (string Source, string Destination) GetPaths(Node input, IRootResolver rootResolver)
+        static (string Source, string Destination) GetPaths(Node input, IRootResolver rootResolver, bool isFolder)
         {
             // Finding absolute paths.
             var sourcePath = rootResolver.AbsolutePath(input.GetEx<string>());
             var destinationPath = rootResolver.AbsolutePath(input.Children.First().GetEx<string>());
 
             // Defaulting filename to the filename of the source file, unless another filename is explicitly given.
-            if (destinationPath.EndsWith("/", StringComparison.InvariantCultureIgnoreCase))
+            if (!isFolder && destinationPath.EndsWith("/", StringComparison.InvariantCultureIgnoreCase))
                 destinationPath += Path.GetFileName(sourcePath);
 
             // Sanity checking arguments.

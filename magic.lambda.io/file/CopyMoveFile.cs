@@ -43,7 +43,8 @@ namespace magic.lambda.io.file
                 _rootResolver,
                 input,
                 _service,
-                input.Name == "io.file.copy");
+                input.Name == "io.file.copy",
+                false);
         }
 
         /// <summary>
@@ -59,7 +60,8 @@ namespace magic.lambda.io.file
                 _rootResolver,
                 input,
                 _service,
-                input.Name == "io.file.copy");
+                input.Name == "io.file.copy",
+                false);
         }
     }
 }

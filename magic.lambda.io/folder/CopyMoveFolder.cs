@@ -43,7 +43,8 @@ namespace magic.lambda.io.folder
                 _rootResolver,
                 input,
                 _service, 
-                input.Name == "io.folder.copy");
+                input.Name == "io.folder.copy",
+                true);
         }
 
         /// <summary>
@@ -58,7 +59,8 @@ namespace magic.lambda.io.folder
                 _rootResolver,
                 input,
                 _service,
-                input.Name == "io.folder.copy");
+                input.Name == "io.folder.copy",
+                true);
         }
     }
 }
