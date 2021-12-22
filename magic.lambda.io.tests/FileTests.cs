@@ -225,14 +225,6 @@ io.file.load:/existing.txt
                         Assert.Equal(
                             AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
                             + "/" +
-                            "moved.txt", path);
-                        return true;
-                    }
-                    else if (existsInvoked == 4)
-                    {
-                        Assert.Equal(
-                            AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                            + "/" +
                             "existing.txt", path);
                         return false;
                     }
@@ -271,8 +263,8 @@ io.file.exists:/existing.txt
 ", fileService);
             Assert.True(saveInvoked);
             Assert.True(moveInvoked);
-            Assert.True(deleteInvoked);
-            Assert.Equal(4, existsInvoked);
+            Assert.False(deleteInvoked);
+            Assert.Equal(3, existsInvoked);
             Assert.True(lambda.Children.Skip(2).First().Get<bool>());
             Assert.False(lambda.Children.Skip(3).First().Get<bool>());
         }
@@ -374,14 +366,6 @@ io.file.move:/existing.txt
                         Assert.Equal(
                             AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
                             + "/" +
-                            "moved.txt", path);
-                        return true;
-                    }
-                    else if (existsInvoked == 4)
-                    {
-                        Assert.Equal(
-                            AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
-                            + "/" +
                             "existing.txt", path);
                         return false;
                     }
@@ -416,8 +400,8 @@ io.file.exists:/existing.txt
 ", fileService);
             Assert.True(saveInvoked);
             Assert.True(moveInvoked);
-            Assert.True(deleteInvoked);
-            Assert.Equal(4, existsInvoked);
+            Assert.False(deleteInvoked);
+            Assert.Equal(3, existsInvoked);
             Assert.True(lambda.Children.Skip(2).First().Get<bool>());
             Assert.False(lambda.Children.Skip(3).First().Get<bool>());
         }

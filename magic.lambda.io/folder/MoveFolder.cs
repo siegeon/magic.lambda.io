@@ -41,11 +41,11 @@ namespace magic.lambda.io.folder
         public void Signal(ISignaler signaler, Node input)
         {
             // Sanity checking arguments and evaluating them.
-            SanityCheckArguments(input);
+            Utilities.SanityCheckArguments(input);
             signaler.Signal("eval", input);
 
             // Retrieving source and destination path.
-            var paths = GetPaths(input);
+            var paths = Utilities.GetPaths(input, _rootResolver);
 
             // For simplicity, we're deleting any existing folders with the path of the destination file.
             if (_folderService.Exists(paths.DestinationPath))
@@ -65,11 +65,11 @@ namespace magic.lambda.io.folder
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
             // Sanity checking arguments and evaluating them.
-            SanityCheckArguments(input);
+            Utilities.SanityCheckArguments(input);
             await signaler.SignalAsync("eval", input);
 
             // Retrieving source and destination path.
-            var paths = GetPaths(input);
+            var paths = Utilities.GetPaths(input, _rootResolver);
 
             // For simplicity, we're deleting any existing folders with the path of the destination file.
             if (await _folderService.ExistsAsync(paths.DestinationPath))
@@ -80,41 +80,5 @@ namespace magic.lambda.io.folder
                 paths.SourcePath,
                 paths.DestinationPath);
         }
-
-        #region [ -- Private helper methods -- ]
-
-        /*
-         * Sanity checks arguments provided.
-         */
-        static void SanityCheckArguments(Node input)
-        {
-            if (!input.Children.Any())
-                throw new HyperlambdaException("No destination provided to [io.folder.move]");
-        }
-
-        /*
-         * Retrieves source and destination path for operation.
-         */
-        (string SourcePath, string DestinationPath) GetPaths(Node input)
-        {
-            // Finding absolute paths.
-            var sourcePath = _rootResolver.AbsolutePath(input.GetEx<string>());
-            var destinationPath = _rootResolver.AbsolutePath(input.Children.First().GetEx<string>());
-
-            // Defaulting filename to the filename of the source file, unless another filename is explicitly given.
-            if (destinationPath.EndsWith("/", StringComparison.InvariantCultureIgnoreCase))
-                destinationPath += Path.GetFileName(sourcePath);
-
-            // Sanity checking arguments.
-            if (sourcePath == destinationPath)
-                throw new HyperlambdaException("You cannot move a folder using the same source and destination path");
-
-            // For simplicity, we're deleting any existing files with the path of the destination file.
-            if (_folderService.Exists(destinationPath))
-                _folderService.Delete(destinationPath);
-            return (sourcePath, destinationPath);
-        }
-
-        #endregion
     }
 }
