@@ -2,13 +2,10 @@
  * Magic Cloud, copyright Aista, Ltd. See the attached LICENSE file for details.
  */
 
-using System;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using magic.node;
 using magic.node.contracts;
-using magic.node.extensions;
+using magic.lambda.io.helpers;
 using magic.signals.contracts;
 
 namespace magic.lambda.io.folder
@@ -40,21 +37,7 @@ namespace magic.lambda.io.folder
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            // Sanity checking arguments and evaluating them.
-            Utilities.SanityCheckArguments(input);
-            signaler.Signal("eval", input);
-
-            // Retrieving source and destination path.
-            var paths = Utilities.GetPaths(input, _rootResolver);
-
-            // For simplicity, we're deleting any existing folders with the path of the destination file.
-            if (_folderService.Exists(paths.DestinationPath))
-                _folderService.Delete(paths.DestinationPath);
-
-            // Actual move implementation.
-            _folderService.Move(
-                paths.SourcePath,
-                paths.DestinationPath);
+            Utilities.CopyMoveHelper(signaler, _rootResolver, input, _folderService, false);
         }
 
         /// <summary>
@@ -64,21 +47,7 @@ namespace magic.lambda.io.folder
         /// <param name="input">Arguments to slot.</param>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            // Sanity checking arguments and evaluating them.
-            Utilities.SanityCheckArguments(input);
-            await signaler.SignalAsync("eval", input);
-
-            // Retrieving source and destination path.
-            var paths = Utilities.GetPaths(input, _rootResolver);
-
-            // For simplicity, we're deleting any existing folders with the path of the destination file.
-            if (await _folderService.ExistsAsync(paths.DestinationPath))
-                await _folderService.DeleteAsync(paths.DestinationPath);
-
-            // Actual copy implementation.
-            await _folderService.MoveAsync(
-                paths.SourcePath,
-                paths.DestinationPath);
+            await Utilities.CopyMoveHelperAsync(signaler, _rootResolver, input, _folderService, false);
         }
     }
 }

@@ -17,17 +17,17 @@ namespace magic.lambda.io.file
     public class DeleteFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
-        readonly IFileService _service;
+        readonly IFileService _fileService;
 
         /// <summary>
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        /// <param name="service">Underlaying file service implementation.</param>
-        public DeleteFile(IRootResolver rootResolver, IFileService service)
+        /// <param name="fileService">Underlaying file service implementation.</param>
+        public DeleteFile(IRootResolver rootResolver, IFileService fileService)
         {
             _rootResolver = rootResolver;
-            _service = service;
+            _fileService = fileService;
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace magic.lambda.io.file
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            _service.Delete(_rootResolver.AbsolutePath(input.GetEx<string>()));
+            _fileService.Delete(_rootResolver.AbsolutePath(input.GetEx<string>()));
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace magic.lambda.io.file
         /// <param name="input">Arguments to slot.</param>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            await _service.DeleteAsync(_rootResolver.AbsolutePath(input.GetEx<string>()));
+            await _fileService.DeleteAsync(_rootResolver.AbsolutePath(input.GetEx<string>()));
         }
     }
 }

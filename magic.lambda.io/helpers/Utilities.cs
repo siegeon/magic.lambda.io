@@ -5,18 +5,85 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using magic.node;
 using magic.node.contracts;
 using magic.node.extensions;
+using magic.signals.contracts;
 
-namespace magic.lambda.io.folder
+namespace magic.lambda.io.helpers
 {
     internal static class Utilities
     {
         /*
+         * Commonalities between copy and move slots for both files and folders.
+         */
+        internal static void CopyMoveHelper(
+            ISignaler signaler,
+            IRootResolver rootResolver,
+            Node input,
+            IIOService service,
+            bool copy)
+        {
+            // Sanity checking arguments and evaluating them.
+            Utilities.SanityCheckArguments(input);
+            signaler.Signal("eval", input);
+
+            // Retrieving source and destination path.
+            var paths = Utilities.GetPaths(input, rootResolver);
+
+            // Checking if IO object exists, at which point we delete it.
+            if (service.Exists(paths.Destination))
+                service.Delete(paths.Destination);
+
+            // Copying or moving file depending upon caller's needs.
+            if (copy)
+                service.Copy(
+                    paths.Source,
+                    paths.Destination);
+            else
+                service.Move(
+                    paths.Source,
+                    paths.Destination);
+        }
+
+        /*
+         * Commonalities between copy and move slots for both files and folders.
+         */
+        internal static async Task CopyMoveHelperAsync(
+            ISignaler signaler,
+            IRootResolver rootResolver,
+            Node input,
+            IIOService service,
+            bool copy)
+        {
+            // Sanity checking arguments and evaluating them.
+            Utilities.SanityCheckArguments(input);
+            await signaler.SignalAsync("eval", input);
+
+            // Retrieving source and destination path.
+            var paths = Utilities.GetPaths(input, rootResolver);
+
+            // Checking if IO object exists, at which point we delete it.
+            if (await service.ExistsAsync(paths.Destination))
+                await service.DeleteAsync(paths.Destination);
+
+
+            // Copying or moving file depending upon caller's needs.
+            if (copy)
+                await service.CopyAsync(
+                    paths.Source,
+                    paths.Destination);
+            else
+                await service.MoveAsync(
+                    paths.Source,
+                    paths.Destination);
+        }
+
+        /*
          * Sanity checks arguments for copy and move file/folder.
          */
-        internal static void SanityCheckArguments(Node input)
+        static void SanityCheckArguments(Node input)
         {
             if (!input.Children.Any())
                 throw new HyperlambdaException("No destination provided to [io.file.copy]");
@@ -25,7 +92,7 @@ namespace magic.lambda.io.folder
         /*
          * Retrieves source and destination path for copy/move file/folder.
          */
-        internal static (string SourcePath, string DestinationPath) GetPaths(Node input, IRootResolver rootResolver)
+        static (string Source, string Destination) GetPaths(Node input, IRootResolver rootResolver)
         {
             // Finding absolute paths.
             var sourcePath = rootResolver.AbsolutePath(input.GetEx<string>());

@@ -5,7 +5,7 @@
 using System.Threading.Tasks;
 using magic.node;
 using magic.node.contracts;
-using magic.lambda.io.folder;
+using magic.lambda.io.helpers;
 using magic.signals.contracts;
 
 namespace magic.lambda.io.file
@@ -37,21 +37,7 @@ namespace magic.lambda.io.file
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            // Sanity checking arguments and evaluating them.
-            Utilities.SanityCheckArguments(input);
-            signaler.Signal("eval", input);
-
-            // Retrieving source and destination path.
-            var paths = Utilities.GetPaths(input, _rootResolver);
-
-            // For simplicity, we're deleting any existing files with the path of the destination file.
-            if (_fileService.Exists(paths.DestinationPath))
-                _fileService.Delete(paths.DestinationPath);
-
-            // Actual move implementation.
-            _fileService.Move(
-                paths.SourcePath,
-                paths.DestinationPath);
+            Utilities.CopyMoveHelper(signaler, _rootResolver, input, _fileService, false);
         }
 
         /// <summary>
@@ -61,21 +47,7 @@ namespace magic.lambda.io.file
         /// <param name="input">Arguments to slot.</param>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            // Sanity checking arguments and evaluating them.
-            Utilities.SanityCheckArguments(input);
-            await signaler.SignalAsync("eval", input);
-
-            // Retrieving source and destination path.
-            var paths = Utilities.GetPaths(input, _rootResolver);
-
-            // For simplicity, we're deleting any existing files with the path of the destination file.
-            if (await _fileService.ExistsAsync(paths.DestinationPath))
-                await _fileService.DeleteAsync(paths.DestinationPath);
-
-            // Actual move implementation.
-            await _fileService.MoveAsync(
-                paths.SourcePath,
-                paths.DestinationPath);
+            await Utilities.CopyMoveHelperAsync(signaler, _rootResolver, input, _fileService, false);
         }
     }
 }
