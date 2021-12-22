@@ -17,7 +17,7 @@ namespace magic.lambda.io.file
     /// [io.file.unzip] slot for unzipping a previously zipped file.
     /// </summary>
     [Slot(Name = "io.file.unzip")]
-    public class UnzipFile : ISlotAsync
+    public class UnzipFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
         readonly IFileService _fileService;
@@ -48,24 +48,70 @@ namespace magic.lambda.io.file
         /// </summary>
         /// <param name="signaler">Signaler used to raise the signal.</param>
         /// <param name="input">Arguments to slot.</param>
+        public void Signal(ISignaler signaler, Node input)
+        {
+            // Retrieving arguments to invocation.
+            var args = GetArgs(input);
+
+            // Making sure destination folder exists.
+            if (!_folderService.Exists(_rootResolver.AbsolutePath(args.DestinationFolder)))
+                throw new HyperlambdaException($"Destination folder '{args.DestinationFolder}' for [io.file.unzip] does not exist.");
+
+            // Invoking implementation method.
+            Unzip(args.ZipFilePath, args.DestinationFolder);
+        }
+
+        /// <summary>
+        /// Implementation of slot.
+        /// </summary>
+        /// <param name="signaler">Signaler used to raise the signal.</param>
+        /// <param name="input">Arguments to slot.</param>
         /// <returns>Awaitabale task</returns>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            // Figuring out zip file's full path.
-            var zipFilePath = input.GetEx<string>();
+            // Retrieving arguments to invocation.
+            var args = GetArgs(input);
 
-            // Figuring out destination folder caller wants to use, defaulting to folder of ZIP file if not specified.
-            var destinationFolder = input.Children
-                .FirstOrDefault(x => x.Name == "folder")?
-                .GetEx<string>() ?? Path.GetDirectoryName(zipFilePath) + "/";
+            // Making sure destination folder exists.
+            if (!await _folderService.ExistsAsync(_rootResolver.AbsolutePath(args.DestinationFolder)))
+                throw new HyperlambdaException($"Destination folder '{args.DestinationFolder}' for [io.file.unzip] does not exist.");
 
-            if (!await _folderService.ExistsAsync(_rootResolver.AbsolutePath(destinationFolder)))
-                throw new HyperlambdaException($"Destination folder '{destinationFolder}' for [io.file.unzip] does not exist.");
+            // Invoking implementation method.
+            await UnzipAsync(args.ZipFilePath, args.DestinationFolder);
+        }
 
-            // House cleaning.
-            input.Clear();
-            input.Value = null;
+        #region [ -- Private helper methods -- ]
 
+        /*
+         * Helper method to unzip file.
+         */
+        void Unzip(string zipFilePath, string destinationFolder)
+        {
+            // Loading entire ZIP file into memory stream
+            using (var sourceStream = _streamService.OpenFile(_rootResolver.AbsolutePath(zipFilePath)))
+            {
+                // Creating a ZIP archive wrapping memory stream.
+                using (var archive = new ZipArchive(sourceStream))
+                {
+                    // Looping through each entry in archive, ignoring garbage OS X "special files".
+                    foreach (var idxEntry in archive.Entries)
+                    {
+                        // Opening up currently iterated ZIP entry
+                        using (var srcStream = idxEntry.Open())
+                        {
+                            // Saving currently iterated file.
+                            SaveFile(destinationFolder, idxEntry.FullName.Replace("\\", "/"), srcStream);
+                        }
+                    }
+                }
+            }
+        }
+
+        /*
+         * Helper method to unzip file.
+         */
+        async Task UnzipAsync(string zipFilePath, string destinationFolder)
+        {
             // Loading entire ZIP file into memory stream
             using (var sourceStream = await _streamService.OpenFileAsync(_rootResolver.AbsolutePath(zipFilePath)))
             {
@@ -86,7 +132,27 @@ namespace magic.lambda.io.file
             }
         }
 
-        #region [ -- Private helper methods -- ]
+        /*
+         * Saves a single file from ZIP file archive.
+         */
+        void SaveFile(string destinationFolder, string filename, Stream contentStream)
+        {
+            // Making sure we create currently iterated destination folder unless it already exists.
+            var entities = filename.Split('/');
+            var currentFolder = _rootResolver.AbsolutePath(destinationFolder);
+            foreach (var idx in entities.Take(entities.Length - 1))
+            {
+                if (idx == "__MACOSX" || idx == ".DS_Store")
+                    return; // Ignoring garbage OS X files
+                currentFolder += idx + "/";
+                if (!_folderService.Exists(currentFolder))
+                    _folderService.Create(currentFolder);
+            }
+
+            // Figuring out full filename of current entry and saving it.
+            var fullFileName = currentFolder + entities.Last();
+            _streamService.SaveFile(contentStream, fullFileName);
+        }
 
         /*
          * Saves a single file from ZIP file archive.
@@ -108,6 +174,26 @@ namespace magic.lambda.io.file
             // Figuring out full filename of current entry and saving it.
             var fullFileName = currentFolder + entities.Last();
             await _streamService.SaveFileAsync(contentStream, fullFileName);
+        }
+
+        /*
+         * Helper method to retrieve arguments.
+         */
+        (string ZipFilePath, string DestinationFolder) GetArgs(Node input)
+        {
+            // Figuring out zip file's full path.
+            var zipFilePath = input.GetEx<string>();
+
+            // Figuring out destination folder caller wants to use, defaulting to folder of ZIP file if not specified.
+            var destinationFolder = input.Children
+                .FirstOrDefault(x => x.Name == "folder")?
+                .GetEx<string>() ?? Path.GetDirectoryName(zipFilePath) + "/";
+
+            // House cleaning.
+            input.Clear();
+            input.Value = null;
+
+            return (zipFilePath, destinationFolder);
         }
 
         #endregion
