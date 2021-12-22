@@ -10,7 +10,4 @@
     <ProjectReference Include="..\..\magic.signals\magic.signals.contracts\dev_magic.signals.contracts.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="SharpZipLib" Version="1.3.3" />
-  </ItemGroup>
 </Project>
