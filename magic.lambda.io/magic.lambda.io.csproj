@@ -48,6 +48,5 @@
   <ItemGroup>
     <PackageReference Include="magic.node.extensions" Version="10.0.5" />
     <PackageReference Include="magic.signals.contracts" Version="10.0.5" />
-    <PackageReference Include="SharpZipLib" Version="1.3.3" />
   </ItemGroup>
 </Project>

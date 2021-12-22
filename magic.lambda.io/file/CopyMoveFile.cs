@@ -38,7 +38,12 @@ namespace magic.lambda.io.file
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            Utilities.CopyMoveHelper(signaler, _rootResolver, input, _service, input.Name == "io.file.copy");
+            Utilities.CopyMoveHelper(
+                signaler,
+                _rootResolver,
+                input,
+                _service,
+                input.Name == "io.file.copy");
         }
 
         /// <summary>
@@ -49,7 +54,12 @@ namespace magic.lambda.io.file
         /// <returns>An awaitable task.</returns>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            await Utilities.CopyMoveHelperAsync(signaler, _rootResolver, input, _service, input.Name == "io.file.copy");
+            await Utilities.CopyMoveHelperAsync(
+                signaler,
+                _rootResolver,
+                input,
+                _service,
+                input.Name == "io.file.copy");
         }
     }
 }

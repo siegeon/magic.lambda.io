@@ -2,10 +2,10 @@
  * Magic Cloud, copyright Aista, Ltd. See the attached LICENSE file for details.
  */
 
-using System;
 using System.IO;
 using System.Linq;
-using ICSharpCode.SharpZipLib.Zip;
+using System.Text;
+using System.IO.Compression;
 using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
@@ -31,39 +31,34 @@ namespace magic.lambda.io.file
             // Notice, this stream is returned to caller, and never disposed - Which is its entire purpose!
             var result = new MemoryStream();
 
-            // Creating Zip archive.
-            using (var zipStream = new ZipOutputStream(result))
+            using (var archive = new ZipArchive(result, ZipArchiveMode.Create, true))
             {
-                zipStream.IsStreamOwner = false;
-
                 // Iterating through each entity caller wants to zip, and creating entry for item.
                 foreach (var idx in input.Children)
                 {
                     // Evaluating content node, in case it's a slot invocation.
                     signaler.Signal("eval", idx);
 
-                    // Creating currently iterated Zip entry.
-                    var newEntry = new ZipEntry(ZipEntry.CleanName(idx.GetEx<string>()))
+                    var entry = archive.CreateEntry(idx.GetEx<string>());
+                    using (var entryStream = entry.Open())
                     {
-                        DateTime = DateTime.Now
-                    };
-                    var content = idx.Children.FirstOrDefault()?.GetEx<object>();
-                    if (content != null)
-                    {
-                        zipStream.PutNextEntry(newEntry);
-                        if (content is string contentStr)
+                        var content = idx.Children.FirstOrDefault()?.GetEx<object>();
+                        if (content != null)
                         {
-                            var writer = new StreamWriter(zipStream);
-                            writer.Write(contentStr);
-                            writer.Flush();
-                        }
-                        else
-                        {
-                            var contentBytes = content as byte[];
-                            if (contentBytes == null)
-                                throw new HyperlambdaException("[io.content.zip-stream] can only handle string and bytes content");
-                            zipStream.Write(contentBytes, 0, contentBytes.Length);
-                            zipStream.Flush();
+                            if (content is byte[] bytesContent)
+                            {
+                                if (bytesContent == null)
+                                    throw new HyperlambdaException("[io.content.zip-stream] can only handle string and bytes content");
+                                entryStream.Write(bytesContent, 0, bytesContent.Length);
+                                entryStream.Flush();
+                            }
+                            else if (content is string stringContent)
+                            {
+                                using (var writer = new StreamWriter(entryStream, Encoding.UTF8))
+                                {
+                                    writer.Write(stringContent);
+                                }
+                            }
                         }
                     }
                 }
