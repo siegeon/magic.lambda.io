@@ -189,6 +189,7 @@ io.file.load:/existing.txt
             var existsInvoked = 0;
             var saveInvoked = false;
             var moveInvoked = false;
+            var deleteInvoked = false;
             var fileService = new FileService
             {
                 SaveAction = (path, content) =>
@@ -224,6 +225,14 @@ io.file.load:/existing.txt
                         Assert.Equal(
                             AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
                             + "/" +
+                            "moved.txt", path);
+                        return true;
+                    }
+                    else if (existsInvoked == 4)
+                    {
+                        Assert.Equal(
+                            AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                            + "/" +
                             "existing.txt", path);
                         return false;
                     }
@@ -243,6 +252,10 @@ io.file.load:/existing.txt
                         + "/" +
                         "moved.txt", dest);
                     moveInvoked = true;
+                },
+                DeleteAction = (path) =>
+                {
+                    deleteInvoked = true;
                 }
             };
 
@@ -258,7 +271,8 @@ io.file.exists:/existing.txt
 ", fileService);
             Assert.True(saveInvoked);
             Assert.True(moveInvoked);
-            Assert.Equal(3, existsInvoked);
+            Assert.True(deleteInvoked);
+            Assert.Equal(4, existsInvoked);
             Assert.True(lambda.Children.Skip(2).First().Get<bool>());
             Assert.False(lambda.Children.Skip(3).First().Get<bool>());
         }
@@ -319,6 +333,7 @@ io.file.move:/existing.txt
             var existsInvoked = 0;
             var saveInvoked = false;
             var moveInvoked = false;
+            var deleteInvoked = false;
             var fileService = new FileService
             {
                 SaveAsyncAction = (path, content) =>
@@ -330,6 +345,10 @@ io.file.move:/existing.txt
                         "existing.txt", path);
                     saveInvoked = true;
                     return Task.CompletedTask;
+                },
+                DeleteAction = (path) =>
+                {
+                    deleteInvoked = true;
                 },
                 ExistsAction = (path) =>
                 {
@@ -351,6 +370,14 @@ io.file.move:/existing.txt
                         return true;
                     }
                     else if (existsInvoked == 3)
+                    {
+                        Assert.Equal(
+                            AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                            + "/" +
+                            "moved.txt", path);
+                        return true;
+                    }
+                    else if (existsInvoked == 4)
                     {
                         Assert.Equal(
                             AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
@@ -389,7 +416,8 @@ io.file.exists:/existing.txt
 ", fileService);
             Assert.True(saveInvoked);
             Assert.True(moveInvoked);
-            Assert.Equal(3, existsInvoked);
+            Assert.True(deleteInvoked);
+            Assert.Equal(4, existsInvoked);
             Assert.True(lambda.Children.Skip(2).First().Get<bool>());
             Assert.False(lambda.Children.Skip(3).First().Get<bool>());
         }

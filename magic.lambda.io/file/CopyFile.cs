@@ -20,17 +20,17 @@ namespace magic.lambda.io.file
     public class CopyFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
-        readonly IFileService _service;
+        readonly IFileService _fileService;
 
         /// <summary>
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        /// <param name="service">Underlaying file service implementation.</param>
-        public CopyFile(IRootResolver rootResolver, IFileService service)
+        /// <param name="fileService">Underlaying file service implementation.</param>
+        public CopyFile(IRootResolver rootResolver, IFileService fileService)
         {
             _rootResolver = rootResolver;
-            _service = service;
+            _fileService = fileService;
         }
 
         /// <summary>
@@ -40,10 +40,19 @@ namespace magic.lambda.io.file
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
+            // Sanity checking arguments and evaluating them.
             SanityCheckArguments(input);
             signaler.Signal("eval", input);
+
+            // Retrieving source and destination path.
             var paths = GetPaths(input);
-            _service.Copy(
+
+            // For simplicity, we're deleting any existing files with the path of the destination file.
+            if (_fileService.Exists(paths.DestinationPath))
+                _fileService.Delete(paths.DestinationPath);
+
+            // Actual copy implementation.
+            _fileService.Copy(
                 paths.SourcePath,
                 paths.DestinationPath);
         }
@@ -56,10 +65,19 @@ namespace magic.lambda.io.file
         /// <returns>An awaitable task.</returns>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
+            // Sanity checking arguments and evaluating them.
             SanityCheckArguments(input);
             await signaler.SignalAsync("eval", input);
+
+            // Retrieving source and destination path.
             var paths = GetPaths(input);
-            await _service.CopyAsync(
+
+            // For simplicity, we're deleting any existing files with the path of the destination file.
+            if (await _fileService.ExistsAsync(paths.DestinationPath))
+                await _fileService.DeleteAsync(paths.DestinationPath);
+
+            // Actual copy implementation.
+            await _fileService.CopyAsync(
                 paths.SourcePath,
                 paths.DestinationPath);
         }
@@ -82,7 +100,6 @@ namespace magic.lambda.io.file
         {
             // Finding absolute paths.
             var sourcePath = _rootResolver.AbsolutePath(input.GetEx<string>());
-
             var destinationPath = _rootResolver.AbsolutePath(input.Children.First().GetEx<string>());
 
             // Defaulting filename to the filename of the source file, unless another filename is explicitly given.
@@ -93,9 +110,7 @@ namespace magic.lambda.io.file
             if (sourcePath == destinationPath)
                 throw new HyperlambdaException("You cannot copy a file using the same source and destination path");
 
-            // For simplicity, we're deleting any existing files with the path of the destination file.
-            if (_service.Exists(destinationPath))
-                _service.Delete(destinationPath);
+            // Returning arguments to caller.
             return (sourcePath, destinationPath);
         }
 

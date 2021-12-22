@@ -4,12 +4,12 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using magic.node;
 using magic.node.contracts;
 using magic.node.extensions;
 using magic.signals.contracts;
-using magic.lambda.io.utilities;
 
 namespace magic.lambda.io.file
 {
@@ -20,17 +20,17 @@ namespace magic.lambda.io.file
     public class MoveFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
-        readonly IFileService _service;
+        readonly IFileService _fileService;
 
         /// <summary>
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        /// <param name="service">Underlaying file service implementation.</param>
-        public MoveFile(IRootResolver rootResolver, IFileService service)
+        /// <param name="fileService">Underlaying file service implementation.</param>
+        public MoveFile(IRootResolver rootResolver, IFileService fileService)
         {
             _rootResolver = rootResolver;
-            _service = service;
+            _fileService = fileService;
         }
 
         /// <summary>
@@ -40,8 +40,21 @@ namespace magic.lambda.io.file
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            // Invoking helper method containing commonalities.
-            Helpers.Execute(signaler, _rootResolver, input, "io.file.move", Move);
+            // Sanity checking arguments and evaluating them.
+            SanityCheckArguments(input);
+            signaler.Signal("eval", input);
+
+            // Retrieving source and destination path.
+            var paths = GetPaths(input);
+
+            // For simplicity, we're deleting any existing files with the path of the destination file.
+            if (_fileService.Exists(paths.DestinationPath))
+                _fileService.Delete(paths.DestinationPath);
+
+            // Actual copy implementation.
+            _fileService.Move(
+                paths.SourcePath,
+                paths.DestinationPath);
         }
 
         /// <summary>
@@ -51,39 +64,57 @@ namespace magic.lambda.io.file
         /// <param name="input">Arguments to slot.</param>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            // Invoking helper method containing commonalities.
-            await Helpers.ExecuteAsync(signaler, _rootResolver, input, "io.file.move", Move);
+            // Sanity checking arguments and evaluating them.
+            SanityCheckArguments(input);
+
+            // Retrieving source and destination path.
+            await signaler.SignalAsync("eval", input);
+            var paths = GetPaths(input);
+
+            // For simplicity, we're deleting any existing files with the path of the destination file.
+            if (await _fileService.ExistsAsync(paths.DestinationPath))
+                await _fileService.DeleteAsync(paths.DestinationPath);
+
+            // Actual copy implementation.
+            await _fileService.MoveAsync(
+                paths.SourcePath,
+                paths.DestinationPath);
         }
 
         #region [ -- Private helper methods -- ]
 
         /*
-         * Commonalities between async and sync version to keep code DRY.
+         * Sanity checks arguments provided.
          */
-        void Move(string source, string destination)
+        static void SanityCheckArguments(Node input)
         {
-            /*
-             * Defaulting destination filename to be the same as source filename,
-             * unless a different filename is explicitly given.
-             *
-             * This allows us to do things such as Move("/foo1/bar.txt", "/foo2/") making sure
-             * the filename is kept as is, but the file is moved to a different folder.
-             */
-            if (destination.EndsWith("/", StringComparison.InvariantCultureIgnoreCase))
-                destination += Path.GetFileName(source);
+            if (!input.Children.Any())
+                throw new HyperlambdaException("No destination provided to [io.file.copy]");
+        }
+
+        /*
+         * Retrieves source and destination path for operation.
+         */
+        (string SourcePath, string DestinationPath) GetPaths(Node input)
+        {
+            // Finding absolute paths.
+            var sourcePath = _rootResolver.AbsolutePath(input.GetEx<string>());
+            var destinationPath = _rootResolver.AbsolutePath(input.Children.First().GetEx<string>());
+
+            // Defaulting filename to the filename of the source file, unless another filename is explicitly given.
+            if (destinationPath.EndsWith("/", StringComparison.InvariantCultureIgnoreCase))
+                destinationPath += Path.GetFileName(sourcePath);
 
             // Sanity checking arguments.
-            if (source == destination)
+            if (sourcePath == destinationPath)
                 throw new HyperlambdaException("You cannot move a file using the same source and destination path");
 
-            /*
-             * For simplicity, we're deleting any existing files
-             * with the path of the destination file.
-             */
-            if (_service.Exists(destination))
-                _service.Delete(destination);
+            // For simplicity, we're deleting any existing files with the path of the destination file.
+            if (_fileService.Exists(destinationPath))
+                _fileService.Delete(destinationPath);
 
-            _service.Move(source, destination);
+            // Returning arguments to caller.
+            return (sourcePath, destinationPath);
         }
 
         #endregion
