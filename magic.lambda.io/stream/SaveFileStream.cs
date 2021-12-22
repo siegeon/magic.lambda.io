@@ -20,17 +20,23 @@ namespace magic.lambda.io.stream
     public class SaveFileStream : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
-        readonly IStreamService _service;
+        readonly IStreamService _streamService;
+        readonly IFileService _fileService;
 
         /// <summary>
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        /// <param name="service">Service implementation.</param>
-        public SaveFileStream(IRootResolver rootResolver, IStreamService service)
+        /// <param name="streamService">Service needed to save stream.</param>
+        /// <param name="fileService">Service needed to check if file exists from before, and if so, delete it.</param>
+        public SaveFileStream(
+            IRootResolver rootResolver,
+            IStreamService streamService,
+            IFileService fileService)
         {
             _rootResolver = rootResolver;
-            _service = service;
+            _streamService = streamService;
+            _fileService = fileService;
         }
 
         /// <summary>
@@ -41,9 +47,9 @@ namespace magic.lambda.io.stream
         public void Signal(ISignaler signaler, Node input)
         {
             var args = GetArguments(signaler, input);
-            if (args.Overwrite && _service.Exists(args.Destination))
-                _service.Delete(args.Destination);
-            _service.SaveFile(args.Stream, args.Destination);
+            if (args.Overwrite && _fileService.Exists(args.Destination))
+                _fileService.Delete(args.Destination);
+            _streamService.SaveFile(args.Stream, args.Destination);
         }
 
         /// <summary>
@@ -55,9 +61,9 @@ namespace magic.lambda.io.stream
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
             var args = GetArguments(signaler, input);
-            if (args.Overwrite && _service.Exists(args.Destination))
-                _service.Delete(args.Destination);
-            await _service.SaveFileAsync(args.Stream, args.Destination);
+            if (args.Overwrite && _fileService.Exists(args.Destination))
+                _fileService.Delete(args.Destination);
+            await _streamService.SaveFileAsync(args.Stream, args.Destination);
         }
 
         #region [ -- Private helper methods -- ]

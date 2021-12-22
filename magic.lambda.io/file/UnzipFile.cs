@@ -5,7 +5,7 @@
 using System.IO;
 using System.Linq;
 using System.IO.Compression;
-using ICSharpCode.SharpZipLib.Zip;
+using System.Threading.Tasks;
 using magic.node;
 using magic.node.contracts;
 using magic.node.extensions;
@@ -17,11 +17,12 @@ namespace magic.lambda.io.file
     /// [io.file.unzip] slot for unzipping a previously zipped file.
     /// </summary>
     [Slot(Name = "io.file.unzip")]
-    public class UnzipFile : ISlot
+    public class UnzipFile : ISlotAsync
     {
         readonly IRootResolver _rootResolver;
         readonly IFileService _fileService;
         readonly IFolderService _folderService;
+        readonly IStreamService _streamService;
 
         /// <summary>
         /// Constructs a new instance of your type.
@@ -29,11 +30,17 @@ namespace magic.lambda.io.file
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
         /// <param name="fileService">Needed to be able to write ZIP file's content.</param>
         /// <param name="folderService">Needed to be able to create folders in file system.</param>
-        public UnzipFile(IRootResolver rootResolver, IFileService fileService, IFolderService folderService)
+        /// <param name="streamService">Needed to be able to save unzipped files.</param>
+        public UnzipFile(
+            IRootResolver rootResolver,
+            IFileService fileService,
+            IFolderService folderService,
+            IStreamService streamService)
         {
             _rootResolver = rootResolver;
             _fileService = fileService;
             _folderService = folderService;
+            _streamService = streamService;
         }
 
         /// <summary>
@@ -41,7 +48,8 @@ namespace magic.lambda.io.file
         /// </summary>
         /// <param name="signaler">Signaler used to raise the signal.</param>
         /// <param name="input">Arguments to slot.</param>
-        public void Signal(ISignaler signaler, Node input)
+        /// <returns>Awaitabale task</returns>
+        public async Task SignalAsync(ISignaler signaler, Node input)
         {
             // Figuring out zip file's full path.
             var zipFilePath = input.GetEx<string>();
@@ -51,30 +59,27 @@ namespace magic.lambda.io.file
                 .FirstOrDefault(x => x.Name == "folder")?
                 .GetEx<string>() ?? Path.GetDirectoryName(zipFilePath) + "/";
 
-            if (!_folderService.Exists(_rootResolver.AbsolutePath(destinationFolder)))
+            if (!await _folderService.ExistsAsync(_rootResolver.AbsolutePath(destinationFolder)))
                 throw new HyperlambdaException($"Destination folder '{destinationFolder}' for [io.file.unzip] does not exist.");
 
+            // House cleaning.
+            input.Clear();
+            input.Value = null;
+
             // Loading entire ZIP file into memory stream
-            using (var memoryStream = new MemoryStream(_fileService.LoadBinary(_rootResolver.AbsolutePath(zipFilePath))))
+            using (var sourceStream = await _streamService.OpenFileAsync(_rootResolver.AbsolutePath(zipFilePath)))
             {
                 // Creating a ZIP archive wrapping memory stream.
-                using (var archive = new ZipArchive(memoryStream))
+                using (var archive = new ZipArchive(sourceStream))
                 {
                     // Looping through each entry in archive, ignoring garbage OS X "special files".
-                    foreach (var idxEntry in archive.Entries.Where(x => x.Name != "__MACOSX" && x.Name != ".DS_Store"))
+                    foreach (var idxEntry in archive.Entries)
                     {
                         // Opening up currently iterated ZIP entry
                         using (var srcStream = idxEntry.Open())
                         {
-                            // Copying currently iterated ZIP entry to memory stream for simplicity.
-                            using (var memSrcStream = new MemoryStream())
-                            {
-                                srcStream.CopyTo(memSrcStream);
-                                var idxContent = memSrcStream.ToArray();
-
-                                // Saving currently iterated file.
-                                SaveFile(destinationFolder, idxEntry.FullName.Replace("\\", "/"), idxContent);
-                            }
+                            // Saving currently iterated file.
+                            await SaveFileAsync(destinationFolder, idxEntry.FullName.Replace("\\", "/"), srcStream);
                         }
                     }
                 }
@@ -86,21 +91,23 @@ namespace magic.lambda.io.file
         /*
          * Saves a single file from ZIP file archive.
          */
-        void SaveFile(string destinationFolder, string filename, byte[] content)
+        async Task SaveFileAsync(string destinationFolder, string filename, Stream contentStream)
         {
             // Making sure we create currently iterated destination folder unless it already exists.
             var entities = filename.Split('/');
             var currentFolder = _rootResolver.AbsolutePath(destinationFolder);
             foreach (var idx in entities.Take(entities.Length - 1))
             {
+                if (idx == "__MACOSX" || idx == ".DS_Store")
+                    return; // Ignoring garbage OS X files
                 currentFolder += idx + "/";
-                if (!_folderService.Exists(currentFolder))
-                    _folderService.Create(currentFolder);
+                if (!await _folderService.ExistsAsync(currentFolder))
+                    await _folderService.CreateAsync(currentFolder);
             }
 
             // Figuring out full filename of current entry and saving it.
             var fullFileName = currentFolder + entities.Last();
-            _fileService.Save(fullFileName, content);
+            await _streamService.SaveFileAsync(contentStream, fullFileName);
         }
 
         #endregion
