@@ -5,6 +5,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.IO.Compression;
 using System.Threading.Tasks;
 using Xunit;
@@ -97,6 +98,47 @@ io.file.load:/existing.txt
             Assert.True(saveInvoked);
             Assert.True(loadInvoked);
             Assert.Equal("foo", lambda.Children.Skip(1).First().Get<string>());
+        }
+
+        [Fact]
+        public void SaveAndLoadFileBinary()
+        {
+            #region [ -- Setting up mock service(s) -- ]
+
+            var saveInvoked = false;
+            var loadInvoked = false;
+            var fileService = new FileService
+            {
+                SaveAction = (path, content) =>
+                {
+                    Assert.Equal("foo", content);
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", path);
+                    saveInvoked = true;
+                },
+                LoadBinaryAction = (path) =>
+                {
+                    Assert.Equal(
+                        AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "/").TrimEnd('/')
+                        + "/" +
+                        "existing.txt", path);
+                    loadInvoked = true;
+                    return Encoding.UTF8.GetBytes("foo");
+                }
+            };
+
+            #endregion
+
+            var lambda = Common.Evaluate(@"
+io.file.save:existing.txt
+   .:foo
+io.file.load.binary:/existing.txt
+", fileService);
+            Assert.True(saveInvoked);
+            Assert.True(loadInvoked);
+            Assert.Equal("foo", Encoding.UTF8.GetString(lambda.Children.Skip(1).First().Get<byte[]>()));
         }
 
         [Fact]

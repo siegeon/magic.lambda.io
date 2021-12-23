@@ -41,7 +41,7 @@ namespace magic.lambda.io.file
             if (input.Name == "io.file.load.binary")
                 input.Value = _service.LoadBinary(_rootResolver.AbsolutePath(input.GetEx<string>()));
             else
-                input.Value = _service.LoadBinary(_rootResolver.AbsolutePath(input.GetEx<string>()));
+                input.Value = _service.Load(_rootResolver.AbsolutePath(input.GetEx<string>()));
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace magic.lambda.io.file
             if (input.Name == "io.file.load.binary")
                 input.Value = await _service.LoadBinaryAsync(_rootResolver.AbsolutePath(input.GetEx<string>()));
             else
-                input.Value = await _service.LoadBinaryAsync(_rootResolver.AbsolutePath(input.GetEx<string>()));
+                input.Value = await _service.LoadAsync(_rootResolver.AbsolutePath(input.GetEx<string>()));
         }
     }
 }
