@@ -99,8 +99,7 @@ namespace magic.lambda.io.file
                         // Verifying this is a file.
                         if (idxEntry.FullName.Split('/').Last().IndexOf(".") == -1)
                         {
-                            // Currently iterated object is a folder.
-                            _folderService.Create(idxEntry.FullName);
+                            continue;
                         }
                         else
                         {
@@ -133,8 +132,7 @@ namespace magic.lambda.io.file
                         // Verifying this is a file.
                         if (idxEntry.FullName.Split('/').Last().IndexOf(".") == -1)
                         {
-                            // Currently iterated object is a folder.
-                            await _folderService.CreateAsync(idxEntry.FullName);
+                            continue;
                         }
                         else
                         {
