@@ -160,6 +160,7 @@ namespace magic.lambda.io.file
             {
                 if (idx == "__MACOSX" || idx == ".DS_Store")
                     return; // Ignoring garbage OS X files
+
                 currentFolder += idx + "/";
                 if (!_folderService.Exists(currentFolder))
                     _folderService.Create(currentFolder);
@@ -182,6 +183,7 @@ namespace magic.lambda.io.file
             {
                 if (idx == "__MACOSX" || idx == ".DS_Store")
                     return; // Ignoring garbage OS X files
+
                 currentFolder += idx + "/";
                 if (!await _folderService.ExistsAsync(currentFolder))
                     await _folderService.CreateAsync(currentFolder);

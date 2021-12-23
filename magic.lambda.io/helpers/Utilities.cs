@@ -31,7 +31,7 @@ namespace magic.lambda.io.helpers
             signaler.Signal("eval", input);
 
             // Retrieving source and destination path.
-            var paths = Utilities.GetPaths(input, rootResolver, isFolder);
+            var paths = Utilities.GetCopyMovePathsPaths(input, rootResolver, isFolder);
 
             // Checking if IO object exists, at which point we delete it.
             if (service.Exists(paths.Destination))
@@ -64,7 +64,7 @@ namespace magic.lambda.io.helpers
             await signaler.SignalAsync("eval", input);
 
             // Retrieving source and destination path.
-            var paths = GetPaths(input, rootResolver, isFolder);
+            var paths = GetCopyMovePathsPaths(input, rootResolver, isFolder);
 
             // Checking if IO object exists, at which point we delete it.
             if (await service.ExistsAsync(paths.Destination))
@@ -96,22 +96,41 @@ namespace magic.lambda.io.helpers
         /*
          * Retrieves source and destination path for copy/move file/folder.
          */
-        static (string Source, string Destination) GetPaths(Node input, IRootResolver rootResolver, bool isFolder)
+        static (string Source, string Destination) GetCopyMovePathsPaths(
+            Node input,
+            IRootResolver rootResolver,
+            bool isFolder)
         {
-            // Finding absolute paths.
-            var sourcePath = rootResolver.AbsolutePath(input.GetEx<string>());
-            var destinationPath = rootResolver.AbsolutePath(input.Children.First().GetEx<string>());
+            // Retrieving source and destination paths as specified by caller.
+            var src = input.GetEx<string>();
+            var dest = input.Children.First().GetEx<string>();
 
-            // Defaulting filename to the filename of the source file, unless another filename is explicitly given.
-            if (!isFolder && destinationPath.EndsWith("/", StringComparison.InvariantCultureIgnoreCase))
-                destinationPath += Path.GetFileName(sourcePath);
+            // Normalising paths for folders.
+            if (isFolder)
+            {
+                // Folders.
+                if (!src.EndsWith("/"))
+                    src += "/";
+                if (!dest.EndsWith("/"))
+                    dest += "/";
+            }
+            else
+            {
+                // Notice, we default the filename of destination to source's filename unless explicitly specified by caller.
+                if (dest.EndsWith("/", StringComparison.InvariantCultureIgnoreCase))
+                    dest += Path.GetFileName(src);
+            }
+
+            // Transforming relative paths to absolute paths.
+            var source = rootResolver.AbsolutePath(src);
+            var destination = rootResolver.AbsolutePath(dest);
 
             // Sanity checking arguments.
-            if (sourcePath == destinationPath)
+            if (source == destination)
                 throw new HyperlambdaException($"You cannot [{input.Name}] a file using the same source and destination path");
 
             // Returning arguments to caller.
-            return (sourcePath, destinationPath);
+            return (source, destination);
         }
 
         #endregion

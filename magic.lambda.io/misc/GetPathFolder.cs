@@ -8,7 +8,7 @@ using magic.node;
 using magic.node.extensions;
 using magic.signals.contracts;
 
-namespace magic.lambda.io.folder
+namespace magic.lambda.io.misc
 {
     /// <summary>
     /// [io.path.get-folder] slot for making it easier to retrieve only the

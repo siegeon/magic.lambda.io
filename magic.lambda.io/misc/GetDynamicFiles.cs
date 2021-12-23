@@ -6,13 +6,13 @@ using magic.node;
 using magic.node.contracts;
 using magic.signals.contracts;
 
-namespace magic.lambda.io.folder
+namespace magic.lambda.io.misc
 {
     /// <summary>
     /// [.io.folder.root] slot for returning root path of system.
     /// </summary>
     [Slot(Name = ".io.folder.root")]
-    public class DynamicFiles : ISlot
+    public class GetDynamicFiles : ISlot
     {
         readonly IRootResolver _rootResolver;
 
@@ -20,7 +20,7 @@ namespace magic.lambda.io.folder
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        public DynamicFiles(IRootResolver rootResolver)
+        public GetDynamicFiles(IRootResolver rootResolver)
         {
             _rootResolver = rootResolver;
         }
