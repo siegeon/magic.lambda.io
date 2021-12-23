@@ -14,6 +14,7 @@ namespace magic.lambda.io.file
     /// [io.file.load] slot for loading a file on your server.
     /// </summary>
     [Slot(Name = "io.file.load")]
+    [Slot(Name = "io.file.load.binary")]
     public class LoadFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
@@ -37,7 +38,10 @@ namespace magic.lambda.io.file
         /// <param name="input">Arguments to slot.</param>
         public void Signal(ISignaler signaler, Node input)
         {
-            input.Value = _service.Load(_rootResolver.AbsolutePath(input.GetEx<string>()));
+            if (input.Name == "io.file.load.binary")
+                input.Value = _service.LoadBinary(_rootResolver.AbsolutePath(input.GetEx<string>()));
+            else
+                input.Value = _service.LoadBinary(_rootResolver.AbsolutePath(input.GetEx<string>()));
         }
 
         /// <summary>
@@ -48,7 +52,10 @@ namespace magic.lambda.io.file
         /// <returns>An awaitable task.</returns>
         public async Task SignalAsync(ISignaler signaler, Node input)
         {
-            input.Value = await _service.LoadAsync(_rootResolver.AbsolutePath(input.GetEx<string>()));
+            if (input.Name == "io.file.load.binary")
+                input.Value = await _service.LoadBinaryAsync(_rootResolver.AbsolutePath(input.GetEx<string>()));
+            else
+                input.Value = await _service.LoadBinaryAsync(_rootResolver.AbsolutePath(input.GetEx<string>()));
         }
     }
 }
