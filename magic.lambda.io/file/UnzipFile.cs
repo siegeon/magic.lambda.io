@@ -4,6 +4,7 @@
 
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.IO.Compression;
 using System.Threading.Tasks;
 using magic.node;
@@ -20,7 +21,6 @@ namespace magic.lambda.io.file
     public class UnzipFile : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
-        readonly IFileService _fileService;
         readonly IFolderService _folderService;
         readonly IStreamService _streamService;
 
@@ -28,17 +28,14 @@ namespace magic.lambda.io.file
         /// Constructs a new instance of your type.
         /// </summary>
         /// <param name="rootResolver">Instance used to resolve the root folder of your app.</param>
-        /// <param name="fileService">Needed to be able to write ZIP file's content.</param>
         /// <param name="folderService">Needed to be able to create folders in file system.</param>
         /// <param name="streamService">Needed to be able to save unzipped files.</param>
         public UnzipFile(
             IRootResolver rootResolver,
-            IFileService fileService,
             IFolderService folderService,
             IStreamService streamService)
         {
             _rootResolver = rootResolver;
-            _fileService = fileService;
             _folderService = folderService;
             _streamService = streamService;
         }
@@ -97,11 +94,7 @@ namespace magic.lambda.io.file
                     foreach (var idxEntry in archive.Entries)
                     {
                         // Verifying this is a file.
-                        if (idxEntry.FullName.Split('/').Last().IndexOf(".") == -1)
-                        {
-                            continue;
-                        }
-                        else
+                        if (idxEntry.FullName.Split('/').Last().IndexOf(".") != -1)
                         {
                             // This is a file, opening it up and saving it.
                             using (var srcStream = idxEntry.Open())
@@ -130,11 +123,7 @@ namespace magic.lambda.io.file
                     foreach (var idxEntry in archive.Entries)
                     {
                         // Verifying this is a file.
-                        if (idxEntry.FullName.Split('/').Last().IndexOf(".") == -1)
-                        {
-                            continue;
-                        }
-                        else
+                        if (idxEntry.FullName.Split('/').Last().IndexOf(".") != -1)
                         {
                             // This is a file, opening it up and saving it.
                             using (var srcStream = idxEntry.Open())
@@ -155,15 +144,15 @@ namespace magic.lambda.io.file
         {
             // Making sure we create currently iterated destination folder unless it already exists.
             var entities = filename.Split('/');
-            var currentFolder = _rootResolver.AbsolutePath(destinationFolder);
+            var currentFolder = new StringBuilder(_rootResolver.AbsolutePath(destinationFolder));
             foreach (var idx in entities.Take(entities.Length - 1))
             {
                 if (idx == "__MACOSX" || idx == ".DS_Store")
                     return; // Ignoring garbage OS X files
 
-                currentFolder += idx + "/";
-                if (!_folderService.Exists(currentFolder))
-                    _folderService.Create(currentFolder);
+                currentFolder.Append(idx).Append("/");
+                if (!_folderService.Exists(currentFolder.ToString()))
+                    _folderService.Create(currentFolder.ToString());
             }
 
             // Figuring out full filename of current entry and saving it.
@@ -178,15 +167,15 @@ namespace magic.lambda.io.file
         {
             // Making sure we create currently iterated destination folder unless it already exists.
             var entities = filename.Split('/');
-            var currentFolder = _rootResolver.AbsolutePath(destinationFolder);
+            var currentFolder = new StringBuilder(_rootResolver.AbsolutePath(destinationFolder));
             foreach (var idx in entities.Take(entities.Length - 1))
             {
                 if (idx == "__MACOSX" || idx == ".DS_Store")
                     return; // Ignoring garbage OS X files
 
-                currentFolder += idx + "/";
-                if (!await _folderService.ExistsAsync(currentFolder))
-                    await _folderService.CreateAsync(currentFolder);
+                currentFolder.Append(idx).Append("/");
+                if (!await _folderService.ExistsAsync(currentFolder.ToString()))
+                    await _folderService.CreateAsync(currentFolder.ToString());
             }
 
             // Figuring out full filename of current entry and saving it.

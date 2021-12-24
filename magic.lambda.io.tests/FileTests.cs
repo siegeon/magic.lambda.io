@@ -1522,7 +1522,7 @@ io.content.zip-stream
 
             var mem = zipNode.Get<MemoryStream>();
             using var archive = new ZipArchive(mem);
-            Assert.Equal(3, archive.Entries.Count());
+            Assert.Equal(3, archive.Entries.Count);
             var entry = archive.Entries.First();
             using (var reader = new StreamReader(entry.Open()))
             {
