@@ -66,8 +66,8 @@ namespace magic.lambda.io.helpers
             // Retrieving source and destination path.
             var paths = GetCopyMovePathsPaths(input, rootResolver, isFolder);
 
-            // Checking if IO object exists, at which point we delete it.
-            if (await service.ExistsAsync(paths.Destination))
+            // Checking if file, and file exists, at which point we delete it before copying.
+            if (!isFolder && await service.ExistsAsync(paths.Destination))
                 await service.DeleteAsync(paths.Destination);
 
 
