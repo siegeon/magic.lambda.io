@@ -17,6 +17,7 @@ namespace magic.lambda.io.file
     /// [io.file.list] slot for listing files on server.
     /// </summary>
     [Slot(Name = "io.file.list")]
+    [Slot(Name = "io.file.list-recursively")]
     public class ListFiles : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
@@ -43,8 +44,13 @@ namespace magic.lambda.io.file
             // Retrieving arguments to slot.
             var args = GetArgs(input);
 
+            // Retrieving files.
+            var files = input.Name == "io.file.list" ?
+                _service.ListFiles(_rootResolver.AbsolutePath(args.Folder)) : 
+                _service.ListFilesRecursively(_rootResolver.AbsolutePath(args.Folder));
+
             // Returning files as lambda to caller.
-            foreach (var idx in _service.ListFiles(_rootResolver.AbsolutePath(args.Folder)))
+            foreach (var idx in files)
             {
                 // Adds currently iterated file to result.
                 AddFile(input, idx, args.ShowHidden);
@@ -61,8 +67,13 @@ namespace magic.lambda.io.file
             // Retrieving arguments to slot.
             var args = GetArgs(input);
 
+            // Retrieving files.
+            var files = input.Name == "io.file.list" ?
+                await _service.ListFilesAsync(_rootResolver.AbsolutePath(args.Folder)) : 
+                await _service.ListFilesRecursivelyAsync(_rootResolver.AbsolutePath(args.Folder));
+
             // Returning files as lambda to caller.
-            foreach (var idx in await _service.ListFilesAsync(_rootResolver.AbsolutePath(args.Folder)))
+            foreach (var idx in files)
             {
                 // Adds currently iterated file to result.
                 AddFile(input, idx, args.ShowHidden);

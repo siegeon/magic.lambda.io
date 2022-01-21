@@ -16,6 +16,7 @@ namespace magic.lambda.io.folder
     /// [io.folder.list] slot for listing folders on server.
     /// </summary>
     [Slot(Name = "io.folder.list")]
+    [Slot(Name = "io.folder.list-recursively")]
     public class ListFolders : ISlot, ISlotAsync
     {
         readonly IRootResolver _rootResolver;
@@ -42,10 +43,15 @@ namespace magic.lambda.io.folder
             // Retrieving arguments to slot.
             var args = GetArgs(input);
 
-            // Returning files as lambda to caller.
-            foreach (var idx in _service.ListFolders(_rootResolver.AbsolutePath(args.Folder)))
+            // Retrieving folders.
+            var folders = input.Name == "io.folder.list" ?
+                _service.ListFolders(_rootResolver.AbsolutePath(args.Folder)) :
+                _service.ListFoldersRecursively(_rootResolver.AbsolutePath(args.Folder));
+
+            // Returning folders as lambda to caller.
+            foreach (var idx in folders)
             {
-                // Adds currently iterated file to result.
+                // Adds currently iterated folder to result.
                 AddFolder(input, idx, args.ShowHidden);
             }
         }
@@ -60,10 +66,15 @@ namespace magic.lambda.io.folder
             // Retrieving arguments to slot.
             var args = GetArgs(input);
 
-            // Returning files as lambda to caller.
-            foreach (var idx in await _service.ListFoldersAsync(_rootResolver.AbsolutePath(args.Folder)))
+            // Retrieving folders.
+            var folders = input.Name == "io.folder.list" ?
+                await _service.ListFoldersAsync(_rootResolver.AbsolutePath(args.Folder)) :
+                await _service.ListFoldersRecursivelyAsync(_rootResolver.AbsolutePath(args.Folder));
+
+            // Returning folders as lambda to caller.
+            foreach (var idx in folders)
             {
-                // Adds currently iterated file to result.
+                // Adds currently iterated folder to result.
                 AddFolder(input, idx, args.ShowHidden);
             }
         }
