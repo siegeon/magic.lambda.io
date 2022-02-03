@@ -22,6 +22,14 @@ namespace magic.lambda.io.tests.helpers
 
         public Func<string, List<string>> ListFilesAction { get; set; }
 
+        public Func<string, string, List<string>> ListFilesRecursivelyAsyncAction { get; set; }
+
+        public Func<string, string, List<string>> ListFilesRecursivelyAction { get; set; }
+
+        public Func<string, string, IEnumerable<(string Filename, byte[] Content)>> LoadRecursivelyAsyncAction { get; set; }
+
+        public Func<string, string, IEnumerable<(string Filename, byte[] Content)>> LoadRecursivelyAction { get; set; }
+
         public Func<string, string> LoadAction { get; set; }
 
         public Func<string, Task<string>> LoadAsyncAction { get; set; }
@@ -126,6 +134,26 @@ namespace magic.lambda.io.tests.helpers
         public Task<List<string>> ListFilesAsync(string folder, string extension = null)
         {
             return Task.FromResult(ListFilesAction(folder));
+        }
+
+        public IEnumerable<(string Filename, byte[] Content)> LoadRecursively(string folder, string extension)
+        {
+            return LoadRecursivelyAction(folder, extension);
+        }
+
+        public Task<IEnumerable<(string Filename, byte[] Content)>> LoadRecursivelyAsync(string folder, string extension)
+        {
+            return Task.FromResult(LoadRecursivelyAsyncAction(folder, extension));
+        }
+
+        public List<string> ListFilesRecursively(string folder, string extension = null)
+        {
+            return ListFilesRecursivelyAction(folder, extension);
+        }
+
+        public Task<List<string>> ListFilesRecursivelyAsync(string folder, string extension = null)
+        {
+            return Task.FromResult(ListFilesRecursivelyAsyncAction(folder, extension));
         }
     }
 }

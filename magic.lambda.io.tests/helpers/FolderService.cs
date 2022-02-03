@@ -23,6 +23,10 @@ namespace magic.lambda.io.tests.helpers
 
         public Action<string, string> CopyAction { get; set; }
 
+        public Func<string, List<string>> ListFoldersRecursivelyAction { get; set; }
+
+        public Func<string, List<string>> ListFoldersRecursivelyAsyncAction { get; set; }
+
         public void Create(string path)
         {
             CreateAction(path);
@@ -85,6 +89,16 @@ namespace magic.lambda.io.tests.helpers
         public Task<List<string>> ListFoldersAsync(string folder)
         {
             return Task.FromResult(ListFolders(folder));
+        }
+
+        public List<string> ListFoldersRecursively(string folder)
+        {
+            return ListFoldersRecursivelyAction(folder);
+        }
+
+        public Task<List<string>> ListFoldersRecursivelyAsync(string folder)
+        {
+            return Task.FromResult(ListFoldersRecursivelyAsyncAction(folder));
         }
     }
 }

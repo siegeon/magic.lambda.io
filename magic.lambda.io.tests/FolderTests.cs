@@ -268,7 +268,7 @@ io.folder.move:/source/
    .:/destination/
 ", null, folderService);
             Assert.True(moveInvoked);
-            Assert.True(existsInvoked);
+            Assert.False(existsInvoked);
         }
 
         [Fact]
